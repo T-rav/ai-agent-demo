@@ -47,7 +47,6 @@ def sample_text_content():
 def sample_document(sample_markdown_content, mock_token_encoder):
     """Provide a sample processed document for testing."""
     return ProcessedDocument(
-        file_path="/test / sample.md",
         file_name="sample.md",
         file_type=FileType.MARKDOWN,
         title="Introduction to AI",

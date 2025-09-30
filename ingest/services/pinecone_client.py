@@ -121,8 +121,8 @@ class PineconeVectorStore:
         # Prepare vectors for upsert
         vectors = []
         for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
-            # Filter out None values and file_path from metadata for Pinecone compatibility
-            metadata = {k: v for k, v in chunk.metadata.model_dump().items() if v is not None and k != "file_path"}
+            # Filter out None values from metadata for Pinecone compatibility
+            metadata = {k: v for k, v in chunk.metadata.model_dump().items() if v is not None}
 
             # Clean content preview (normalize whitespace like we do for embeddings)
             clean_preview = chunk.content.replace("\n", " ").replace("\r", " ")

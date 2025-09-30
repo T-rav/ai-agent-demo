@@ -253,7 +253,6 @@ class DocumentChunkingService:
             chunk_id = f"{document.file_name}_{clean_header}_{chunk_index}"
 
         metadata = ChunkMetadata(
-            file_path=document.file_path,
             file_name=document.file_name,
             file_type=document.file_type,
             document_title=document.title,

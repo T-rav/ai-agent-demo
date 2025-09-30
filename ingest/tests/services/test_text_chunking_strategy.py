@@ -52,7 +52,6 @@ Applications of NLP include:
         )
 
         document = ProcessedDocument(
-            file_path="/test / sample.txt",
             file_name="sample.txt",
             file_type=FileType.TEXT,
             title="NLP Guide",

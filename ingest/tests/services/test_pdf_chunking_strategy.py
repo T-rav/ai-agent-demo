@@ -52,7 +52,6 @@ that can learn and improve from experience."""
         )
 
         document = ProcessedDocument(
-            file_path="/test/sample.pdf",
             file_name="sample.pdf",
             file_type=FileType.PDF,
             title="AI Guide",

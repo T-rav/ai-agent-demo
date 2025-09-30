@@ -12,7 +12,6 @@ class TestAssertions:
     def assert_processed_document_valid(document, expected_title: str = None):
         """Assert that a ProcessedDocument is valid."""
         assert document is not None
-        assert hasattr(document, "file_path")
         assert hasattr(document, "file_type")
         assert hasattr(document, "title")
         assert hasattr(document, "content")

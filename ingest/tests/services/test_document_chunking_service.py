@@ -24,7 +24,6 @@ class TestDocumentChunkingService:
     def test_chunk_markdown_document(self, chunking_service, sample_markdown_content):
         """Test chunking a Markdown document."""
         document = ProcessedDocument(
-            file_path="/test / sample.md",
             file_name="sample.md",
             file_type=".md",
             title="Introduction to AI",
@@ -46,7 +45,6 @@ class TestDocumentChunkingService:
     def test_chunk_pdf_document(self, chunking_service, sample_pdf_content):
         """Test chunking a PDF document."""
         document = ProcessedDocument(
-            file_path="/test/sample.pdf",
             file_name="sample.pdf",
             file_type=FileType.PDF,
             title="AI Guide",
@@ -68,7 +66,6 @@ class TestDocumentChunkingService:
     def test_chunk_text_document(self, chunking_service, sample_text_content):
         """Test chunking a text document."""
         document = ProcessedDocument(
-            file_path="/test / sample.txt",
             file_name="sample.txt",
             file_type=".txt",
             title="NLP Overview",
@@ -88,7 +85,6 @@ class TestDocumentChunkingService:
         # This should raise a validation error due to empty content
         with pytest.raises(ValueError):
             ProcessedDocument(
-                file_path="/test / empty.txt",
                 file_name="empty.txt",
                 file_type=FileType.TEXT,
                 title="Empty",
@@ -134,7 +130,6 @@ class TestChunkingStrategies:
         chunking_service = DocumentChunkingService(token_encoder=mock_token_encoder)
 
         document = ProcessedDocument(
-            file_path="/test / sample.md",
             file_name="sample.md",
             file_type=".md",
             title="Introduction to AI",
@@ -153,7 +148,6 @@ class TestChunkingStrategies:
         chunking_service = DocumentChunkingService(token_encoder=mock_token_encoder)
 
         document = ProcessedDocument(
-            file_path="/test/sample.pdf",
             file_name="sample.pdf",
             file_type=FileType.PDF,
             title="AI Guide",
@@ -172,7 +166,6 @@ class TestChunkingStrategies:
         chunking_service = DocumentChunkingService(token_encoder=mock_token_encoder)
 
         document = ProcessedDocument(
-            file_path="/test / sample.txt",
             file_name="sample.txt",
             file_type=".txt",
             title="NLP Overview",

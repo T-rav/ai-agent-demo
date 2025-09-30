@@ -14,7 +14,6 @@ class ChunkMetadata(BaseModel):
 
     model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True, frozen=True)
 
-    file_path: str = Field(..., description="Full path to the source document")
     file_name: str = Field(..., min_length=1, description="Name of the source file")
     file_type: FileType = Field(..., description="Type of the source document")
     document_title: str = Field(..., min_length=1, description="Title of the source document")

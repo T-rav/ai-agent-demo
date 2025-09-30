@@ -36,7 +36,6 @@ class TestDocumentProcessorService:
                         result = service.process_file(mock_file_path)
 
                         assert isinstance(result, ProcessedDocument)
-                        assert result.file_path == str(mock_file_path)
                         assert result.file_name == "sample.md"
                         assert result.file_type == FileType.MARKDOWN
                         assert result.title == "Test Document"

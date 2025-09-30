@@ -51,7 +51,6 @@ AI has many applications in various fields including:
         chunking_service = DocumentChunkingService(token_encoder=mock_token_encoder)
 
         document = ProcessedDocument(
-            file_path="/test / sample.md",
             file_name="sample.md",
             file_type=FileType.MARKDOWN,
             title="AI Guide",

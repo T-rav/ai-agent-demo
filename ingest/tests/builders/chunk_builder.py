@@ -12,7 +12,6 @@ class DocumentChunkBuilder:
         self._id = "test - chunk - 1"
         self._content = "Sample chunk content"
         self._metadata = ChunkMetadata(
-            file_path="/test / document.md",
             file_name="document.md",
             file_type=FileType.MARKDOWN,
             document_title="Test Document",
