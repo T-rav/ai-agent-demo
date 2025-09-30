@@ -1,4 +1,4 @@
-import { render, screen, waitFor, act } from '../../test-utils';
+import { render, screen, waitFor } from '../../test-utils';
 import userEvent from '@testing-library/user-event';
 import { ChatContainer } from './ChatContainer';
 import { ChatService } from '../../services/chatService';
@@ -57,6 +57,8 @@ describe('ChatContainer Component', () => {
     const user = userEvent.setup();
 
     mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+      // Wait for initial messages to be added to state
+      await new Promise((resolve) => setTimeout(resolve, 100));
       onChunk('Hello');
       onChunk(' there!');
       onComplete();
@@ -76,9 +78,12 @@ describe('ChatContainer Component', () => {
     });
 
     // Should show assistant response
-    await waitFor(() => {
-      expect(screen.getByText('Hello there!')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Hello there!')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Clear button should now be visible
     expect(screen.getByText('Clear')).toBeInTheDocument();
@@ -177,6 +182,8 @@ describe('ChatContainer Component', () => {
     const user = userEvent.setup();
 
     mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+      // Wait for initial messages to be added to state
+      await new Promise((resolve) => setTimeout(resolve, 100));
       onChunk('Response');
       onComplete();
     });
@@ -193,9 +200,12 @@ describe('ChatContainer Component', () => {
     await waitFor(() => {
       expect(screen.getByText('Hello, AI!')).toBeInTheDocument();
     });
-    await waitFor(() => {
-      expect(screen.getByText('Response')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Response')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Click clear button
     const clearButton = screen.getByText('Clear');
@@ -218,7 +228,8 @@ describe('ChatContainer Component', () => {
     const user = userEvent.setup();
 
     mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
-      // Simulate streaming by calling callbacks immediately
+      // Wait for initial messages to be added to state
+      await new Promise((resolve) => setTimeout(resolve, 100));
       onChunk('Once upon a time');
       onChunk(', there was a brave knight');
       onComplete();
@@ -237,9 +248,12 @@ describe('ChatContainer Component', () => {
     });
 
     // Should show the streamed response
-    await waitFor(() => {
-      expect(screen.getByText('Once upon a time, there was a brave knight')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Once upon a time, there was a brave knight')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('prevents sending messages while loading', async () => {

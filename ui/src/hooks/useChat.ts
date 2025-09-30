@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Message, ChatState } from '../types/chat';
+import { ChatState } from '../types/chat';
 import { ChatService } from '../services/chatService';
 
 export const useChat = () => {
@@ -13,115 +13,92 @@ export const useChat = () => {
   const chatService = useRef(ChatService.getInstance());
   const currentStreamingMessageId = useRef<string | null>(null);
 
-  const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
-    const newMessage: Message = {
-      ...message,
-      id: uuidv4(),
-      timestamp: new Date(),
-    };
+  const sendMessage = useCallback(async (content: string) => {
+    const trimmedContent = content.trim();
+    if (!trimmedContent) return;
 
-    setState((prev) => ({
-      ...prev,
-      messages: [...prev.messages, newMessage],
-      error: null,
-    }));
+    // Create IDs upfront
+    const userMessageId = uuidv4();
+    const assistantMessageId = uuidv4();
 
-    return newMessage.id;
-  }, []);
+    // Single atomic state update to add both messages and set loading
+    let shouldProceed = false;
+    setState((prev) => {
+      // Check if already loading
+      if (prev.isLoading) return prev;
 
-  const updateMessage = useCallback((id: string, updates: Partial<Message>) => {
-    setState((prev) => ({
-      ...prev,
-      messages: prev.messages.map((msg) => (msg.id === id ? { ...msg, ...updates } : msg)),
-    }));
-  }, []);
-
-  const sendMessage = useCallback(
-    async (content: string) => {
-      if (!content.trim() || state.isLoading) return;
-
-      // Add user message
-      addMessage({
-        content: content.trim(),
-        sender: 'user',
-      });
-
-      // Add initial assistant message for streaming
-      const assistantMessageId = addMessage({
-        content: '',
-        sender: 'assistant',
-        isStreaming: true,
-      });
-
-      currentStreamingMessageId.current = assistantMessageId;
-
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
-
-      try {
-        await chatService.current.sendMessage(
-          content.trim(),
-          // On chunk received
-          (chunk: string) => {
-            if (currentStreamingMessageId.current) {
-              setState((prev) => ({
-                ...prev,
-                messages: prev.messages.map((msg) =>
-                  msg.id === currentStreamingMessageId.current
-                    ? { ...msg, content: msg.content + chunk }
-                    : msg
-                ),
-              }));
-            }
+      shouldProceed = true;
+      return {
+        ...prev,
+        messages: [
+          ...prev.messages,
+          {
+            id: userMessageId,
+            content: trimmedContent,
+            sender: 'user' as const,
+            timestamp: new Date(),
           },
-          // On complete
-          () => {
-            if (currentStreamingMessageId.current) {
-              updateMessage(currentStreamingMessageId.current, {
-                isStreaming: false,
-              });
-            }
-            currentStreamingMessageId.current = null;
-            setState((prev) => ({ ...prev, isLoading: false }));
+          {
+            id: assistantMessageId,
+            content: '',
+            sender: 'assistant' as const,
+            timestamp: new Date(),
+            isStreaming: true,
           },
-          // On error
-          (error: string) => {
-            setState((prev) => ({
-              ...prev,
-              isLoading: false,
-              error,
-            }));
+        ],
+        isLoading: true,
+        error: null,
+      };
+    });
 
-            // Remove the empty streaming message on error
-            if (currentStreamingMessageId.current) {
-              setState((prev) => ({
-                ...prev,
-                messages: prev.messages.filter(
-                  (msg) => msg.id !== currentStreamingMessageId.current
-                ),
-              }));
-            }
-            currentStreamingMessageId.current = null;
-          }
-        );
-      } catch (error) {
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: error instanceof Error ? error.message : 'Unknown error occurred',
-        }));
+    if (!shouldProceed) return;
 
-        // Remove the empty streaming message on error
-        if (currentStreamingMessageId.current) {
+    currentStreamingMessageId.current = assistantMessageId;
+
+    try {
+      await chatService.current.sendMessage(
+        trimmedContent,
+        // On chunk received
+        (chunk: string) => {
           setState((prev) => ({
             ...prev,
-            messages: prev.messages.filter((msg) => msg.id !== currentStreamingMessageId.current),
+            messages: prev.messages.map((msg) =>
+              msg.id === assistantMessageId ? { ...msg, content: msg.content + chunk } : msg
+            ),
           }));
+        },
+        // On complete
+        () => {
+          setState((prev) => ({
+            ...prev,
+            messages: prev.messages.map((msg) =>
+              msg.id === assistantMessageId ? { ...msg, isStreaming: false } : msg
+            ),
+            isLoading: false,
+          }));
+          currentStreamingMessageId.current = null;
+        },
+        // On error
+        (error: string) => {
+          setState((prev) => ({
+            ...prev,
+            messages: prev.messages.filter((msg) => msg.id !== assistantMessageId),
+            isLoading: false,
+            error,
+          }));
+          currentStreamingMessageId.current = null;
         }
-        currentStreamingMessageId.current = null;
-      }
-    },
-    [state.isLoading, addMessage, updateMessage]
-  );
+      );
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        messages: prev.messages.filter((msg) => msg.id !== assistantMessageId),
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      }));
+      currentStreamingMessageId.current = null;
+    }
+  }, []);
 
   const clearMessages = useCallback(() => {
     setState({

@@ -70,8 +70,12 @@ export class ChatService {
               if (parsed.content) {
                 onChunk(parsed.content);
               }
+            } else {
+              // Not SSE format, treat as plain text
+              onChunk(line);
             }
           } catch (parseError) {
+            // eslint-disable-next-line no-console
             console.warn('Failed to parse streaming chunk:', parseError);
             // Treat as plain text if JSON parsing fails
             onChunk(line);
@@ -79,6 +83,7 @@ export class ChatService {
         }
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Chat service error:', error);
       onError(error instanceof Error ? error.message : 'Unknown error occurred');
     }
@@ -95,6 +100,7 @@ export class ChatService {
 
       return response.data.response || '';
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Sync chat service error:', error);
       throw new Error(
         axios.isAxiosError(error)
