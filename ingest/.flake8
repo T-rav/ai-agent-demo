@@ -1,0 +1,54 @@
+[flake8]
+max-line-length = 120
+max-complexity = 10
+exclude = 
+    __pycache__,
+    venv,
+    build,
+    dist,
+    .git,
+    .pytest_cache,
+    htmlcov,
+    .mypy_cache,
+    *.egg-info
+
+# Error codes to ignore
+ignore = 
+    # E203: whitespace before ':' (conflicts with black)
+    E203,
+    # W503: line break before binary operator (conflicts with black)
+    W503,
+    # E501: line too long (handled by black)
+    E501,
+    # F401: imported but unused (handled by autoflake)
+    F401,
+    # I100: import order (handled by isort)
+    I100,
+    # B007: loop variable not used (often intentional)
+    B007,
+    # F841: local variable assigned but never used (often intentional)
+    F841,
+    # W391: blank line at end of file (handled by black)
+    W391,
+    # E302: expected 2 blank lines (handled by black)
+    E302,
+    # E303: too many blank lines (handled by black)
+    E303,
+    # E305: expected 2 blank lines after class/function (handled by black)
+    E305
+
+# Error codes to enforce
+select = 
+    E,  # pycodestyle errors
+    W,  # pycodestyle warnings
+    F,  # pyflakes
+    C,  # mccabe complexity
+    B,  # flake8-bugbear
+    I,  # flake8-import-order
+
+# Import order settings
+import-order-style = google
+application-import-names = ingest
+
+# Docstring settings
+docstring-convention = google

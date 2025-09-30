@@ -8,31 +8,34 @@ help:
 	@echo "AI Agent Demo - Available Commands:"
 	@echo ""
 	@echo "Development:"
-	@echo "  make start     - Start all services (UI + API when available)"
-	@echo "  make stop      - Stop all running services"
-	@echo "  make ui        - Start only the UI development server"
-	@echo "  make api       - Start only the API server (when implemented)"
+	@echo "  make start        - Start all services (UI + API when available)"
+	@echo "  make stop         - Stop all running services"
+	@echo "  make ui           - Start only the UI development server"
+	@echo "  make api          - Start only the API server (when implemented)"
+	@echo ""
+	@echo "Ingest System:"
+	@echo "  cd ingest && make help   - Show ingest commands (run from ingest/ folder)"
 	@echo ""
 	@echo "Building:"
-	@echo "  make build     - Build all services for production"
-	@echo "  make install   - Install dependencies for all services"
+	@echo "  make build        - Build all services for production"
+	@echo "  make install      - Install dependencies for all services"
 	@echo ""
 	@echo "Testing:"
-	@echo "  make test      - Run all tests"
-	@echo "  make test-ui   - Run UI tests only"
-	@echo "  make test-api  - Run API tests only (when implemented)"
-	@echo "  make check     - Check TypeScript compilation"
+	@echo "  make test         - Run all tests"
+	@echo "  make test-ui      - Run UI tests only"
+	@echo "  make test-api     - Run API tests only (when implemented)"
+	@echo "  make check        - Check TypeScript compilation"
 	@echo ""
 	@echo "Code Quality:"
-	@echo "  make lint      - Run linters on all code"
-	@echo "  make lint-fix  - Run linters and fix issues automatically"
-	@echo "  make format    - Format code with Prettier"
+	@echo "  make lint         - Run linters on all code"
+	@echo "  make lint-fix     - Run linters and fix issues automatically"
+	@echo "  make format       - Format code with Prettier and Black"
 	@echo "  make format-check - Check code formatting"
 	@echo ""
 	@echo "Utilities:"
-	@echo "  make logs      - Show logs from running services"
-	@echo "  make clean     - Clean build artifacts and dependencies"
-	@echo "  make status    - Show status of running services"
+	@echo "  make logs         - Show logs from running services"
+	@echo "  make clean        - Clean build artifacts and dependencies"
+	@echo "  make status       - Show status of running services"
 
 # Start all services
 start:
@@ -98,6 +101,20 @@ test:
 test-ui:
 	@echo "🧪 Running UI tests..."
 	@cd ui && npm test -- --coverage --watchAll=false
+
+# Run ingest tests
+test-ingest:
+	@echo "🧪 Running ingest tests..."
+	@cd ingest && make test
+
+# UI-specific linting and formatting
+lint-ui:
+	@echo "🔍 Running UI linting..."
+	@cd ui && npm run lint
+
+format-check-ui:
+	@echo "🔍 Checking UI formatting..."
+	@cd ui && npm run format:check
 
 # Check TypeScript compilation
 check:
@@ -175,7 +192,29 @@ status:
 		echo "  ❌ Not running"; \
 	fi
 
+# For ingest commands, use: cd ingest && make <command>
+
+
+# Clean all build artifacts
+clean-all:
+	@echo "🧹 Cleaning build artifacts..."
+	@rm -rf ui/build
+	@rm -rf ui/node_modules
+	@rm -rf ui/.npm
+	@echo "Cleaning Docker resources..."
+	@docker-compose -f docker-compose.dev.yml down --volumes --remove-orphans 2>/dev/null || true
+	@docker system prune -f 2>/dev/null || true
+	@echo "✅ Cleanup complete"
+
+# Install all dependencies
+install-all:
+	@echo "📦 Installing dependencies..."
+	@echo "Installing UI dependencies..."
+	@cd ui && npm install
+	@echo "✅ Dependencies installed"
+
 # Development shortcuts
 dev: start
 prod: build
 restart: stop start
+ci: lint test

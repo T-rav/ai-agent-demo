@@ -1,0 +1,205 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-agent-demo-ingest"
+version = "0.1.0"
+description = "AI Agent Demo - Document Ingestion System"
+authors = [
+    {name = "AI Agent Demo Team", email = "team@example.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "tiktoken>=0.5.0",
+    "PyPDF2>=3.0.0",
+    "pinecone>=7.0.0",
+    "openai>=1.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "flake8-docstrings>=1.7.0",
+    "flake8-import-order>=0.18.0",
+    "flake8-bugbear>=23.0.0",
+    "mypy>=1.5.0",
+    "bandit[toml]>=1.7.0",
+    "types-requests>=2.31.0",
+]
+
+[project.scripts]
+ingest-corpus = "ingest.core.ingest:main"
+query-corpus = "ingest.core.query_test:main"
+setup-pinecone = "ingest.core.setup:main"
+
+[project.urls]
+Homepage = "https://github.com/T-rav/ai-agent-demo"
+Repository = "https://github.com/T-rav/ai-agent-demo.git"
+Issues = "https://github.com/T-rav/ai-agent-demo/issues"
+
+# ============================================================================
+# Tool Configuration
+# ============================================================================
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ingest*"]
+exclude = ["tests*"]
+
+# Black code formatting
+[tool.black]
+line-length = 120
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort import sorting
+[tool.isort]
+profile = "black"
+line_length = 120
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+known_first_party = ["ingest"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+# mypy type checking
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = false
+warn_unused_configs = true
+disallow_untyped_defs = false  # Start lenient, tighten over time
+disallow_incomplete_defs = false
+check_untyped_defs = false
+disallow_untyped_decorators = false
+no_implicit_optional = false  # Allow implicit Optional for backwards compatibility
+warn_redundant_casts = false
+warn_unused_ignores = false
+warn_no_return = false
+warn_unreachable = false
+strict_equality = false
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+# bandit security linting
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv", "build", "dist"]
+skips = ["B101"]  # Skip assert_used test
+
+# pytest configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--verbose",
+    "--tb=short",
+    "--cov=ingest",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+    "--cov-fail-under=70",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["ingest"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+    "*/core/setup.py",
+    "*/core/ingest.py",
+    "*/core/query_test.py",
+    "*/core/clean.py",
+    "*/services/pinecone_client.py",
+]
+
+[tool.coverage.report]
+fail_under = 70
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+# ============================================================================
+# AI Agent Demo Configuration
+# ============================================================================
+
+[tool.ai-agent-demo.database]
+index_name = "ai-agent-demo"
+embedding_model = "text-embedding-3-small"
+embedding_dimensions = 1536
+
+[tool.ai-agent-demo.chunking]
+chunk_size = 800
+chunk_overlap = 100
+min_chunk_size = 50
+max_chunk_size = 1500
+
+[tool.ai-agent-demo.processing]
+embedding_batch_size = 50
+upsert_batch_size = 50
+
+[tool.ai-agent-demo.paths]
+corpus_path = "data/corpus"
+
+[tool.ai-agent-demo.logging]
+level = "INFO"
+show_progress = true
