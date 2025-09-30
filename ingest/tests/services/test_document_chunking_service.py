@@ -25,7 +25,7 @@ class TestDocumentChunkingService:
         """Test chunking a Markdown document."""
         document = ProcessedDocument(
             file_name="sample.md",
-            file_type=".md",
+            file_type=FileType.MARKDOWN,
             title="Introduction to AI",
             content=sample_markdown_content,
             token_count=100,
@@ -67,7 +67,7 @@ class TestDocumentChunkingService:
         """Test chunking a text document."""
         document = ProcessedDocument(
             file_name="sample.txt",
-            file_type=".txt",
+            file_type=FileType.TEXT,
             title="NLP Overview",
             content=sample_text_content,
             token_count=100,
@@ -131,7 +131,7 @@ class TestChunkingStrategies:
 
         document = ProcessedDocument(
             file_name="sample.md",
-            file_type=".md",
+            file_type=FileType.MARKDOWN,
             title="Introduction to AI",
             content=sample_markdown_content,
             token_count=100,
@@ -167,7 +167,7 @@ class TestChunkingStrategies:
 
         document = ProcessedDocument(
             file_name="sample.txt",
-            file_type=".txt",
+            file_type=FileType.TEXT,
             title="NLP Overview",
             content=sample_text_content,
             token_count=100,

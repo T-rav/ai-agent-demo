@@ -2,7 +2,7 @@
 Generates test data for various scenarios.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from ..builders import a_document_chunk
 
@@ -53,7 +53,7 @@ class TestDataGenerator:
         return chunks
 
     @staticmethod
-    def generate_config_dict(override_values: Dict[str, Any] = None) -> Dict[str, Any]:
+    def generate_config_dict(override_values: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Generate a configuration dictionary."""
         base_config = {
             "openai_api_key": "test - key",

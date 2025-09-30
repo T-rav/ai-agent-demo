@@ -53,7 +53,6 @@ def sample_document(sample_markdown_content, mock_token_encoder):
         content=sample_markdown_content,
         token_count=mock_token_encoder.count_tokens(sample_markdown_content),
         char_count=len(sample_markdown_content),
-        metadata={},
     )
 
 

@@ -9,7 +9,7 @@ class TestAssertions:
     """Custom assertion helpers for test validation."""
 
     @staticmethod
-    def assert_processed_document_valid(document, expected_title: str = None):
+    def assert_processed_document_valid(document, expected_title: Optional[str] = None):
         """Assert that a ProcessedDocument is valid."""
         assert document is not None
         assert hasattr(document, "file_type")
@@ -25,7 +25,7 @@ class TestAssertions:
         assert document.char_count >= 0
 
     @staticmethod
-    def assert_document_chunk_valid(chunk, expected_content: str = None):
+    def assert_document_chunk_valid(chunk, expected_content: Optional[str] = None):
         """Assert that a DocumentChunk is valid."""
         assert chunk is not None
         assert hasattr(chunk, "id")
@@ -40,7 +40,7 @@ class TestAssertions:
         assert chunk.metadata.chunk_index >= 0
 
     @staticmethod
-    def assert_ingestion_config_valid(config, expected_model: str = None):
+    def assert_ingestion_config_valid(config, expected_model: Optional[str] = None):
         """Assert that an IngestionConfig is valid."""
         assert config is not None
         assert hasattr(config, "openai_api_key")
@@ -58,7 +58,7 @@ class TestAssertions:
         assert config.chunk_overlap >= 0
 
     @staticmethod
-    def assert_chunks_have_proper_metadata(chunks: List, expected_title: str = None):
+    def assert_chunks_have_proper_metadata(chunks: List, expected_title: Optional[str] = None):
         """Assert that chunks have proper metadata."""
         assert len(chunks) > 0
 

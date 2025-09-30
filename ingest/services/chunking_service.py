@@ -172,8 +172,8 @@ class DocumentChunkingService:
         """Chunk text content with semantic awareness."""
         # Split into paragraphs first (better than sentences for most content)
         paragraphs = self._paragraph_splitter.split(content)
-        chunks = []
-        current_chunk = []
+        chunks: List[DocumentChunk] = []
+        current_chunk: List[str] = []
         current_tokens = 0
 
         for paragraph in paragraphs:

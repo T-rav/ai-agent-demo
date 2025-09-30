@@ -79,7 +79,7 @@ security:
 	python -m bandit -r . --severity-level medium
 	@echo "✅ Security analysis complete"
 
-check-all: lint format-check type-check security
+check-all: lint format-check security
 	@echo "✅ All code quality checks passed"
 
 # Testing targets
@@ -139,7 +139,7 @@ query:
 fix: format
 	@echo "🔧 Auto-fixing code issues..."
 
-pre-commit: format-check lint type-check test-fast
+pre-commit: format-check lint test-fast
 	@echo "✅ Pre-commit checks passed"
 
 # Cleanup

@@ -64,7 +64,6 @@ class DocumentProcessorService:
             token_count = self._token_encoder.count_tokens(cleaned_content)
 
             return ProcessedDocument(
-                file_path=str(file_path),
                 file_name=file_path.name,
                 file_type=FileType(file_path.suffix.lower()),
                 title=title,

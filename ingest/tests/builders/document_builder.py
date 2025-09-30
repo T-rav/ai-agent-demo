@@ -86,12 +86,10 @@ class ProcessedDocumentBuilder:
     def build(self) -> ProcessedDocument:
         """Build the ProcessedDocument."""
         return ProcessedDocument(
-            file_path=self._file_path,
             file_name=self._file_name,
             file_type=self._file_type,
             title=self._title,
             content=self._content,
             token_count=self._token_count,
             char_count=self._char_count,
-            metadata=self._metadata,
         )

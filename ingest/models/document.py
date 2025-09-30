@@ -14,20 +14,11 @@ class DocumentMetadata(BaseModel):
 
     model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True, frozen=True)
 
-    file_path: str = Field(..., description="Full path to the document file")
     file_name: str = Field(..., min_length=1, description="Name of the file")
     file_type: FileType = Field(..., description="Type of the document file")
     title: str = Field(..., min_length=1, description="Extracted document title")
     token_count: int = Field(..., ge=0, description="Number of tokens in the document")
     char_count: int = Field(..., ge=0, description="Number of characters in the document")
-
-    @field_validator("file_path")
-    @classmethod
-    def validate_file_path(cls, v: str) -> str:
-        """Validate that file path is not empty."""
-        if not v or not v.strip():
-            raise ValueError("File path cannot be empty")
-        return v
 
 
 class ProcessedDocument(BaseModel):
@@ -35,7 +26,6 @@ class ProcessedDocument(BaseModel):
 
     model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
 
-    file_path: Optional[str] = Field(None, description="Full path to the document file")
     file_name: str = Field(..., min_length=1, description="Name of the file")
     file_type: FileType = Field(..., description="Type of the document file")
     title: str = Field(..., min_length=1, description="Extracted document title")
@@ -54,7 +44,6 @@ class ProcessedDocument(BaseModel):
     def to_metadata(self) -> DocumentMetadata:
         """Convert to DocumentMetadata."""
         return DocumentMetadata(
-            file_path=self.file_path or f"/unknown/{self.file_name}",
             file_name=self.file_name,
             file_type=self.file_type,
             title=self.title,
