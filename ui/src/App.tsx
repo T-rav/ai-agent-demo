@@ -5,7 +5,7 @@ import './App.css';
 function App() {
   return (
     <div className="App">
-      <ChatContainer title="Nexus AI" />
+      <ChatContainer title="AI Chat Assistant" />
     </div>
   );
 }
