@@ -19,10 +19,10 @@ services:
     networks:
       - app-network
 
-  # Python Backend - Development (placeholder)
-  backend-dev:
+  # Python API - Development (placeholder)
+  api-dev:
     build:
-      context: ./backend
+      context: ./api
       dockerfile: Dockerfile.dev
     ports:
       - "8000:8000"
@@ -31,7 +31,7 @@ services:
       - NODE_ENV=development
       - DEBUG=1
     volumes:
-      - ./backend:/app
+      - ./api:/app
     networks:
       - app-network
 

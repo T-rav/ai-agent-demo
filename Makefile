@@ -62,33 +62,25 @@ stop:
 
 # Start UI only
 ui:
-	@echo "🎨 Starting UI development server..."
-	@if lsof -ti:3000 >/dev/null 2>&1; then \
-		echo "⚠️  Port 3000 is already in use. Stopping existing process..."; \
-		kill -9 $$(lsof -ti:3000) 2>/dev/null || true; \
-		sleep 2; \
-	fi
-	@echo "Starting React development server..."
-	@cd ui && npm start
+	@echo "🎨 Starting UI development server with Docker..."
+	@docker-compose -f docker-compose.dev.yml up frontend-dev
 
-# Start API only (placeholder for future implementation)
+# Start API only
 api:
-	@echo "🔧 API server not yet implemented"
-	@echo "This will start the Python FastAPI server when available"
-	# @cd backend && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+	@echo "🔧 Starting API server with Docker..."
+	@docker-compose -f docker-compose.dev.yml up api-dev
 
 # Build for production
 build:
-	@echo "🏗️  Building for production..."
-	@echo "Building UI..."
-	@cd ui && npm run build
+	@echo "🏗️  Building for production with Docker..."
+	@docker-compose -f docker-compose.yml build
 	@echo "✅ Build complete"
 
-# Install dependencies
+# Install dependencies (inside containers)
 install:
-	@echo "📦 Installing dependencies..."
-	@echo "Installing UI dependencies..."
-	@cd ui && npm install
+	@echo "📦 Installing dependencies via Docker..."
+	@echo "Building development containers will install dependencies..."
+	@docker-compose -f docker-compose.dev.yml build
 	@echo "✅ Dependencies installed"
 
 # Run all tests
@@ -99,8 +91,8 @@ test:
 
 # Run UI tests
 test-ui:
-	@echo "🧪 Running UI tests..."
-	@cd ui && npm test -- --coverage --watchAll=false
+	@echo "🧪 Running UI tests in Docker..."
+	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm test -- --coverage --watchAll=false
 
 # Run ingest tests
 test-ingest:
@@ -109,49 +101,49 @@ test-ingest:
 
 # UI-specific linting and formatting
 lint-ui:
-	@echo "🔍 Running UI linting..."
-	@cd ui && npm run lint
+	@echo "🔍 Running UI linting in Docker..."
+	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint
 
 format-check-ui:
-	@echo "🔍 Checking UI formatting..."
-	@cd ui && npm run format:check
+	@echo "🔍 Checking UI formatting in Docker..."
+	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format:check
 
 # Check TypeScript compilation
 check:
-	@echo "🔍 Checking TypeScript compilation..."
-	@cd ui && npx tsc --noEmit
+	@echo "🔍 Checking TypeScript compilation in Docker..."
+	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npx tsc --noEmit
 
 # Run API tests (placeholder)
 test-api:
 	@echo "🔧 API tests not yet implemented"
-	# @cd backend && python -m pytest
+	# @docker-compose -f docker-compose.dev.yml run --rm api-dev pytest
 
 # Lint all code
 lint:
-	@echo "🔍 Running linters..."
+	@echo "🔍 Running linters in Docker..."
 	@echo "Linting UI..."
-	@cd ui && npm run lint
+	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint
 	@echo "✅ Linting complete"
 
 # Lint and fix issues
 lint-fix:
-	@echo "🔧 Running linters with auto-fix..."
+	@echo "🔧 Running linters with auto-fix in Docker..."
 	@echo "Linting UI..."
-	@cd ui && npm run lint:fix
+	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint:fix
 	@echo "✅ Linting and fixes complete"
 
 # Format code
 format:
-	@echo "✨ Formatting code..."
+	@echo "✨ Formatting code in Docker..."
 	@echo "Formatting UI..."
-	@cd ui && npm run format
+	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format
 	@echo "✅ Formatting complete"
 
 # Check code formatting
 format-check:
-	@echo "🔍 Checking code formatting..."
+	@echo "🔍 Checking code formatting in Docker..."
 	@echo "Checking UI formatting..."
-	@cd ui && npm run format:check
+	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format:check
 	@echo "✅ Format check complete"
 
 # Show logs
@@ -203,14 +195,15 @@ clean-all:
 	@rm -rf ui/.npm
 	@echo "Cleaning Docker resources..."
 	@docker-compose -f docker-compose.dev.yml down --volumes --remove-orphans 2>/dev/null || true
+	@docker-compose -f docker-compose.yml down --volumes --remove-orphans 2>/dev/null || true
 	@docker system prune -f 2>/dev/null || true
 	@echo "✅ Cleanup complete"
 
 # Install all dependencies
 install-all:
-	@echo "📦 Installing dependencies..."
-	@echo "Installing UI dependencies..."
-	@cd ui && npm install
+	@echo "📦 Installing dependencies via Docker..."
+	@echo "Building development containers will install dependencies..."
+	@docker-compose -f docker-compose.dev.yml build
 	@echo "✅ Dependencies installed"
 
 # Development shortcuts
