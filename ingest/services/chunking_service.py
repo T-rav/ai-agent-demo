@@ -187,7 +187,11 @@ class DocumentChunkingService:
                         chunk_text = "\n\n".join(current_chunk)
                         chunks.append(
                             self._create_chunk(
-                                document, chunk_text, self._global_chunk_index, section_header=section_header, page_num=page_num
+                                document,
+                                chunk_text,
+                                self._global_chunk_index,
+                                section_header=section_header,
+                                page_num=page_num,
                             )
                         )
                         self._global_chunk_index += 1
@@ -205,7 +209,11 @@ class DocumentChunkingService:
                     chunk_text = "\n\n".join(current_chunk)
                     chunks.append(
                         self._create_chunk(
-                            document, chunk_text, self._global_chunk_index, section_header=section_header, page_num=page_num
+                            document,
+                            chunk_text,
+                            self._global_chunk_index,
+                            section_header=section_header,
+                            page_num=page_num,
                         )
                     )
                     self._global_chunk_index += 1
