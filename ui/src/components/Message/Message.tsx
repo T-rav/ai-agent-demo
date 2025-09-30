@@ -11,6 +11,7 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
     return new Intl.DateTimeFormat('en-US', {
       hour: '2-digit',
       minute: '2-digit',
+      timeZone: 'UTC',
     }).format(timestamp);
   };
 
