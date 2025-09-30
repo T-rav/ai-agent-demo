@@ -160,7 +160,6 @@ omit = [
     "*/core/ingest.py",
     "*/core/query_test.py",
     "*/core/clean.py",
-    "*/services/document_processor.py",
     "*/services/pinecone_client.py",
 ]
 
