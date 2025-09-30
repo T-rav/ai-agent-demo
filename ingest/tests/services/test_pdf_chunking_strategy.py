@@ -2,24 +2,25 @@
 Tests for the PDFChunkingStrategy class.
 """
 
-import pytest
 from unittest.mock import Mock
 
-from ...services.chunking_service import PDFChunkingStrategy
+import pytest
+
+from ...models import FileType, ProcessedDocument
 from ...services import DocumentChunkingService
-from ...models import ProcessedDocument, FileType
+from ...services.chunking_service import PDFChunkingStrategy
 
 
 class TestPDFChunkingStrategy:
     """Test cases for PDFChunkingStrategy."""
-    
+
     @pytest.fixture
     def mock_token_encoder(self):
         """Create a mock token encoder."""
         encoder = Mock()
         encoder.count_tokens.side_effect = lambda text: len(text.split())
         return encoder
-    
+
     @pytest.fixture
     def sample_pdf_content(self):
         """Sample PDF content for testing."""
@@ -38,7 +39,7 @@ MACHINE LEARNING
 
 Machine learning is a subset of AI that focuses on algorithms
 that can learn and improve from experience."""
-    
+
     def test_pdf_chunking_strategy(self, mock_token_encoder, sample_pdf_content):
         """Test PDF chunking strategy."""
         strategy = PDFChunkingStrategy()
@@ -47,22 +48,22 @@ that can learn and improve from experience."""
             chunk_size=50,  # Small chunk size to ensure chunking happens
             chunk_overlap=10,
             min_chunk_size=10,
-            max_chunk_size=100
+            max_chunk_size=100,
         )
-        
+
         document = ProcessedDocument(
-            file_path="/test/sample.pdf",
-            file_name="sample.pdf",
+            file_path="/test / sample.pd",
+            file_name="sample.pd",
             file_type=FileType.PDF,
             title="AI Guide",
             content=sample_pdf_content,
             token_count=100,
-            char_count=len(sample_pdf_content)
+            char_count=len(sample_pdf_content),
         )
-        
+
         chunks = strategy.chunk(document, chunking_service)
         assert len(chunks) > 0
-        
+
         # Check that chunks have proper metadata
         for chunk in chunks:
             assert chunk.metadata.file_type == FileType.PDF

@@ -7,6 +7,7 @@ from enum import Enum
 
 class FileType(str, Enum):
     """Supported file types."""
-    PDF = ".pdf"
+
+    PDF = ".pd"
     MARKDOWN = ".md"
     TEXT = ".txt"

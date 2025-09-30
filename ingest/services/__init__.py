@@ -2,14 +2,14 @@
 Services for the ingestion system.
 """
 
-from .document_processor_service import DocumentProcessorService
 from .chunking_service import DocumentChunkingService
-from .pinecone_client import PineconeVectorStore
 from .document_processor import SmartTextChunker  # Legacy - to be deprecated
+from .document_processor_service import DocumentProcessorService
+from .pinecone_client import PineconeVectorStore
 
 __all__ = [
     "DocumentProcessorService",
-    "DocumentChunkingService", 
+    "DocumentChunkingService",
     "PineconeVectorStore",
     "SmartTextChunker",  # Legacy
 ]

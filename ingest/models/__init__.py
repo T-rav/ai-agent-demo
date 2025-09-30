@@ -3,30 +3,19 @@ Pydantic models for the ingestion system.
 Provides data validation, serialization, and type safety.
 """
 
-from .document import ProcessedDocument, DocumentMetadata
-from .chunk import DocumentChunk, ChunkMetadata
-from .search import SearchResult
+from .chunk import ChunkMetadata, DocumentChunk
 from .config import IngestionConfig
+from .document import DocumentMetadata, ProcessedDocument
 from .enums import FileType
-from .exceptions import (
-    ProcessingError,
-    ChunkingError,
-    VectorStoreError,
-    ConfigurationError
-)
-from .protocols import (
-    TokenEncoder,
-    DocumentProcessor,
-    TextChunker,
-    TitleExtractor,
-    VectorStore
-)
+from .exceptions import ChunkingError, ConfigurationError, ProcessingError, VectorStoreError
+from .protocols import DocumentProcessor, TextChunker, TitleExtractor, TokenEncoder, VectorStore
+from .search import SearchResult
 
 __all__ = [
     # Data Models
     "ProcessedDocument",
     "DocumentMetadata",
-    "DocumentChunk", 
+    "DocumentChunk",
     "ChunkMetadata",
     "SearchResult",
     "IngestionConfig",

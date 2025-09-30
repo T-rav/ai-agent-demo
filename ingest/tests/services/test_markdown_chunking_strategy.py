@@ -2,24 +2,25 @@
 Tests for the MarkdownChunkingStrategy class.
 """
 
-import pytest
 from unittest.mock import Mock
 
-from ...services.chunking_service import MarkdownChunkingStrategy
+import pytest
+
+from ...models import FileType, ProcessedDocument
 from ...services import DocumentChunkingService
-from ...models import ProcessedDocument, FileType
+from ...services.chunking_service import MarkdownChunkingStrategy
 
 
 class TestMarkdownChunkingStrategy:
     """Test cases for MarkdownChunkingStrategy."""
-    
+
     @pytest.fixture
     def mock_token_encoder(self):
         """Create a mock token encoder."""
         encoder = Mock()
         encoder.count_tokens.side_effect = lambda text: len(text.split())
         return encoder
-    
+
     @pytest.fixture
     def sample_markdown_content(self):
         """Sample Markdown content for testing."""
@@ -43,25 +44,25 @@ AI has many applications in various fields including:
 - Finance
 - Transportation
 - Entertainment"""
-    
+
     def test_markdown_chunking_strategy(self, mock_token_encoder, sample_markdown_content):
         """Test Markdown chunking strategy."""
         strategy = MarkdownChunkingStrategy()
         chunking_service = DocumentChunkingService(token_encoder=mock_token_encoder)
-        
+
         document = ProcessedDocument(
-            file_path="/test/sample.md",
+            file_path="/test / sample.md",
             file_name="sample.md",
             file_type=FileType.MARKDOWN,
             title="AI Guide",
             content=sample_markdown_content,
             token_count=100,
-            char_count=len(sample_markdown_content)
+            char_count=len(sample_markdown_content),
         )
-        
+
         chunks = strategy.chunk(document, chunking_service)
         assert len(chunks) > 0
-        
+
         # Check that chunks have proper metadata
         for chunk in chunks:
             assert chunk.metadata.file_type == FileType.MARKDOWN

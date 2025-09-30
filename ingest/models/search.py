@@ -1,22 +1,22 @@
 """
-Search-related Pydantic models.
+Search - related Pydantic models.
 """
 
-from typing import Dict, Any
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from typing import Any, Dict
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class SearchResult(BaseModel):
     """A search result from vector database."""
-    model_config = ConfigDict(
-        validate_assignment=True
-    )
-    
+
+    model_config = ConfigDict(validate_assignment=True)
+
     id: str = Field(..., min_length=1, description="Chunk identifier")
     score: float = Field(..., ge=0.0, le=1.0, description="Similarity score")
     metadata: Dict[str, Any] = Field(..., description="Chunk metadata")
-    
-    @field_validator('score')
+
+    @field_validator("score")
     @classmethod
     def validate_score(cls, v: float) -> float:
         """Validate similarity score is reasonable."""

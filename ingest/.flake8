@@ -1,0 +1,38 @@
+[flake8]
+max-line-length = 120
+max-complexity = 10
+exclude = 
+    __pycache__,
+    venv,
+    build,
+    dist,
+    .git,
+    .pytest_cache,
+    htmlcov,
+    .mypy_cache,
+    *.egg-info
+
+# Error codes to ignore
+ignore = 
+    # E203: whitespace before ':' (conflicts with black)
+    E203,
+    # W503: line break before binary operator (conflicts with black)
+    W503,
+    # E501: line too long (handled by black)
+    E501
+
+# Error codes to enforce
+select = 
+    E,  # pycodestyle errors
+    W,  # pycodestyle warnings
+    F,  # pyflakes
+    C,  # mccabe complexity
+    B,  # flake8-bugbear
+    I,  # flake8-import-order
+
+# Import order settings
+import-order-style = google
+application-import-names = ingest
+
+# Docstring settings
+docstring-convention = google

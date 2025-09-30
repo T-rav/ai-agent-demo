@@ -3,21 +3,24 @@ Pytest configuration and fixtures for the ingestion system tests.
 Enhanced with factories, builders, and shared test utilities.
 """
 
-import pytest
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 from unittest.mock import Mock
 
-from ..models import ProcessedDocument, DocumentChunk, ChunkMetadata, FileType
-from ..utils import TiktokenEncoder, DocumentTitleExtractor, DocumentContentExtractor, TextCleaner
-from .factories import ContentFactory, TokenFactory, MockTokenEncoder, ConfigFactory, TestDataSamples
+import pytest
+
+from ..models import ChunkMetadata, DocumentChunk, FileType, ProcessedDocument
+from ..utils import DocumentContentExtractor, DocumentTitleExtractor, TextCleaner, TiktokenEncoder
 from .builders import (
-    a_processed_document, a_document_chunk, an_ingestion_config,
-    a_markdown_document, a_pdf_document, a_text_document
+    a_document_chunk,
+    a_markdown_document,
+    a_pdf_document,
+    a_processed_document,
+    a_text_document,
+    an_ingestion_config,
 )
+from .factories import ConfigFactory, ContentFactory, MockTokenEncoder, TestDataSamples, TokenFactory
 from .utils import MockContextManager, TestDataGenerator, TestScenarios
-
-
 
 
 @pytest.fixture
@@ -48,30 +51,33 @@ def sample_text_content():
 def sample_document(sample_markdown_content, mock_token_encoder):
     """Provide a sample processed document for testing."""
     return ProcessedDocument(
-        file_path="/test/sample.md",
+        file_path="/test / sample.md",
         file_name="sample.md",
         file_type=FileType.MARKDOWN,
         title="Introduction to AI",
         content=sample_markdown_content,
         token_count=mock_token_encoder.count_tokens(sample_markdown_content),
         char_count=len(sample_markdown_content),
-        metadata={}
+        metadata={},
     )
 
 
 @pytest.fixture
 def temp_test_file(tmp_path):
     """Create a temporary test file."""
+
     def _create_file(content: str, filename: str = "test.md") -> Path:
         file_path = tmp_path / filename
         file_path.write_text(content)
         return file_path
+
     return _create_file
 
 
 # ============================================================================
-# New Factory-Based Fixtures
+# New Factory - Based Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def mock_text_cleaner():
@@ -88,6 +94,7 @@ def mock_config():
 # ============================================================================
 # Document Builder Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def markdown_document():
@@ -110,22 +117,19 @@ def text_document():
 @pytest.fixture
 def large_document():
     """Large document for chunking tests."""
-    return (a_processed_document()
-            .with_long_content()
-            .build())
+    return a_processed_document().with_long_content().build()
 
 
 @pytest.fixture
 def empty_document():
     """Empty document for edge case tests."""
-    return (a_processed_document()
-            .with_empty_content()
-            .build())
+    return a_processed_document().with_empty_content().build()
 
 
 # ============================================================================
 # Configuration Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def default_config():
@@ -136,22 +140,19 @@ def default_config():
 @pytest.fixture
 def production_config():
     """Production ingestion configuration."""
-    return (an_ingestion_config()
-            .for_production()
-            .build())
+    return an_ingestion_config().for_production().build()
 
 
 @pytest.fixture
 def development_config():
     """Development ingestion configuration."""
-    return (an_ingestion_config()
-            .for_development()
-            .build())
+    return an_ingestion_config().for_development().build()
 
 
 # ============================================================================
 # Test Data Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def basic_env_vars():
@@ -187,6 +188,7 @@ def sample_env_content():
 # Scenario Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def markdown_processing_scenario():
     """Complete markdown processing test scenario."""
@@ -209,6 +211,7 @@ def text_chunking_scenario():
 # Mock Context Manager Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def mock_file_ops():
     """Mock file operations context manager."""
@@ -230,6 +233,7 @@ def mock_env_vars():
 # ============================================================================
 # Utility Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def test_data_generator():
