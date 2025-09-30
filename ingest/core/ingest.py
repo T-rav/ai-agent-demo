@@ -55,9 +55,9 @@ class CorpusIngester:
                 if file_path.suffix.lower() in supported_extensions:
                     documents.append(file_path)
 
-        print("Discovered {len(documents)} documents:")
+        print(f"Discovered {len(documents)} documents:")
         for doc in sorted(documents):
-            print("  - {doc.relative_to(corpus_path)}")
+            print(f"  - {doc.relative_to(corpus_path)}")
 
         return documents
 
@@ -73,18 +73,18 @@ class CorpusIngester:
         """
         documents = []
 
-        print("\nProcessing {len(document_paths)} documents...")
+        print(f"\nProcessing {len(document_paths)} documents...")
 
         for doc_path in document_paths:
-            print("Processing: {doc_path.name}")
+            print(f"Processing: {doc_path.name}")
 
             document = self.doc_processor.process_file(doc_path)
             if document:
                 documents.append(document)
             else:
-                print("  ⚠️  Failed to process {doc_path.name}")
+                print(f"  ⚠️  Failed to process {doc_path.name}")
 
-        print("Successfully processed {len(documents)} documents")
+        print(f"Successfully processed {len(documents)} documents")
         return documents
 
     def chunk_documents(self, documents: List[ProcessedDocument]) -> List[DocumentChunk]:
@@ -99,17 +99,17 @@ class CorpusIngester:
         """
         all_chunks = []
 
-        print("\nChunking {len(documents)} documents...")
+        print(f"\nChunking {len(documents)} documents...")
 
         for document in documents:
-            print("Chunking: {document['file_name']}")
+            print(f"Chunking: {document.file_name}")
 
             chunks = self.chunker.chunk_document(document)
             all_chunks.extend(chunks)
 
-            print("  Created {len(chunks)} chunks")
+            print(f"  Created {len(chunks)} chunks")
 
-        print("Total chunks created: {len(all_chunks)}")
+        print(f"Total chunks created: {len(all_chunks)}")
         return all_chunks
 
     def ingest_to_pinecone(self, chunks: List[DocumentChunk]) -> None:
@@ -119,7 +119,7 @@ class CorpusIngester:
         Args:
             chunks: List of document chunks to ingest
         """
-        print("\nIngesting {len(chunks)} chunks to Pinecone...")
+        print(f"\nIngesting {len(chunks)} chunks to Pinecone...")
 
         # Create index if it doesn't exist
         self.vector_store.create_index_if_not_exists()
@@ -128,25 +128,19 @@ class CorpusIngester:
         self.vector_store.upsert_chunks(chunks, batch_size=self.config.upsert_batch_size)
 
         # Print final stats
-        self.vector_store.get_index_stats()
+        stats = self.vector_store.get_index_stats()
         print("\nIngestion complete!")
-        print("Index stats: {stats}")
+        print(f"Index stats: {stats}")
 
-    def run_ingestion(self, corpus_path: Path, clean_index: bool = False) -> None:
+    def run_ingestion(self, corpus_path: Path) -> None:
         """
         Run the complete ingestion pipeline.
 
         Args:
             corpus_path: Path to the corpus directory
-            clean_index: Whether to clean the index before ingestion
         """
         print("🚀 Starting AI Pocket Projects Corpus Ingestion")
         print("=" * 50)
-
-        if clean_index:
-            print("🧹 Cleaning existing index...")
-            self.vector_store.create_index_if_not_exists()
-            self.vector_store.delete_all_vectors()
 
         # Step 1: Discover documents
         document_paths = self.discover_documents(corpus_path)
@@ -178,16 +172,15 @@ class CorpusIngester:
 def main():
     """Main entry point for the ingestion script."""
     parser = argparse.ArgumentParser(description="Ingest AI Pocket Projects corpus into Pinecone")
-    parser.add_argument("--corpus - path", type=str, help="Path to the corpus directory (overrides config)")
-    parser.add_argument("--clean", action="store_true", help="Clean the index before ingestion")
+    parser.add_argument("--corpus-path", type=str, help="Path to the corpus directory (overrides config)")
 
     args = parser.parse_args()
 
     # Load configuration
     try:
         config = load_config()
-    except Exception:
-        print("❌ Configuration error: {e}")
+    except Exception as e:
+        print(f"❌ Configuration error: {e}")
         print("Please ensure pyproject.toml exists and set required environment variables:")
         print("  - OPENAI_API_KEY")
         print("  - PINECONE_API_KEY")
@@ -198,12 +191,12 @@ def main():
     corpus_path_str = args.corpus_path or config.corpus_path
     corpus_path = Path(corpus_path_str).resolve()
     if not corpus_path.exists():
-        print("❌ Corpus directory not found: {corpus_path}")
+        print(f"❌ Corpus directory not found: {corpus_path}")
         sys.exit(1)
 
     # Run ingestion
     ingester = CorpusIngester(config)
-    ingester.run_ingestion(corpus_path, clean_index=args.clean)
+    ingester.run_ingestion(corpus_path)
 
 
 if __name__ == "__main__":

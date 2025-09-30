@@ -1,7 +1,7 @@
 # AI Agent Demo - Makefile
 # Convenient commands for managing the application
 
-.PHONY: help ui api ingest start stop build test clean install logs lint format
+.PHONY: help ui api start stop build test clean install logs lint format
 
 # Default target
 help:
@@ -14,15 +14,7 @@ help:
 	@echo "  make api          - Start only the API server (when implemented)"
 	@echo ""
 	@echo "Ingest System:"
-	@echo "  make ingest-help         - Show ingest-specific commands"
-	@echo "  make ingest-setup        - Setup ingest system and database"
-	@echo "  make ingest-run          - Run document ingestion"
-	@echo "  make ingest-query        - Interactive query tool"
-	@echo "  make ingest-test         - Run ingest tests"
-	@echo "  make ingest-lint         - Run ingest linting"
-	@echo "  make ingest-format-check - Check ingest code formatting"
-	@echo "  make ingest-type-check   - Run ingest type checking"
-	@echo "  make ingest-security     - Run ingest security scanning"
+	@echo "  cd ingest && make help   - Show ingest commands (run from ingest/ folder)"
 	@echo ""
 	@echo "Building:"
 	@echo "  make build        - Build all services for production"
@@ -31,7 +23,6 @@ help:
 	@echo "Testing:"
 	@echo "  make test         - Run all tests"
 	@echo "  make test-ui      - Run UI tests only"
-	@echo "  make test-ingest  - Run ingest tests only"
 	@echo "  make test-api     - Run API tests only (when implemented)"
 	@echo "  make check        - Check TypeScript compilation"
 	@echo ""
@@ -104,7 +95,6 @@ install:
 test:
 	@echo "🧪 Running all tests..."
 	@make test-ui
-	@make test-ingest
 	# @make test-api  # Uncomment when API is implemented
 
 # Run UI tests
@@ -141,8 +131,6 @@ lint:
 	@echo "🔍 Running linters..."
 	@echo "Linting UI..."
 	@cd ui && npm run lint
-	@echo "Linting ingest..."
-	@cd ingest && make lint
 	@echo "✅ Linting complete"
 
 # Lint and fix issues
@@ -150,8 +138,6 @@ lint-fix:
 	@echo "🔧 Running linters with auto-fix..."
 	@echo "Linting UI..."
 	@cd ui && npm run lint:fix
-	@echo "Fixing ingest formatting..."
-	@cd ingest && make fix
 	@echo "✅ Linting and fixes complete"
 
 # Format code
@@ -159,8 +145,6 @@ format:
 	@echo "✨ Formatting code..."
 	@echo "Formatting UI..."
 	@cd ui && npm run format
-	@echo "Formatting ingest..."
-	@cd ingest && make format
 	@echo "✅ Formatting complete"
 
 # Check code formatting
@@ -168,8 +152,6 @@ format-check:
 	@echo "🔍 Checking code formatting..."
 	@echo "Checking UI formatting..."
 	@cd ui && npm run format:check
-	@echo "Checking ingest formatting..."
-	@cd ingest && make format-check
 	@echo "✅ Format check complete"
 
 # Show logs
@@ -210,59 +192,11 @@ status:
 		echo "  ❌ Not running"; \
 	fi
 
-# Ingest-specific commands
-ingest-help:
-	@echo "📥 Ingest System Commands:"
-	@cd ingest && make help
+# For ingest commands, use: cd ingest && make <command>
 
-ingest-setup:
-	@echo "🔧 Setting up ingest system..."
-	@cd ingest && make dev-install && make setup-db
-
-ingest-run:
-	@echo "📥 Running document ingestion..."
-	@cd ingest && make run-ingest
-
-ingest-query:
-	@echo "🔍 Starting interactive query tool..."
-	@cd ingest && make query
-
-ingest-test:
-	@echo "🧪 Running ingest tests..."
-	@cd ingest && make test
-
-ingest-lint:
-	@echo "🔍 Running ingest linting..."
-	@cd ingest && make lint
-
-ingest-format-check:
-	@echo "🔍 Checking ingest code formatting..."
-	@cd ingest && make format-check
-
-ingest-type-check:
-	@echo "🔍 Running ingest type checking..."
-	@cd ingest && make type-check
-
-ingest-security:
-	@echo "🔒 Running ingest security scanning..."
-	@cd ingest && make security
-
-ingest-clean:
-	@echo "🧹 Cleaning ingest artifacts..."
-	@cd ingest && make clean
-
-# Install ingest dependencies
-install-ingest:
-	@echo "📦 Installing ingest dependencies..."
-	@cd ingest && make dev-install
-
-# Clean ingest artifacts
-clean-ingest:
-	@echo "🧹 Cleaning ingest build artifacts..."
-	@cd ingest && make clean
 
 # Clean all build artifacts
-clean-all: clean-ingest
+clean-all:
 	@echo "🧹 Cleaning build artifacts..."
 	@rm -rf ui/build
 	@rm -rf ui/node_modules
@@ -273,12 +207,10 @@ clean-all: clean-ingest
 	@echo "✅ Cleanup complete"
 
 # Install all dependencies
-install-all: install-ingest
+install-all:
 	@echo "📦 Installing dependencies..."
 	@echo "Installing UI dependencies..."
 	@cd ui && npm install
-	@echo "Installing ingest dependencies..."
-	@cd ingest && make dev-install
 	@echo "✅ Dependencies installed"
 
 # Development shortcuts

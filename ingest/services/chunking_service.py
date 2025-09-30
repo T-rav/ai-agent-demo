@@ -232,7 +232,7 @@ class DocumentChunkingService:
         if len(tokens) <= self.chunk_overlap:
             return chunk_text
 
-        overlap_tokens = tokens[-self.chunk_overlap:]
+        overlap_tokens = tokens[-self.chunk_overlap :]
         return self._token_encoder.decode(overlap_tokens)
 
     def _create_chunk(

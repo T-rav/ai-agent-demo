@@ -40,10 +40,10 @@ class Config:
             toml_data = tomllib.load(f)
 
         # Extract our configuration section
-        config_section = toml_data.get("tool", {}).get("ai - agent - demo", {})
+        config_section = toml_data.get("tool", {}).get("ai-agent-demo", {})
 
         if not config_section:
-            raise ValueError("No [tool.ai - agent - demo] section found in pyproject.toml")
+            raise ValueError("No [tool.ai-agent-demo] section found in pyproject.toml")
 
         return config_section
 
@@ -61,9 +61,7 @@ class Config:
         """Get database configuration."""
         db_config = self._config.get("database", {})
 
-        return {
-            "index_name": os.getenv("PINECONE_INDEX_NAME", db_config.get("index_name", "ai - agent - demo - index"))
-        }
+        return {"index_name": os.getenv("PINECONE_INDEX_NAME", db_config.get("index_name", "ai-agent-demo-index"))}
 
     def get_embedding_config(self) -> Dict[str, Any]:
         """Get embedding configuration."""

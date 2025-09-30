@@ -392,7 +392,7 @@ class SmartTextChunker:
         if len(tokens) <= self.chunk_overlap:
             return chunk_text
 
-        overlap_tokens = tokens[-self.chunk_overlap:]
+        overlap_tokens = tokens[-self.chunk_overlap :]
         return self.encoding.decode(overlap_tokens)
 
     def _create_chunk(

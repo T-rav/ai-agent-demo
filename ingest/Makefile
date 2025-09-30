@@ -1,7 +1,7 @@
 # AI Agent Demo - Ingest Makefile
 # Commands for managing the document ingestion system
 
-.PHONY: help install test lint format type-check security clean dev-install run-ingest query setup-db
+.PHONY: help install test lint format type-check security clean dev-install run run-clean run-fresh run-search query
 
 # Default target
 help:
@@ -28,8 +28,10 @@ help:
 	@echo "  make coverage     - Generate coverage report"
 	@echo ""
 	@echo "Operations:"
-	@echo "  make setup-db     - Setup Pinecone database"
-	@echo "  make run-ingest   - Run document ingestion"
+	@echo "  make run          - Run document ingestion (auto-setup)"
+	@echo "  make run-clean    - Clean vector index (remove all vectors)"
+	@echo "  make run-fresh    - Clean index and run fresh ingestion"
+	@echo "  make run-search   - Run single search query (e.g., make run-search \"vector db\")"
 	@echo "  make query        - Run interactive query tool"
 	@echo ""
 	@echo "Development:"
@@ -103,17 +105,35 @@ coverage:
 	@echo "Coverage report generated in htmlcov/"
 
 # Operational targets
-setup-db:
-	@echo "🗄️  Setting up Pinecone database..."
-	python -m ingest.core.setup
+run:
+	@echo "🚀 Running document ingestion (with auto-setup)..."
+	PYTHONPATH=.. python -m ingest.core.ingest
 
-run-ingest:
-	@echo "📥 Running document ingestion..."
-	python -m ingest.core.ingest
+run-clean:
+	@echo "🧹 Cleaning vector index..."
+	PYTHONPATH=.. python -m ingest.core.clean
+
+run-fresh:
+	@echo "🚀 Running fresh ingestion (clean + ingest)..."
+	@make run-clean
+	@make run
+
+run-search:
+	@echo "🔍 Running search query..."
+	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Error: Please provide a search query"; \
+		echo "Usage: make run-search \"your search query\""; \
+		exit 1; \
+	fi
+	PYTHONPATH=.. python -m ingest.core.query_test --query "$(filter-out $@,$(MAKECMDGOALS))"
+
+# Treat additional arguments as dummy targets to avoid "No rule to make target" errors
+%:
+	@:
 
 query:
 	@echo "🔍 Starting interactive query tool..."
-	python -m ingest.core.query_test
+	PYTHONPATH=.. python -m ingest.core.query_test
 
 # Development helpers
 fix: format
