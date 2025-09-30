@@ -8,7 +8,6 @@ import argparse
 import sys
 from typing import Any, Dict, List
 
-from ..models import IngestionConfig, SearchResult
 from ..services import PineconeVectorStore
 from .config_loader import load_config
 
@@ -24,7 +23,7 @@ def print_search_results(results: List[Dict[str, Any]], query: str) -> None:
 
     for i, result in enumerate(results, 1):
         metadata = result["metadata"]
-        score = result["score"]
+        result["score"]
 
         print("\n{i}. 📊 Score: {score:.4f}")
 
@@ -36,8 +35,8 @@ def print_search_results(results: List[Dict[str, Any]], query: str) -> None:
             print("   📁 File: {file_name}")
 
         # Structure information
-        file_type = metadata.get("file_type", "Unknown")
-        chunk_index = metadata.get("chunk_index", "Unknown")
+        metadata.get("file_type", "Unknown")
+        metadata.get("chunk_index", "Unknown")
         print("   📝 Type: {file_type} | Chunk: {chunk_index}")
 
         # Section / page information if available
@@ -50,7 +49,7 @@ def print_search_results(results: List[Dict[str, Any]], query: str) -> None:
             print("   📖 Page: {page_number}")
 
         # Size information
-        token_count = metadata.get("token_count", "Unknown")
+        metadata.get("token_count", "Unknown")
         print("   🔢 Tokens: {token_count}")
 
         # Print content preview
@@ -96,7 +95,7 @@ def interactive_query_mode(vector_store: PineconeVectorStore) -> None:
         except KeyboardInterrupt:
             print("\n\nExiting...")
             break
-        except Exception as e:
+        except Exception:
             print("Error: {str(e)}")
 
 
@@ -127,13 +126,13 @@ def run_sample_queries(vector_store: PineconeVectorStore) -> None:
                 print("✅ Found {len(results)} results (top score: {results[0]['score']:.4f})")
                 # Print just the top result details
                 top_result = results[0]
-                metadata = top_result["metadata"]
+                top_result["metadata"]
                 print(
                     "   Best match: {metadata.get('file_name', 'Unknown')} (chunk {metadata.get('chunk_index', 'Unknown')})"
                 )
             else:
                 print("❌ No results found")
-        except Exception as e:
+        except Exception:
             print("❌ Error: {str(e)}")
 
 
@@ -150,7 +149,7 @@ def main():
     # Load configuration
     try:
         config = load_config()
-    except (FileNotFoundError, ValueError) as e:
+    except (FileNotFoundError, ValueError):
         print("❌ Configuration error: {e}")
         print("Please ensure pyproject.toml exists and set required environment variables:")
         print("  - OPENAI_API_KEY")
@@ -181,7 +180,7 @@ def main():
         print("   Total vectors: {stats['total_vector_count']}")
         print("   Dimensions: {stats['dimension']}")
 
-    except Exception as e:
+    except Exception:
         print("❌ Error connecting to index: {str(e)}")
         sys.exit(1)
 

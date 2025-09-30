@@ -73,9 +73,9 @@ class DocumentProcessorService:
                 char_count=len(cleaned_content),
             )
 
-        except ProcessingError as e:
+        except ProcessingError:
             print("Processing error for {file_path}: {e}")
             return None
-        except Exception as e:
+        except Exception:
             print("Unexpected error processing {file_path}: {e}")
             return None

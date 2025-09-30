@@ -65,10 +65,10 @@ def check_pyproject_toml():
     try:
         from config_loader import Config
 
-        config = Config()
+        Config()
         print("✅ pyproject.toml configuration looks good")
         return True
-    except Exception as e:
+    except Exception:
         print("❌ Error reading pyproject.toml: {e}")
         return False
 
@@ -113,7 +113,7 @@ def test_api_connections():
         # Test with a simple embedding request
         response = client.embeddings.create(model="text - embedding - 3-small", input="test")
         print("✅ OpenAI API connection successful")
-    except Exception as e:
+    except Exception:
         print("❌ OpenAI API test failed: {str(e)}")
         return False
 
@@ -124,9 +124,9 @@ def test_api_connections():
         pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 
         # List indexes to test connection
-        indexes = pc.list_indexes()
+        pc.list_indexes()
         print("✅ Pinecone API connection successful")
-    except Exception as e:
+    except Exception:
         print("❌ Pinecone API test failed: {str(e)}")
         return False
 

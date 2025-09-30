@@ -7,7 +7,7 @@ import re
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from ..models import ChunkingError, ChunkMetadata, DocumentChunk, FileType, ProcessedDocument
+from ..models import ChunkingError, ChunkMetadata, DocumentChunk, ProcessedDocument
 from ..utils import MarkdownSectionSplitter, ParagraphSplitter, SentenceSplitter, TiktokenEncoder
 
 
@@ -17,7 +17,6 @@ class ChunkingStrategy(ABC):
     @abstractmethod
     def chunk(self, document: ProcessedDocument, chunker: "DocumentChunkingService") -> List[DocumentChunk]:
         """Chunk a document using this strategy."""
-        pass
 
 
 class MarkdownChunkingStrategy(ChunkingStrategy):
@@ -232,7 +231,7 @@ class DocumentChunkingService:
         if len(tokens) <= self.chunk_overlap:
             return chunk_text
 
-        overlap_tokens = tokens[-self.chunk_overlap :]
+        overlap_tokens = tokens[-self.chunk_overlap:]
         return self._token_encoder.decode(overlap_tokens)
 
     def _create_chunk(

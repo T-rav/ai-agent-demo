@@ -5,7 +5,7 @@ Implements the Single Responsibility Principle.
 
 import re
 from pathlib import Path
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict
 
 try:
     import PyPDF2
@@ -67,7 +67,7 @@ class DocumentContentExtractor:
                         page_text = page.extract_text()
                         if page_text.strip():
                             content.append("--- Page {page_num + 1} ---\n{page_text}")
-                    except Exception as e:
+                    except Exception:
                         print("Warning: Error extracting page {page_num + 1} from {file_path}: {e}")
         except Exception as e:
             raise ProcessingError("Failed to read PDF file {file_path}: {e}") from e

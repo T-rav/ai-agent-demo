@@ -14,7 +14,6 @@ class TextSplitter(ABC):
     @abstractmethod
     def split(self, text: str) -> List[str]:
         """Split text into segments."""
-        pass
 
 
 class SentenceSplitter(TextSplitter):

@@ -3,7 +3,6 @@ Title extraction service for various document formats.
 Implements the Single Responsibility Principle.
 """
 
-import re
 from pathlib import Path
 from typing import Callable, Dict
 

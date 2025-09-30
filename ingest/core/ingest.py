@@ -8,7 +8,7 @@ import argparse
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import List
 
 from ..models import DocumentChunk, IngestionConfig, ProcessedDocument
 from ..services import DocumentChunkingService, DocumentProcessorService, PineconeVectorStore
@@ -128,7 +128,7 @@ class CorpusIngester:
         self.vector_store.upsert_chunks(chunks, batch_size=self.config.upsert_batch_size)
 
         # Print final stats
-        stats = self.vector_store.get_index_stats()
+        self.vector_store.get_index_stats()
         print("\nIngestion complete!")
         print("Index stats: {stats}")
 
@@ -186,7 +186,7 @@ def main():
     # Load configuration
     try:
         config = load_config()
-    except Exception as e:
+    except Exception:
         print("❌ Configuration error: {e}")
         print("Please ensure pyproject.toml exists and set required environment variables:")
         print("  - OPENAI_API_KEY")

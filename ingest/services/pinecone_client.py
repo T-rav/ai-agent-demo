@@ -3,7 +3,6 @@ Pinecone client and vector database operations.
 Handles index management, embedding generation, and vector upserts.
 """
 
-import os
 import time
 from typing import Any, Dict, List, Optional
 
@@ -81,7 +80,7 @@ class PineconeVectorStore:
         print("Generating embeddings for {len(texts)} texts...")
 
         for i in tqdm(range(0, len(texts), batch_size), desc="Embedding batches"):
-            batch = texts[i : i + batch_size]
+            batch = texts[i: i + batch_size]
 
             try:
                 response = self.openai_client.embeddings.create(model=self.embedding_model, input=batch)
@@ -89,7 +88,7 @@ class PineconeVectorStore:
                 batch_embeddings = [item.embedding for item in response.data]
                 embeddings.extend(batch_embeddings)
 
-            except Exception as e:
+            except Exception:
                 print("Error generating embeddings for batch {i//batch_size + 1}: {str(e)}")
                 # Add empty embeddings for failed batch
                 embeddings.extend([[0.0] * self.embedding_dimensions] * len(batch))
@@ -132,11 +131,11 @@ class PineconeVectorStore:
         print("Upserting {len(vectors)} vectors to Pinecone...")
 
         for i in tqdm(range(0, len(vectors), batch_size), desc="Upsert batches"):
-            batch = vectors[i : i + batch_size]
+            batch = vectors[i: i + batch_size]
 
             try:
                 self.index.upsert(vectors=batch)
-            except Exception as e:
+            except Exception:
                 print("Error upserting batch {i//batch_size + 1}: {str(e)}")
 
         print("Successfully upserted {len(vectors)} vectors!")

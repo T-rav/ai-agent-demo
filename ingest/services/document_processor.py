@@ -4,10 +4,9 @@ Handles various file formats including PDF, Markdown, and text files.
 Enhanced with semantic chunking and document structure awareness.
 """
 
-import os
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 import PyPDF2
 import tiktoken
@@ -43,7 +42,7 @@ class DocumentProcessor:
                 "token_count": len(self.encoding.encode(content)),
                 "char_count": len(content),
             }
-        except Exception as e:
+        except Exception:
             print("Error processing {file_path}: {str(e)}")
             return None
 
@@ -140,7 +139,7 @@ class DocumentProcessor:
                     page_text = page.extract_text()
                     if page_text.strip():
                         content.append("--- Page {page_num + 1} ---\n{page_text}")
-                except Exception as e:
+                except Exception:
                     print("Error extracting page {page_num + 1} from {file_path}: {str(e)}")
 
         return "\n\n".join(content)
@@ -393,7 +392,7 @@ class SmartTextChunker:
         if len(tokens) <= self.chunk_overlap:
             return chunk_text
 
-        overlap_tokens = tokens[-self.chunk_overlap :]
+        overlap_tokens = tokens[-self.chunk_overlap:]
         return self.encoding.decode(overlap_tokens)
 
     def _create_chunk(

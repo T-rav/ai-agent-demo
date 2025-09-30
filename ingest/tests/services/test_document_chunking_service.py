@@ -6,7 +6,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from ...models import DocumentChunk, FileType, ProcessedDocument
+from ...models import FileType, ProcessedDocument
 from ...services import DocumentChunkingService
 from ...services.chunking_service import MarkdownChunkingStrategy, PDFChunkingStrategy, TextChunkingStrategy
 

@@ -4,22 +4,18 @@ Enhanced with factories, builders, and shared test utilities.
 """
 
 from pathlib import Path
-from typing import Any, Dict
-from unittest.mock import Mock
 
 import pytest
 
-from ..models import ChunkMetadata, DocumentChunk, FileType, ProcessedDocument
-from ..utils import DocumentContentExtractor, DocumentTitleExtractor, TextCleaner, TiktokenEncoder
+from ..models import FileType, ProcessedDocument
 from .builders import (
-    a_document_chunk,
     a_markdown_document,
     a_pdf_document,
     a_processed_document,
     a_text_document,
     an_ingestion_config,
 )
-from .factories import ConfigFactory, ContentFactory, MockTokenEncoder, TestDataSamples, TokenFactory
+from .factories import ConfigFactory, ContentFactory, TestDataSamples, TokenFactory
 from .utils import MockContextManager, TestDataGenerator, TestScenarios
 
 
