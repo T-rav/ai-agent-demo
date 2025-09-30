@@ -155,13 +155,17 @@ show_progress = false
                         assert config.chunk_overlap == 150
                         assert config.corpus_path == "test / corpus"
                         assert config.level == "DEBUG"
-                        assert config.show_progress  is False
+                        assert config.show_progress is False
             finally:
                 os.unlink(f.name)
 
     def test_load_config_defaults(self):
         """Test that default values are used when not specified."""
-        env_vars = {"OPENAI_API_KEY": "test - key", "PINECONE_API_KEY": "test - key", "PINECONE_ENVIRONMENT": "test - env"}
+        env_vars = {
+            "OPENAI_API_KEY": "test - key",
+            "PINECONE_API_KEY": "test - key",
+            "PINECONE_ENVIRONMENT": "test - env",
+        }
 
         with patch.dict(os.environ, env_vars):
             with patch("ingest.core.config_loader.Config.__init__") as mock_init:
@@ -197,13 +201,17 @@ show_progress = false
                     assert config.chunk_overlap == 200
                     assert config.corpus_path == "data / corpus"
                     assert config.level == "INFO"
-                    assert config.show_progress  is True
+                    assert config.show_progress is True
 
     def test_load_config_invalid_toml(self):
         """Test handling of invalid TOML file."""
         invalid_toml = "invalid toml content ["
 
-        env_vars = {"OPENAI_API_KEY": "test - key", "PINECONE_API_KEY": "test - key", "PINECONE_ENVIRONMENT": "test - env"}
+        env_vars = {
+            "OPENAI_API_KEY": "test - key",
+            "PINECONE_API_KEY": "test - key",
+            "PINECONE_ENVIRONMENT": "test - env",
+        }
 
         with patch.dict(os.environ, env_vars):
             with patch("pathlib.Path.exists", return_value=True):

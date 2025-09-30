@@ -14,12 +14,15 @@ help:
 	@echo "  make api          - Start only the API server (when implemented)"
 	@echo ""
 	@echo "Ingest System:"
-	@echo "  make ingest-help  - Show ingest-specific commands"
-	@echo "  make ingest-setup - Setup ingest system and database"
-	@echo "  make ingest-run   - Run document ingestion"
-	@echo "  make ingest-query - Interactive query tool"
-	@echo "  make ingest-test  - Run ingest tests"
-	@echo "  make ingest-lint  - Run ingest linting"
+	@echo "  make ingest-help         - Show ingest-specific commands"
+	@echo "  make ingest-setup        - Setup ingest system and database"
+	@echo "  make ingest-run          - Run document ingestion"
+	@echo "  make ingest-query        - Interactive query tool"
+	@echo "  make ingest-test         - Run ingest tests"
+	@echo "  make ingest-lint         - Run ingest linting"
+	@echo "  make ingest-format-check - Check ingest code formatting"
+	@echo "  make ingest-type-check   - Run ingest type checking"
+	@echo "  make ingest-security     - Run ingest security scanning"
 	@echo ""
 	@echo "Building:"
 	@echo "  make build        - Build all services for production"
@@ -113,6 +116,15 @@ test-ui:
 test-ingest:
 	@echo "🧪 Running ingest tests..."
 	@cd ingest && make test
+
+# UI-specific linting and formatting
+lint-ui:
+	@echo "🔍 Running UI linting..."
+	@cd ui && npm run lint
+
+format-check-ui:
+	@echo "🔍 Checking UI formatting..."
+	@cd ui && npm run format:check
 
 # Check TypeScript compilation
 check:
@@ -223,6 +235,18 @@ ingest-lint:
 	@echo "🔍 Running ingest linting..."
 	@cd ingest && make lint
 
+ingest-format-check:
+	@echo "🔍 Checking ingest code formatting..."
+	@cd ingest && make format-check
+
+ingest-type-check:
+	@echo "🔍 Running ingest type checking..."
+	@cd ingest && make type-check
+
+ingest-security:
+	@echo "🔒 Running ingest security scanning..."
+	@cd ingest && make security
+
 ingest-clean:
 	@echo "🧹 Cleaning ingest artifacts..."
 	@cd ingest && make clean
@@ -237,8 +261,8 @@ clean-ingest:
 	@echo "🧹 Cleaning ingest build artifacts..."
 	@cd ingest && make clean
 
-# Update clean target to include ingest
-clean: clean-ingest
+# Clean all build artifacts
+clean-all: clean-ingest
 	@echo "🧹 Cleaning build artifacts..."
 	@rm -rf ui/build
 	@rm -rf ui/node_modules
@@ -248,8 +272,8 @@ clean: clean-ingest
 	@docker system prune -f 2>/dev/null || true
 	@echo "✅ Cleanup complete"
 
-# Update install target to include ingest
-install: install-ingest
+# Install all dependencies
+install-all: install-ingest
 	@echo "📦 Installing dependencies..."
 	@echo "Installing UI dependencies..."
 	@cd ui && npm install

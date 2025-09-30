@@ -62,7 +62,9 @@ class Config:
         """Get database configuration."""
         db_config = self._config.get("database", {})
 
-        return {"index_name": os.getenv("PINECONE_INDEX_NAME", db_config.get("index_name", "ai - agent - demo - index"))}
+        return {
+            "index_name": os.getenv("PINECONE_INDEX_NAME", db_config.get("index_name", "ai - agent - demo - index"))
+        }
 
     def get_embedding_config(self) -> Dict[str, Any]:
         """Get embedding configuration."""

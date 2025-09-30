@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, icon, develop ]
+    branches: [ "*" ]  # Trigger on all branches
   pull_request:
-    branches: [ main, icon, develop ]
+    branches: [ "*" ]  # Trigger on PRs to all branches
 
 jobs:
   # UI Tests
@@ -25,16 +25,16 @@ jobs:
       run: cd ui && npm ci
     
     - name: Run UI linting
-      run: cd ui && npm run lint
+      run: make lint-ui
     
     - name: Check UI formatting
-      run: cd ui && npm run format:check
+      run: make format-check-ui
     
     - name: Check TypeScript compilation
-      run: cd ui && npx tsc --noEmit
+      run: make check
     
     - name: Run UI tests
-      run: cd ui && npm test -- --coverage --watchAll=false
+      run: make test-ui
     
     - name: Upload UI coverage to Codecov
       uses: codecov/codecov-action@v3
@@ -58,47 +58,23 @@ jobs:
         cache-dependency-path: ingest/pyproject.toml
     
     - name: Install ingest dependencies
-      run: |
-        cd ingest
-        python -m pip install --upgrade pip
-        pip install -e .
+      run: make install-ingest
     
-    - name: Run ingest linting (flake8)
-      run: |
-        cd ingest
-        pip install flake8 flake8-docstrings flake8-import-order flake8-bugbear
-        python -m flake8 . --max-line-length=120 --exclude=__pycache__,venv,build,dist,.git,.pytest_cache,htmlcov
+    - name: Run ingest linting and formatting checks
+      run: make ingest-lint
     
-    - name: Run ingest code formatting (black)
-      run: |
-        cd ingest
-        pip install black
-        python -m black --check --diff .
+    - name: Run ingest code formatting check
+      run: make ingest-format-check
     
-    - name: Run ingest import sorting (isort)
-      run: |
-        cd ingest
-        pip install isort
-        python -m isort --check-only --diff .
-    
-    - name: Run ingest type checking (mypy)
-      run: |
-        cd ingest
-        pip install mypy types-requests
-        python -m mypy --ignore-missing-imports --no-strict-optional .
+    - name: Run ingest type checking
+      run: make ingest-type-check
       continue-on-error: true  # Allow mypy to fail for now
     
-    - name: Run ingest security linting (bandit)
-      run: |
-        cd ingest
-        pip install bandit[toml]
-        python -m bandit -r . -f json -o bandit-report.json || true
-        python -m bandit -r . --severity-level medium
+    - name: Run ingest security scanning
+      run: make ingest-security
     
     - name: Run ingest tests
-      run: |
-        cd ingest
-        python -m pytest tests/ -v --tb=short --cov=. --cov-report=xml --cov-report=term-missing
+      run: make ingest-test
     
     - name: Upload ingest coverage to Codecov
       uses: codecov/codecov-action@v3
