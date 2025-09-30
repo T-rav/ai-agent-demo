@@ -5,14 +5,14 @@ Implements the Single Responsibility Principle.
 
 import re
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 
 class TextSplitter(ABC):
     """Abstract base class for text splitting strategies."""
 
     @abstractmethod
-    def split(self, text: str) -> List[str]:
+    def split(self, text: str) -> Union[List[str], List[Dict[str, Any]]]:
         """Split text into segments."""
 
 
