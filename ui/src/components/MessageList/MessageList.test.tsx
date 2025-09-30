@@ -41,8 +41,8 @@ describe('MessageList Component', () => {
   it('shows typing indicator when loading', () => {
     render(<MessageList messages={mockMessages} isLoading={true} />);
 
-    const typingIndicator = screen.getByRole('generic', { hidden: true });
-    expect(typingIndicator.querySelector('.typing-indicator')).toBeInTheDocument();
+    const typingIndicator = screen.getByLabelText('Loading');
+    expect(typingIndicator).toHaveClass('typing-indicator');
   });
 
   it('does not show typing indicator when not loading', () => {
@@ -52,16 +52,18 @@ describe('MessageList Component', () => {
   });
 
   it('applies correct CSS classes for empty state', () => {
-    const { container } = render(<MessageList messages={[]} isLoading={false} />);
+    render(<MessageList messages={[]} isLoading={false} />);
 
-    const messageList = container.querySelector('.message-list');
+    const emptyState = screen.getByText('Start a conversation');
+    const messageList = emptyState.closest('.message-list');
     expect(messageList).toHaveClass('empty');
   });
 
   it('does not apply empty class when messages exist', () => {
-    const { container } = render(<MessageList messages={mockMessages} isLoading={false} />);
+    render(<MessageList messages={mockMessages} isLoading={false} />);
 
-    const messageList = container.querySelector('.message-list');
+    const firstMessage = screen.getByText(/Hello, how are you/);
+    const messageList = firstMessage.closest('.message-list');
     expect(messageList).not.toHaveClass('empty');
   });
 
@@ -93,7 +95,7 @@ describe('MessageList Component', () => {
     expect(screen.getByTestId('message-3')).toBeInTheDocument();
 
     // Typing indicator should also be visible
-    const container = screen.getByTestId('message-1').closest('.message-list');
-    expect(container?.querySelector('.typing-indicator')).toBeInTheDocument();
+    const typingIndicator = screen.getByLabelText('Loading');
+    expect(typingIndicator).toHaveClass('typing-indicator');
   });
 });

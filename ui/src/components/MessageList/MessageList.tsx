@@ -38,7 +38,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, isLoading })
           <Message key={message.id} message={message} />
         ))}
         {isLoading && (
-          <div className="typing-indicator">
+          <div className="typing-indicator" role="status" aria-label="Loading">
             <div className="typing-dots">
               <span></span>
               <span></span>

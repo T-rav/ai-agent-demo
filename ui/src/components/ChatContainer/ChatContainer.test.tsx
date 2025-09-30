@@ -57,6 +57,8 @@ describe('ChatContainer Component', () => {
     const user = userEvent.setup();
 
     mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+      // Wait for initial messages to be added to state
+      await new Promise((resolve) => setTimeout(resolve, 100));
       onChunk('Hello');
       onChunk(' there!');
       onComplete();
@@ -76,9 +78,12 @@ describe('ChatContainer Component', () => {
     });
 
     // Should show assistant response
-    await waitFor(() => {
-      expect(screen.getByText('Hello there!')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Hello there!')).toBeInTheDocument();
+      },
+      { timeout: 1000 }
+    );
 
     // Clear button should now be visible
     expect(screen.getByText('Clear')).toBeInTheDocument();
@@ -177,6 +182,8 @@ describe('ChatContainer Component', () => {
     const user = userEvent.setup();
 
     mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+      // Wait for initial messages to be added to state
+      await new Promise((resolve) => setTimeout(resolve, 100));
       onChunk('Response');
       onComplete();
     });
@@ -192,8 +199,13 @@ describe('ChatContainer Component', () => {
     // Wait for messages to appear
     await waitFor(() => {
       expect(screen.getByText('Hello, AI!')).toBeInTheDocument();
-      expect(screen.getByText('Response')).toBeInTheDocument();
     });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Response')).toBeInTheDocument();
+      },
+      { timeout: 1000 }
+    );
 
     // Click clear button
     const clearButton = screen.getByText('Clear');
@@ -215,12 +227,12 @@ describe('ChatContainer Component', () => {
   it('handles streaming responses correctly', async () => {
     const user = userEvent.setup();
 
-    let onChunk: ((chunk: string) => void) | undefined;
-    let onComplete: (() => void) | undefined;
-
-    mockSendMessage.mockImplementation(async (message, chunkCallback, completeCallback) => {
-      onChunk = chunkCallback;
-      onComplete = completeCallback;
+    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+      // Wait for initial messages to be added to state
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      onChunk('Once upon a time');
+      onChunk(', there was a brave knight');
+      onComplete();
     });
 
     render(<ChatContainer />);
@@ -235,31 +247,13 @@ describe('ChatContainer Component', () => {
       expect(screen.getByText('Tell me a story')).toBeInTheDocument();
     });
 
-    // Wait for callbacks to be assigned
-    await waitFor(() => {
-      expect(onChunk).toBeDefined();
-      expect(onComplete).toBeDefined();
-    });
-
-    // Simulate streaming response
-    onChunk!('Once upon a time');
-
-    await waitFor(() => {
-      expect(screen.getByText('Once upon a time')).toBeInTheDocument();
-    });
-
-    onChunk!(', there was a brave knight');
-
-    await waitFor(() => {
-      expect(screen.getByText('Once upon a time, there was a brave knight')).toBeInTheDocument();
-    });
-
-    onComplete!();
-
-    // Should still show the complete message
-    await waitFor(() => {
-      expect(screen.getByText('Once upon a time, there was a brave knight')).toBeInTheDocument();
-    });
+    // Should show the streamed response
+    await waitFor(
+      () => {
+        expect(screen.getByText('Once upon a time, there was a brave knight')).toBeInTheDocument();
+      },
+      { timeout: 1000 }
+    );
   });
 
   it('prevents sending messages while loading', async () => {

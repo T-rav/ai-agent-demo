@@ -21,6 +21,14 @@ export class ChatService {
     onComplete: () => void,
     onError: (error: string) => void
   ): Promise<void> {
+    // Guard against duplicate onComplete calls
+    let completed = false;
+    const safeOnComplete = () => {
+      if (completed) return;
+      completed = true;
+      onComplete();
+    };
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
         method: 'POST',
@@ -46,7 +54,7 @@ export class ChatService {
         const { done, value } = await reader.read();
 
         if (done) {
-          onComplete();
+          safeOnComplete();
           break;
         }
 
@@ -62,7 +70,7 @@ export class ChatService {
             if (line.startsWith('data: ')) {
               const data = line.slice(6);
               if (data === '[DONE]') {
-                onComplete();
+                safeOnComplete();
                 return;
               }
 
@@ -70,8 +78,12 @@ export class ChatService {
               if (parsed.content) {
                 onChunk(parsed.content);
               }
+            } else {
+              // Not SSE format, treat as plain text
+              onChunk(line);
             }
           } catch (parseError) {
+            // eslint-disable-next-line no-console
             console.warn('Failed to parse streaming chunk:', parseError);
             // Treat as plain text if JSON parsing fails
             onChunk(line);
@@ -79,6 +91,7 @@ export class ChatService {
         }
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Chat service error:', error);
       onError(error instanceof Error ? error.message : 'Unknown error occurred');
     }
@@ -95,6 +108,7 @@ export class ChatService {
 
       return response.data.response || '';
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Sync chat service error:', error);
       throw new Error(
         axios.isAxiosError(error)

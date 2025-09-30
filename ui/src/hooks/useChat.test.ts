@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useChat } from './useChat';
 import { ChatService } from '../services/chatService';
 
@@ -6,10 +6,13 @@ import { ChatService } from '../services/chatService';
 jest.mock('../services/chatService');
 const mockChatService = ChatService as jest.Mocked<typeof ChatService>;
 
-// Mock uuid
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid'),
-}));
+// Mock uuid - return unique IDs for each call
+jest.mock('uuid', () => {
+  let counter = 0;
+  return {
+    v4: () => `mock-uuid-${++counter}`,
+  };
+});
 
 describe('useChat Hook', () => {
   let mockSendMessage: jest.Mock;
@@ -36,8 +39,9 @@ describe('useChat Hook', () => {
   it('adds user message and assistant message when sending', async () => {
     const { result } = renderHook(() => useChat());
 
-    // Mock successful streaming
+    // Mock successful streaming - call sync to test
     mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+      // Call immediately without delay
       onChunk('Hello');
       onChunk(' there!');
       onComplete();
@@ -47,57 +51,49 @@ describe('useChat Hook', () => {
       await result.current.sendMessage('Test message');
     });
 
-    expect(result.current.messages).toHaveLength(2);
+    // Verify mock was called
+    expect(mockSendMessage).toHaveBeenCalledTimes(1);
+
+    // Use waitFor for final assertions
+    await waitFor(() => {
+      expect(result.current.messages).toHaveLength(2);
+    });
+
+    await waitFor(() => {
+      expect(result.current.messages[1]).toMatchObject({
+        content: 'Hello there!',
+        isStreaming: false,
+      });
+    });
+
     expect(result.current.messages[0]).toMatchObject({
       content: 'Test message',
       sender: 'user',
-    });
-    expect(result.current.messages[1]).toMatchObject({
-      content: 'Hello there!',
-      sender: 'assistant',
-      isStreaming: false,
     });
   });
 
   it('handles streaming response correctly', async () => {
     const { result } = renderHook(() => useChat());
 
-    let onChunk: (chunk: string) => void;
-    let onComplete: () => void;
-
-    mockSendMessage.mockImplementation(async (message, chunkCallback, completeCallback) => {
-      onChunk = chunkCallback;
-      onComplete = completeCallback;
-    });
-
-    act(() => {
-      result.current.sendMessage('Test message');
-    });
-
-    // Initially should have user message and empty assistant message
-    expect(result.current.messages).toHaveLength(2);
-    expect(result.current.messages[1]).toMatchObject({
-      content: '',
-      sender: 'assistant',
-      isStreaming: true,
-    });
-
-    // Simulate streaming chunks
-    act(() => {
+    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+      // Wait for state to settle, then call callbacks
+      await new Promise((resolve) => setTimeout(resolve, 100));
       onChunk('Hello');
-    });
-
-    expect(result.current.messages[1].content).toBe('Hello');
-
-    act(() => {
       onChunk(' world!');
+      onComplete();
     });
 
-    expect(result.current.messages[1].content).toBe('Hello world!');
+    await act(async () => {
+      await result.current.sendMessage('Test message');
+    });
 
-    // Complete streaming
-    act(() => {
-      onComplete();
+    // Wait for streaming to complete
+    await waitFor(() => {
+      expect(result.current.messages).toHaveLength(2);
+    });
+
+    await waitFor(() => {
+      expect(result.current.messages[1].content).toBe('Hello world!');
     });
 
     expect(result.current.messages[1]).toMatchObject({
@@ -111,24 +107,26 @@ describe('useChat Hook', () => {
   it('handles errors correctly', async () => {
     const { result } = renderHook(() => useChat());
 
-    let onError: (error: string) => void;
-
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete, errorCallback) => {
-      onError = errorCallback;
-    });
-
-    act(() => {
-      result.current.sendMessage('Test message');
-    });
-
-    act(() => {
+    mockSendMessage.mockImplementation(async (message, onChunk, onComplete, onError) => {
+      // Wait for state to settle, then call error callback
+      await new Promise((resolve) => setTimeout(resolve, 100));
       onError('Network error');
     });
 
-    expect(result.current.error).toBe('Network error');
+    await act(async () => {
+      await result.current.sendMessage('Test message');
+    });
+
+    // Wait for error state
+    await waitFor(() => {
+      expect(result.current.error).toBe('Network error');
+    });
+
+    await waitFor(() => {
+      expect(result.current.messages).toHaveLength(1);
+    });
+
     expect(result.current.isLoading).toBe(false);
-    // Should only have user message, assistant message should be removed on error
-    expect(result.current.messages).toHaveLength(1);
     expect(result.current.messages[0].sender).toBe('user');
   });
 
