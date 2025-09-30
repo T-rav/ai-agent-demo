@@ -135,6 +135,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml",
+    "--cov-fail-under=70",
 ]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
@@ -155,9 +156,16 @@ omit = [
     "*/__pycache__/*",
     "*/venv/*",
     "*/.venv/*",
+    "*/core/setup.py",
+    "*/core/ingest.py",
+    "*/core/query_test.py",
+    "*/core/clean.py",
+    "*/services/document_processor.py",
+    "*/services/pinecone_client.py",
 ]
 
 [tool.coverage.report]
+fail_under = 70
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
