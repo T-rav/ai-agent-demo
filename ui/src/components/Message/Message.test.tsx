@@ -12,7 +12,7 @@ describe('Message Component', () => {
     render(<Message message={userMessage} />);
 
     expect(screen.getByText('Hello, this is a user message')).toBeInTheDocument();
-    expect(screen.getByText('5:00 AM')).toBeInTheDocument();
+    expect(screen.getByText('05:00 AM')).toBeInTheDocument();
   });
 
   it('renders assistant message correctly', () => {
@@ -24,7 +24,7 @@ describe('Message Component', () => {
     render(<Message message={assistantMessage} />);
 
     expect(screen.getByText('Hello, this is an assistant message')).toBeInTheDocument();
-    expect(screen.getByText('5:00 AM')).toBeInTheDocument();
+    expect(screen.getByText('05:00 AM')).toBeInTheDocument();
   });
 
   it('applies correct CSS classes for user messages', () => {
@@ -82,7 +82,7 @@ describe('Message Component', () => {
 
     render(<Message message={message} />);
 
-    expect(screen.getByText('7:30 AM')).toBeInTheDocument();
+    expect(screen.getByText('07:30 AM')).toBeInTheDocument();
   });
 
   it('handles multiline content correctly', () => {

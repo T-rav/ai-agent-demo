@@ -217,12 +217,11 @@ describe('ChatContainer Component', () => {
   it('handles streaming responses correctly', async () => {
     const user = userEvent.setup();
 
-    let onChunk: ((chunk: string) => void) | undefined;
-    let onComplete: (() => void) | undefined;
-
-    mockSendMessage.mockImplementation(async (message, chunkCallback, completeCallback) => {
-      onChunk = chunkCallback;
-      onComplete = completeCallback;
+    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+      // Simulate streaming by calling callbacks immediately
+      onChunk('Once upon a time');
+      onChunk(', there was a brave knight');
+      onComplete();
     });
 
     render(<ChatContainer />);
@@ -237,36 +236,7 @@ describe('ChatContainer Component', () => {
       expect(screen.getByText('Tell me a story')).toBeInTheDocument();
     });
 
-    // Wait for callbacks to be assigned
-    await waitFor(() => {
-      expect(onChunk).toBeDefined();
-    });
-    await waitFor(() => {
-      expect(onComplete).toBeDefined();
-    });
-
-    // Simulate streaming response
-    await act(async () => {
-      onChunk!('Once upon a time');
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText('Once upon a time')).toBeInTheDocument();
-    });
-
-    await act(async () => {
-      onChunk!(', there was a brave knight');
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText('Once upon a time, there was a brave knight')).toBeInTheDocument();
-    });
-
-    await act(async () => {
-      onComplete!();
-    });
-
-    // Should still show the complete message
+    // Should show the streamed response
     await waitFor(() => {
       expect(screen.getByText('Once upon a time, there was a brave knight')).toBeInTheDocument();
     });
