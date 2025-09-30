@@ -33,8 +33,8 @@ describe('Message Component', () => {
       sender: 'user',
     });
 
-    const { container } = render(<Message message={userMessage} />);
-    const messageElement = container.querySelector('.message');
+    render(<Message message={userMessage} />);
+    const messageElement = screen.getByText('User message').closest('.message');
 
     expect(messageElement).toHaveClass('message', 'user');
   });
@@ -45,8 +45,8 @@ describe('Message Component', () => {
       sender: 'assistant',
     });
 
-    const { container } = render(<Message message={assistantMessage} />);
-    const messageElement = container.querySelector('.message');
+    render(<Message message={assistantMessage} />);
+    const messageElement = screen.getByText('Assistant message').closest('.message');
 
     expect(messageElement).toHaveClass('message', 'assistant');
   });

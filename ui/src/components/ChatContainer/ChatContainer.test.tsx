@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '../../test-utils';
+import { render, screen, waitFor, act } from '../../test-utils';
 import userEvent from '@testing-library/user-event';
 import { ChatContainer } from './ChatContainer';
 import { ChatService } from '../../services/chatService';
@@ -192,6 +192,8 @@ describe('ChatContainer Component', () => {
     // Wait for messages to appear
     await waitFor(() => {
       expect(screen.getByText('Hello, AI!')).toBeInTheDocument();
+    });
+    await waitFor(() => {
       expect(screen.getByText('Response')).toBeInTheDocument();
     });
 
@@ -238,23 +240,31 @@ describe('ChatContainer Component', () => {
     // Wait for callbacks to be assigned
     await waitFor(() => {
       expect(onChunk).toBeDefined();
+    });
+    await waitFor(() => {
       expect(onComplete).toBeDefined();
     });
 
     // Simulate streaming response
-    onChunk!('Once upon a time');
+    await act(async () => {
+      onChunk!('Once upon a time');
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Once upon a time')).toBeInTheDocument();
     });
 
-    onChunk!(', there was a brave knight');
+    await act(async () => {
+      onChunk!(', there was a brave knight');
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Once upon a time, there was a brave knight')).toBeInTheDocument();
     });
 
-    onComplete!();
+    await act(async () => {
+      onComplete!();
+    });
 
     // Should still show the complete message
     await waitFor(() => {
