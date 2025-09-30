@@ -29,7 +29,7 @@ describe('ChatContainer Component', () => {
   it('renders with default title', () => {
     render(<ChatContainer />);
 
-    expect(screen.getByText('AI Chat')).toBeInTheDocument();
+    expect(screen.getByText('Nexus AI')).toBeInTheDocument();
   });
 
   it('renders with custom title', () => {
