@@ -1,4 +1,4 @@
-#!/usr / bin / env python3
+#!/usr/bin/env python3
 """
 Main ingestion script for processing documents and storing them in Pinecone.
 Processes the data corpus from ai - pocket - projects and creates searchable embeddings.

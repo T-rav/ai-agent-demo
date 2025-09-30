@@ -37,7 +37,7 @@ jobs:
       run: make test-ui
     
     - name: Upload UI coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       with:
         file: ./ui/coverage/lcov.info
         flags: ui
@@ -51,7 +51,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         cache: 'pip'
@@ -77,7 +77,7 @@ jobs:
       run: cd ingest && make test
     
     - name: Upload ingest coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       with:
         file: ./ingest/coverage.xml
         flags: ingest

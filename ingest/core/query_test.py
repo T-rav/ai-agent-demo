@@ -1,4 +1,4 @@
-#!/usr / bin / env python3
+#!/usr/bin/env python3
 """
 Test script for querying the ingested corpus in Pinecone.
 Allows testing search functionality and exploring the vector database.
@@ -8,6 +8,7 @@ import argparse
 import sys
 from typing import Any, Dict, List
 
+from ..models.exceptions import ConfigurationError
 from ..services import PineconeVectorStore
 from .config_loader import load_config
 
@@ -83,7 +84,7 @@ def interactive_query_mode(vector_store: PineconeVectorStore) -> None:
                 stats = vector_store.get_index_stats()
                 print("\n📊 Index Statistics:")
                 for key, value in stats.items():
-                    print("   {key}: {value}")
+                    print(f"   {key}: {value}")
                 continue
             elif not query:
                 continue
@@ -95,8 +96,8 @@ def interactive_query_mode(vector_store: PineconeVectorStore) -> None:
         except KeyboardInterrupt:
             print("\n\nExiting...")
             break
-        except Exception:
-            print("Error: {str(e)}")
+        except Exception as e:
+            print(f"Error: {e}")
 
 
 def run_sample_queries(vector_store: PineconeVectorStore) -> None:
@@ -119,21 +120,21 @@ def run_sample_queries(vector_store: PineconeVectorStore) -> None:
     print("=" * 50)
 
     for query in sample_queries:
-        print("\nTesting query: '{query}'")
+        print(f"\nTesting query: '{query}'")
         try:
             results = vector_store.query_similar(query, top_k=3)
             if results:
-                print("✅ Found {len(results)} results (top score: {results[0]['score']:.4f})")
+                print(f"✅ Found {len(results)} results (top score: {results[0]['score']:.4f})")
                 # Print just the top result details
                 top_result = results[0]
-                top_result["metadata"]
+                metadata = top_result["metadata"]
                 print(
-                    "   Best match: {metadata.get('file_name', 'Unknown')} (chunk {metadata.get('chunk_index', 'Unknown')})"
+                    f"   Best match: {metadata.get('file_name', 'Unknown')} (chunk {metadata.get('chunk_index', 'Unknown')})"
                 )
             else:
                 print("❌ No results found")
-        except Exception:
-            print("❌ Error: {str(e)}")
+        except Exception as e:
+            print(f"❌ Error: {e}")
 
 
 def main():
@@ -149,7 +150,7 @@ def main():
     # Load configuration
     try:
         config = load_config()
-    except (FileNotFoundError, ValueError) as e:
+    except ConfigurationError as e:
         print(f"❌ Configuration error: {e}")
         print("Please ensure pyproject.toml exists and set required environment variables:")
         print("  - OPENAI_API_KEY")
@@ -200,7 +201,7 @@ def main():
         stats = vector_store.get_index_stats()
         print("📊 Index Statistics:")
         for key, value in stats.items():
-            print("   {key}: {value}")
+            print(f"   {key}: {value}")
 
         interactive_query_mode(vector_store)
 
