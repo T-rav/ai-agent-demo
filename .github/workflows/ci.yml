@@ -27,25 +27,8 @@ jobs:
           cd ui
           npm ci
 
-      - name: Run ESLint
-        run: |
-          cd ui
-          npm run lint
-
-      - name: Check formatting
-        run: |
-          cd ui
-          npm run format:check
-
-      - name: Check TypeScript compilation
-        run: |
-          cd ui
-          npx tsc --noEmit
-
-      - name: Run tests
-        run: |
-          cd ui
-          npm run test:ci
+      - name: Run lint and tests
+        run: make lint && make format-check && make check && make test
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
@@ -79,9 +62,7 @@ jobs:
           npm ci
 
       - name: Build application
-        run: |
-          cd ui
-          npm run build
+        run: make build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
