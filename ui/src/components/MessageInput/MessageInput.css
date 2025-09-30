@@ -104,7 +104,7 @@
 }
 
 .message-textarea::-webkit-scrollbar-thumb {
-  background-color: #C7C7CC;
+  background-color: #c7c7cc;
   border-radius: 2px;
 }
 
@@ -112,20 +112,20 @@
   .message-input-container {
     padding: 12px 16px;
   }
-  
+
   .input-wrapper {
     padding: 6px 10px;
   }
-  
+
   .message-textarea {
     font-size: 16px; /* Prevent zoom on iOS */
   }
-  
+
   .send-button {
     width: 28px;
     height: 28px;
   }
-  
+
   .send-button svg {
     width: 16px;
     height: 16px;
