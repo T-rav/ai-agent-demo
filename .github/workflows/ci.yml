@@ -57,24 +57,24 @@ jobs:
         cache: 'pip'
         cache-dependency-path: ingest/pyproject.toml
     
-            - name: Install ingest dependencies
-              run: cd ingest && make dev-install
+    - name: Install ingest dependencies
+      run: cd ingest && make dev-install
 
-            - name: Run ingest linting and formatting checks
-              run: cd ingest && make lint
+    - name: Run ingest linting and formatting checks
+      run: cd ingest && make lint
 
-            - name: Run ingest code formatting check
-              run: cd ingest && make format-check
+    - name: Run ingest code formatting check
+      run: cd ingest && make format-check
 
-            - name: Run ingest type checking
-              run: cd ingest && make type-check
-              continue-on-error: true  # Allow mypy to fail for now
+    - name: Run ingest type checking
+      run: cd ingest && make type-check
+      continue-on-error: true  # Allow mypy to fail for now
 
-            - name: Run ingest security scanning
-              run: cd ingest && make security
+    - name: Run ingest security scanning
+      run: cd ingest && make security
 
-            - name: Run ingest tests
-              run: cd ingest && make test
+    - name: Run ingest tests
+      run: cd ingest && make test
     
     - name: Upload ingest coverage to Codecov
       uses: codecov/codecov-action@v3
