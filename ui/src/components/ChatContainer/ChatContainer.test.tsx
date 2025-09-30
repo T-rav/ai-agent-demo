@@ -29,7 +29,7 @@ describe('ChatContainer Component', () => {
   it('renders with default title', () => {
     render(<ChatContainer />);
 
-    expect(screen.getByText('AI Chat')).toBeInTheDocument();
+    expect(screen.getByText('Nexus AI')).toBeInTheDocument();
   });
 
   it('renders with custom title', () => {
@@ -82,7 +82,7 @@ describe('ChatContainer Component', () => {
       () => {
         expect(screen.getByText('Hello there!')).toBeInTheDocument();
       },
-      { timeout: 3000 }
+      { timeout: 1000 }
     );
 
     // Clear button should now be visible
@@ -204,7 +204,7 @@ describe('ChatContainer Component', () => {
       () => {
         expect(screen.getByText('Response')).toBeInTheDocument();
       },
-      { timeout: 3000 }
+      { timeout: 1000 }
     );
 
     // Click clear button
@@ -252,7 +252,7 @@ describe('ChatContainer Component', () => {
       () => {
         expect(screen.getByText('Once upon a time, there was a brave knight')).toBeInTheDocument();
       },
-      { timeout: 3000 }
+      { timeout: 1000 }
     );
   });
 

@@ -55,6 +55,9 @@ export const useChat = () => {
 
     currentStreamingMessageId.current = assistantMessageId;
 
+    // Track if error was handled via callback to avoid redundant cleanup
+    let errorHandled = false;
+
     try {
       await chatService.current.sendMessage(
         trimmedContent,
@@ -78,8 +81,10 @@ export const useChat = () => {
           }));
           currentStreamingMessageId.current = null;
         },
-        // On error
+        // On error - handled via callback
         (error: string) => {
+          errorHandled = true;
+
           setState((prev) => ({
             ...prev,
             messages: prev.messages.filter((msg) => msg.id !== assistantMessageId),
@@ -90,13 +95,16 @@ export const useChat = () => {
         }
       );
     } catch (error) {
-      setState((prev) => ({
-        ...prev,
-        messages: prev.messages.filter((msg) => msg.id !== assistantMessageId),
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-      }));
-      currentStreamingMessageId.current = null;
+      // Only handle synchronous errors that weren't already handled via callback
+      if (!errorHandled) {
+        setState((prev) => ({
+          ...prev,
+          messages: prev.messages.filter((msg) => msg.id !== assistantMessageId),
+          isLoading: false,
+          error: error instanceof Error ? error.message : 'Unknown error occurred',
+        }));
+        currentStreamingMessageId.current = null;
+      }
     }
   }, []);
 

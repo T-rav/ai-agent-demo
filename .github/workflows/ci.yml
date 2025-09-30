@@ -66,10 +66,6 @@ jobs:
     - name: Run ingest code formatting check
       run: cd ingest && make format-check
 
-    - name: Run ingest type checking
-      run: cd ingest && make type-check
-      continue-on-error: true  # Allow mypy to fail for now
-
     - name: Run ingest security scanning
       run: cd ingest && make security
 

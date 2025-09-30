@@ -21,6 +21,14 @@ export class ChatService {
     onComplete: () => void,
     onError: (error: string) => void
   ): Promise<void> {
+    // Guard against duplicate onComplete calls
+    let completed = false;
+    const safeOnComplete = () => {
+      if (completed) return;
+      completed = true;
+      onComplete();
+    };
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
         method: 'POST',
@@ -46,7 +54,7 @@ export class ChatService {
         const { done, value } = await reader.read();
 
         if (done) {
-          onComplete();
+          safeOnComplete();
           break;
         }
 
@@ -62,7 +70,7 @@ export class ChatService {
             if (line.startsWith('data: ')) {
               const data = line.slice(6);
               if (data === '[DONE]') {
-                onComplete();
+                safeOnComplete();
                 return;
               }
 

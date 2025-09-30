@@ -8,7 +8,7 @@ interface ChatContainerProps {
   title?: string;
 }
 
-export const ChatContainer: React.FC<ChatContainerProps> = ({ title = 'AI Chat' }) => {
+export const ChatContainer: React.FC<ChatContainerProps> = ({ title = 'Nexus AI' }) => {
   const { messages, isLoading, error, sendMessage, clearMessages, clearError } = useChat();
 
   return (
