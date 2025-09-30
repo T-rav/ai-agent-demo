@@ -133,6 +133,9 @@ class DocumentChunkingService:
             if not document.content:
                 return []
 
+            # Reset global chunk index for this document
+            self._global_chunk_index = 0
+
             file_type = document.file_type.value
             strategy = self._strategies.get(file_type, self._strategies[".txt"])
 
@@ -149,7 +152,9 @@ class DocumentChunkingService:
         # If section is small enough, keep as single chunk
         token_count = self._token_encoder.count_tokens(content)
         if token_count <= self.chunk_size:
-            return [self._create_chunk(document, content, 0, section_header=header)]
+            chunk = self._create_chunk(document, content, self._global_chunk_index, section_header=header)
+            self._global_chunk_index += 1
+            return [chunk]
 
         # Otherwise, chunk the content
         return self._chunk_text_content(document, content, section_header=header)
@@ -167,7 +172,6 @@ class DocumentChunkingService:
         chunks = []
         current_chunk = []
         current_tokens = 0
-        chunk_index = 0
 
         for paragraph in paragraphs:
             paragraph_tokens = self._token_encoder.count_tokens(paragraph)
@@ -183,10 +187,10 @@ class DocumentChunkingService:
                         chunk_text = "\n\n".join(current_chunk)
                         chunks.append(
                             self._create_chunk(
-                                document, chunk_text, chunk_index, section_header=section_header, page_num=page_num
+                                document, chunk_text, self._global_chunk_index, section_header=section_header, page_num=page_num
                             )
                         )
-                        chunk_index += 1
+                        self._global_chunk_index += 1
 
                         # Start new chunk with overlap
                         overlap_text = self._get_overlap_text(chunk_text)
@@ -201,10 +205,10 @@ class DocumentChunkingService:
                     chunk_text = "\n\n".join(current_chunk)
                     chunks.append(
                         self._create_chunk(
-                            document, chunk_text, chunk_index, section_header=section_header, page_num=page_num
+                            document, chunk_text, self._global_chunk_index, section_header=section_header, page_num=page_num
                         )
                     )
-                    chunk_index += 1
+                    self._global_chunk_index += 1
 
                     # Start new chunk with overlap
                     overlap_text = self._get_overlap_text(chunk_text)
@@ -220,9 +224,10 @@ class DocumentChunkingService:
             if self._token_encoder.count_tokens(chunk_text) >= self.min_chunk_size:
                 chunks.append(
                     self._create_chunk(
-                        document, chunk_text, chunk_index, section_header=section_header, page_num=page_num
+                        document, chunk_text, self._global_chunk_index, section_header=section_header, page_num=page_num
                     )
                 )
+                self._global_chunk_index += 1
 
         return chunks
 
