@@ -52,8 +52,8 @@ that can learn and improve from experience."""
         )
 
         document = ProcessedDocument(
-            file_path="/test / sample.pd",
-            file_name="sample.pd",
+            file_path="/test/sample.pdf",
+            file_name="sample.pdf",
             file_type=FileType.PDF,
             title="AI Guide",
             content=sample_pdf_content,

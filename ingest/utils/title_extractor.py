@@ -90,4 +90,9 @@ class DocumentTitleExtractor:
 
     def _filename_to_title(self, file_path: Path) -> str:
         """Convert filename to a readable title."""
-        return file_path.stem.replace("_", " ").replace("-", " ").title()
+        import re
+
+        # Replace underscores and hyphens with spaces, then normalize multiple spaces
+        title = file_path.stem.replace("_", " ").replace("-", " ")
+        title = re.sub(r"\s+", " ", title).strip()  # Normalize multiple spaces
+        return title.title()

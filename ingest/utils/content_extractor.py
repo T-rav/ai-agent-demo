@@ -49,7 +49,7 @@ class DocumentContentExtractor:
         try:
             return extractor(file_path)
         except Exception as e:
-            raise ProcessingError("Failed to extract content from {file_path}: {e}") from e
+            raise ProcessingError(f"Failed to extract content from {file_path}: {e}") from e
 
     def _extract_pdf_content(self, file_path: Path) -> str:
         """Extract text content from PDF files."""
@@ -66,11 +66,11 @@ class DocumentContentExtractor:
                     try:
                         page_text = page.extract_text()
                         if page_text.strip():
-                            content.append("--- Page {page_num + 1} ---\n{page_text}")
-                    except Exception:
-                        print("Warning: Error extracting page {page_num + 1} from {file_path}: {e}")
+                            content.append(f"--- Page {page_num + 1} ---\n{page_text}")
+                    except Exception as page_error:
+                        print(f"Warning: Error extracting page {page_num + 1} from {file_path}: {page_error}")
         except Exception as e:
-            raise ProcessingError("Failed to read PDF file {file_path}: {e}") from e
+            raise ProcessingError(f"Failed to read PDF file {file_path}: {e}") from e
 
         return "\n\n".join(content)
 
@@ -85,9 +85,9 @@ class DocumentContentExtractor:
                 with open(file_path, "r", encoding="latin - 1") as file:
                     return file.read()
             except Exception as e:
-                raise ProcessingError("Failed to read text file {file_path}: {e}") from e
+                raise ProcessingError(f"Failed to read text file {file_path}: {e}") from e
         except Exception as e:
-            raise ProcessingError("Failed to read file {file_path}: {e}") from e
+            raise ProcessingError(f"Failed to read file {file_path}: {e}") from e
 
 
 class TextCleaner:

@@ -42,7 +42,7 @@ class TestDocumentContentExtractor:
     @patch("ingest.utils.content_extractor.PyPDF2")
     def test_extract_pdf_content_success(self, mock_pypdf2, extractor):
         """Test successful PDF content extraction."""
-        pdf_path = Path("/test / sample.pd")
+        pdf_path = Path("/test/sample.pdf")
 
         # Mock PyPDF2 objects
         mock_page1 = Mock()
@@ -66,7 +66,7 @@ class TestDocumentContentExtractor:
 
     def test_extract_pdf_content_pypdf2_not_available(self, extractor):
         """Test PDF extraction when PyPDF2 is not available."""
-        pdf_path = Path("/test / sample.pd")
+        pdf_path = Path("/test/sample.pdf")
 
         # Set PyPDF2 to None to simulate import failure
         with patch("ingest.utils.content_extractor.PyPDF2", None):
@@ -76,7 +76,7 @@ class TestDocumentContentExtractor:
     @patch("ingest.utils.content_extractor.PyPDF2")
     def test_extract_pdf_content_error(self, mock_pypdf2, extractor):
         """Test PDF extraction error handling."""
-        pdf_path = Path("/test / sample.pd")
+        pdf_path = Path("/test/sample.pdf")
 
         mock_pypdf2.PdfReader.side_effect = Exception("PDF read error")
 

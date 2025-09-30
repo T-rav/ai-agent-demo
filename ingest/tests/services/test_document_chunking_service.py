@@ -46,9 +46,9 @@ class TestDocumentChunkingService:
     def test_chunk_pdf_document(self, chunking_service, sample_pdf_content):
         """Test chunking a PDF document."""
         document = ProcessedDocument(
-            file_path="/test / sample.pd",
-            file_name="sample.pd",
-            file_type=".pd",
+            file_path="/test/sample.pdf",
+            file_name="sample.pdf",
+            file_type=FileType.PDF,
             title="AI Guide",
             content=sample_pdf_content,
             token_count=100,
@@ -153,9 +153,9 @@ class TestChunkingStrategies:
         chunking_service = DocumentChunkingService(token_encoder=mock_token_encoder)
 
         document = ProcessedDocument(
-            file_path="/test / sample.pd",
-            file_name="sample.pd",
-            file_type=".pd",
+            file_path="/test/sample.pdf",
+            file_name="sample.pdf",
+            file_type=FileType.PDF,
             title="AI Guide",
             content=sample_pdf_content,
             token_count=100,

@@ -158,4 +158,4 @@ def load_config(config_file: str = "pyproject.toml") -> IngestionConfig:
         return IngestionConfig(**config_dict)
 
     except Exception as e:
-        raise ConfigurationError("Failed to load configuration: {e}") from e
+        raise ConfigurationError(f"Failed to load configuration: {e}") from e

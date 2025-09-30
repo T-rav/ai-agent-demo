@@ -56,9 +56,10 @@ class PDFChunkingStrategy(ChunkingStrategy):
 
             # Add page number back for context
             if i > 0:
-                page_content = "--- Page {page_content}"
+                page_content = f"--- Page {page_content}"
 
-            page_chunks = chunker._chunk_text_content(document, page_content, page_num=i if i > 0 else None)
+            page_num = i + 1 if i > 0 else 1
+            page_chunks = chunker._chunk_text_content(document, page_content, page_num=page_num)
             chunks.extend(page_chunks)
 
         return chunks
@@ -138,7 +139,7 @@ class DocumentChunkingService:
             return strategy.chunk(document, self)
 
         except Exception as e:
-            raise ChunkingError("Failed to chunk document {document.file_name}: {e}") from e
+            raise ChunkingError(f"Failed to chunk document {document.file_name}: {e}") from e
 
     def _chunk_section(self, document: ProcessedDocument, section: Dict[str, Any]) -> List[DocumentChunk]:
         """Chunk a document section intelligently."""
@@ -244,12 +245,12 @@ class DocumentChunkingService:
     ) -> DocumentChunk:
         """Create a chunk dictionary with enhanced metadata."""
         # Create unique chunk ID
-        chunk_id = "{document.file_name}_{chunk_index}"
+        chunk_id = f"{document.file_name}_{chunk_index}"
         if section_header:
             # Clean section header for ID
             clean_header = re.sub(r"[^\w\s-]", "", section_header).strip()
             clean_header = re.sub(r"\s+", "_", clean_header)[:50]  # Limit length
-            chunk_id = "{document.file_name}_{clean_header}_{chunk_index}"
+            chunk_id = f"{document.file_name}_{clean_header}_{chunk_index}"
 
         metadata = ChunkMetadata(
             file_path=document.file_path,

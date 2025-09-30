@@ -52,7 +52,7 @@ ARTIFICIAL INTELLIGENCE: A MODERN APPROACH
 
 This is the content of the document.
 """
-        file_path = Path("test.pd")
+        file_path = Path("test.pdf")
         title = extractor.extract_title(file_path, content)
         assert title == "ARTIFICIAL INTELLIGENCE: A MODERN APPROACH"
 
@@ -62,7 +62,7 @@ This is the content of the document.
 This is just regular content without a clear title.
 It continues with more text that doesn't look like a title.
 """
-        file_path = Path("ai_research_paper.pd")
+        file_path = Path("ai_research_paper.pdf")
         title = extractor.extract_title(file_path, content)
         assert title == "Ai Research Paper"
 

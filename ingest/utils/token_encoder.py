@@ -36,7 +36,7 @@ class TiktokenEncoder:
         try:
             self._encoding = tiktoken.get_encoding(encoding_model)
         except Exception as e:
-            raise ProcessingError("Failed to initialize tiktoken encoder: {e}") from e
+            raise ProcessingError(f"Failed to initialize tiktoken encoder: {e}") from e
 
     def encode(self, text: str) -> List[int]:
         """

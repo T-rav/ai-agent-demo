@@ -66,7 +66,7 @@ class ProcessedDocumentBuilder:
 
     def as_pdf(self) -> "ProcessedDocumentBuilder":
         """Configure as a PDF document."""
-        return self.with_file_type(FileType.PDF).with_file_path("/test / document.pd")
+        return self.with_file_type(FileType.PDF).with_file_path("/test/document.pdf")
 
     def as_text(self) -> "ProcessedDocumentBuilder":
         """Configure as a text document."""

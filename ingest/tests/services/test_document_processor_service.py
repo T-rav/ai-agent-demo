@@ -46,7 +46,7 @@ class TestDocumentProcessorService:
 
     def test_process_pdf_file(self, service):
         """Test processing a PDF file."""
-        pdf_path = Path("/test / sample.pd")
+        pdf_path = Path("/test/sample.pdf")
         mock_content = "PDF content here"
 
         with patch.object(service._content_extractor, "extract_content", return_value=mock_content):
