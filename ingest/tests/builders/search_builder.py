@@ -46,4 +46,4 @@ class SearchResultBuilder:
 
     def build(self) -> SearchResult:
         """Build the SearchResult."""
-        return SearchResult(chunk_id=self._chunk_id, content=self._content, score=self._score, metadata=self._metadata)
+        return SearchResult(id=self._chunk_id, score=self._score, metadata=self._metadata)

@@ -1,4 +1,4 @@
-#!/usr / bin / env python3
+#!/usr/bin/env python3
 """
 Setup script for the ingestion system.
 Validates environment and dependencies.
@@ -15,7 +15,7 @@ def check_python_version():
     if sys.version_info < (3, 11):
         print("❌ Python 3.11 or higher is required")
         return False
-    print("✅ Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+    print(f"✅ Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
     return True
 
 
@@ -27,7 +27,7 @@ def install_dependencies():
         print("✅ Dependencies installed successfully")
         return True
     except subprocess.CalledProcessError as e:
-        print("❌ Failed to install dependencies: {e}")
+        print(f"❌ Failed to install dependencies: {e}")
         return False
 
 
@@ -42,10 +42,10 @@ def check_environment_variables():
             missing_vars.append(var)
 
     if missing_vars:
-        print("⚠️  Missing environment variables: {', '.join(missing_vars)}")
+        print(f"⚠️  Missing environment variables: {', '.join(missing_vars)}")
         print("   Please set these environment variables:")
         for var in missing_vars:
-            print("     export {var}=your_value_here")
+            print(f"     export {var}=your_value_here")
         print("   Or add them to your shell profile (.bashrc, .zshrc, etc.)")
         return False
 
@@ -63,23 +63,23 @@ def check_pyproject_toml():
         return False
 
     try:
-        from config_loader import Config
+        from .config_loader import load_config
 
-        Config()
+        load_config()
         print("✅ pyproject.toml configuration looks good")
         return True
-    except Exception:
-        print("❌ Error reading pyproject.toml: {e}")
+    except Exception as e:
+        print(f"❌ Error reading pyproject.toml: {e}")
         return False
 
 
 def check_corpus_directory():
     """Check if corpus directory exists."""
-    corpus_path = Path("../data / corpus")
+    corpus_path = Path("../data/corpus")
 
     if not corpus_path.exists():
-        print("❌ Corpus directory not found: {corpus_path.resolve()}")
-        print("   Please ensure the data / corpus directory exists with documents")
+        print(f"❌ Corpus directory not found: {corpus_path.resolve()}")
+        print("   Please ensure the data/corpus directory exists with documents")
         return False
 
     # Count documents
@@ -92,11 +92,11 @@ def check_corpus_directory():
                 doc_count += 1
 
     if doc_count == 0:
-        print("⚠️  No supported documents found in {corpus_path.resolve()}")
+        print(f"⚠️  No supported documents found in {corpus_path.resolve()}")
         print("   Supported formats: PDF, Markdown (.md), Text (.txt)")
         return False
 
-    print("✅ Found {doc_count} documents in corpus directory")
+    print(f"✅ Found {doc_count} documents in corpus directory")
     return True
 
 
@@ -111,10 +111,10 @@ def test_api_connections():
         client = OpenAI()
 
         # Test with a simple embedding request
-        response = client.embeddings.create(model="text - embedding - 3-small", input="test")
+        client.embeddings.create(model="text-embedding-3-small", input="test")
         print("✅ OpenAI API connection successful")
-    except Exception:
-        print("❌ OpenAI API test failed: {str(e)}")
+    except Exception as e:
+        print(f"❌ OpenAI API test failed: {e}")
         return False
 
     # Test Pinecone
@@ -126,8 +126,8 @@ def test_api_connections():
         # List indexes to test connection
         pc.list_indexes()
         print("✅ Pinecone API connection successful")
-    except Exception:
-        print("❌ Pinecone API test failed: {str(e)}")
+    except Exception as e:
+        print(f"❌ Pinecone API test failed: {e}")
         return False
 
     return True
@@ -150,7 +150,7 @@ def main():
     all_passed = True
 
     for check_name, check_func in checks:
-        print("\n🔍 Checking {check_name}...")
+        print(f"\n🔍 Checking {check_name}...")
         if not check_func():
             all_passed = False
 
@@ -161,11 +161,11 @@ def main():
         print("\nYou can now run the ingestion:")
         print("   python ingest.py")
         print("   # or use the installed command:")
-        print("   ingest - corpus")
+        print("   ingest-corpus")
         print("\nOr test queries:")
         print("   python query_test.py --interactive")
         print("   # or use the installed command:")
-        print("   query - corpus --interactive")
+        print("   query-corpus --interactive")
     else:
         print("❌ Setup validation failed!")
         print("Please fix the issues above before running ingestion.")
