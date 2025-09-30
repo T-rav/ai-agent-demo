@@ -19,7 +19,7 @@ class PineconeVectorStore:
         api_key: str,
         environment: str,
         index_name: str,
-        embedding_model: str = "text - embedding - 3-small",
+        embedding_model: str = "text-embedding-3-small",
         embedding_dimensions: int = 1536,
     ):
         """
@@ -45,12 +45,12 @@ class PineconeVectorStore:
         existing_indexes = [index.name for index in self.pc.list_indexes()]
 
         if self.index_name not in existing_indexes:
-            print("Creating index '{self.index_name}'...")
+            print(f"Creating index '{self.index_name}'...")
             self.pc.create_index(
                 name=self.index_name,
                 dimension=self.embedding_dimensions,
                 metric="cosine",
-                spec=ServerlessSpec(cloud="aws", region="us - east - 1"),
+                spec=ServerlessSpec(cloud="aws", region="us-east-1"),
             )
 
             # Wait for index to be ready
@@ -58,9 +58,9 @@ class PineconeVectorStore:
                 print("Waiting for index to be ready...")
                 time.sleep(1)
 
-            print("Index '{self.index_name}' created successfully!")
+            print(f"Index '{self.index_name}' created successfully!")
         else:
-            print("Index '{self.index_name}' already exists.")
+            print(f"Index '{self.index_name}' already exists.")
 
         self.index = self.pc.Index(self.index_name)
 
@@ -77,10 +77,10 @@ class PineconeVectorStore:
         """
         embeddings = []
 
-        print("Generating embeddings for {len(texts)} texts...")
+        print(f"Generating embeddings for {len(texts)} texts...")
 
         for i in tqdm(range(0, len(texts), batch_size), desc="Embedding batches"):
-            batch = texts[i: i + batch_size]
+            batch = texts[i : i + batch_size]
 
             try:
                 response = self.openai_client.embeddings.create(model=self.embedding_model, input=batch)
@@ -88,8 +88,8 @@ class PineconeVectorStore:
                 batch_embeddings = [item.embedding for item in response.data]
                 embeddings.extend(batch_embeddings)
 
-            except Exception:
-                print("Error generating embeddings for batch {i//batch_size + 1}: {str(e)}")
+            except Exception as e:
+                print(f"Error generating embeddings for batch {i // batch_size + 1}: {str(e)}")
                 # Add empty embeddings for failed batch
                 embeddings.extend([[0.0] * self.embedding_dimensions] * len(batch))
 
@@ -106,8 +106,14 @@ class PineconeVectorStore:
         if not self.index:
             raise ValueError("Index not initialized. Call create_index_if_not_exists() first.")
 
-        # Extract text content for embedding
-        texts = [chunk["content"] for chunk in chunks]
+        # Extract and clean text content for embedding
+        texts = []
+        for chunk in chunks:
+            # Clean text: normalize whitespace, remove excessive newlines
+            clean_text = chunk.content.replace("\n", " ").replace("\r", " ")
+            # Normalize multiple spaces to single space
+            clean_text = " ".join(clean_text.split())
+            texts.append(clean_text)
 
         # Generate embeddings
         embeddings = self.generate_embeddings(texts)
@@ -115,30 +121,33 @@ class PineconeVectorStore:
         # Prepare vectors for upsert
         vectors = []
         for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+            # Filter out None values and file_path from metadata for Pinecone compatibility
+            metadata = {k: v for k, v in chunk.metadata.model_dump().items() if v is not None and k != "file_path"}
+
+            # Clean content preview (normalize whitespace like we do for embeddings)
+            clean_preview = chunk.content.replace("\n", " ").replace("\r", " ")
+            clean_preview = " ".join(clean_preview.split())
+            metadata["content_preview"] = clean_preview[:500] + "..." if len(clean_preview) > 500 else clean_preview
+
             vector = {
-                "id": chunk["id"],
+                "id": chunk.id,
                 "values": embedding,
-                "metadata": {
-                    **chunk["metadata"],
-                    "content_preview": (
-                        chunk["content"][:500] + "..." if len(chunk["content"]) > 500 else chunk["content"]
-                    ),
-                },
+                "metadata": metadata,
             }
             vectors.append(vector)
 
         # Upsert in batches
-        print("Upserting {len(vectors)} vectors to Pinecone...")
+        print(f"Upserting {len(vectors)} vectors to Pinecone...")
 
         for i in tqdm(range(0, len(vectors), batch_size), desc="Upsert batches"):
-            batch = vectors[i: i + batch_size]
+            batch = vectors[i : i + batch_size]
 
             try:
                 self.index.upsert(vectors=batch)
-            except Exception:
-                print("Error upserting batch {i//batch_size + 1}: {str(e)}")
+            except Exception as e:
+                print(f"Error upserting batch {i // batch_size + 1}: {str(e)}")
 
-        print("Successfully upserted {len(vectors)} vectors!")
+        print(f"Successfully upserted {len(vectors)} vectors!")
 
     def query_similar(
         self, query_text: str, top_k: int = 10, filter_dict: Optional[Dict[str, Any]] = None
