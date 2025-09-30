@@ -116,6 +116,9 @@ class DocumentChunkingService:
             ".txt": TextChunkingStrategy(),
         }
 
+        # Initialize global chunk index
+        self._global_chunk_index = 0
+
     def chunk_document(self, document: ProcessedDocument) -> List[DocumentChunk]:
         """
         Split a document into chunks using appropriate strategy.
