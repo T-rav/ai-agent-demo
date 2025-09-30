@@ -2,7 +2,7 @@
 Custom assertion helpers for test validation.
 """
 
-from typing import List
+from typing import List, Optional
 
 
 class TestAssertions:

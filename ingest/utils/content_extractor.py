@@ -77,12 +77,12 @@ class DocumentContentExtractor:
     def _extract_text_content(self, file_path: Path) -> str:
         """Extract content from text - based files."""
         try:
-            with open(file_path, "r", encoding="utf - 8") as file:
+            with open(file_path, "r", encoding="utf-8") as file:
                 return file.read()
         except UnicodeDecodeError:
             # Try with different encoding
             try:
-                with open(file_path, "r", encoding="latin - 1") as file:
+                with open(file_path, "r", encoding="latin-1") as file:
                     return file.read()
             except Exception as e:
                 raise ProcessingError(f"Failed to read text file {file_path}: {e}") from e

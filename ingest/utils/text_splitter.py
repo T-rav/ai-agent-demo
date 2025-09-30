@@ -116,14 +116,14 @@ class MarkdownSectionSplitter(TextSplitter):
             List of section dictionaries with header and content
         """
         lines = text.split("\n")
-        sections = []
-        current_section = {"header": "", "content": "", "level": 0}
+        sections: List[Dict[str, Any]] = []
+        current_section: Dict[str, Any] = {"header": "", "content": "", "level": 0}
 
         for line in lines:
             # Check for headers
             if line.strip().startswith("#"):
                 # Save previous section if it has content
-                if current_section["content"].strip():
+                if str(current_section["content"]).strip():
                     sections.append(current_section)
 
                 # Start new section
@@ -131,10 +131,10 @@ class MarkdownSectionSplitter(TextSplitter):
                 header_text = line.strip("#").strip()
                 current_section = {"header": header_text, "content": line + "\n", "level": header_level}
             else:
-                current_section["content"] += line + "\n"
+                current_section["content"] = str(current_section["content"]) + line + "\n"
 
         # Add final section
-        if current_section["content"].strip():
+        if str(current_section["content"]).strip():
             sections.append(current_section)
 
         return sections

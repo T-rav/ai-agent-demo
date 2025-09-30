@@ -35,7 +35,7 @@ class TestScenarios:
 
         chunks = TestDataGenerator.generate_chunk_list(2, "Technical Manual")
 
-        return {"document": document, "chunks": chunks, "expected_chunk_count": 2, "file_type": "pd"}
+        return {"document": document, "chunks": chunks, "expected_chunk_count": 2, "file_type": "pdf"}
 
     @staticmethod
     def create_config_loading_scenario(config_type: str = "default"):
@@ -57,7 +57,7 @@ class TestScenarios:
         """Create a chunking strategy test scenario."""
         if strategy_type == "markdown":
             return TestScenarios.create_markdown_processing_scenario()
-        elif strategy_type == "pd":
+        elif strategy_type == "pdf":
             return TestScenarios.create_pdf_processing_scenario()
         else:  # text
             document = (

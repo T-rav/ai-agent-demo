@@ -47,7 +47,7 @@ class DocumentProcessorService:
             file_path: Path to the file to process
 
         Returns:
-            Dictionary containing file metadata, content, and extracted title
+            ProcessedDocument containing file metadata, content, and extracted title
             None if processing fails
         """
         try:
