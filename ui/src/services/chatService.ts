@@ -1,0 +1,106 @@
+import axios from 'axios';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+export class ChatService {
+  private static instance: ChatService;
+
+  public static getInstance(): ChatService {
+    if (!ChatService.instance) {
+      ChatService.instance = new ChatService();
+    }
+    return ChatService.instance;
+  }
+
+  /**
+   * Send a message to the LLM and handle streaming response
+   */
+  public async sendMessage(
+    message: string,
+    onChunk: (chunk: string) => void,
+    onComplete: () => void,
+    onError: (error: string) => void
+  ): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No response body reader available');
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          onComplete();
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.trim() === '') continue;
+
+          try {
+            // Handle Server-Sent Events format
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') {
+                onComplete();
+                return;
+              }
+
+              const parsed = JSON.parse(data);
+              if (parsed.content) {
+                onChunk(parsed.content);
+              }
+            }
+          } catch (parseError) {
+            console.warn('Failed to parse streaming chunk:', parseError);
+            // Treat as plain text if JSON parsing fails
+            onChunk(line);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Chat service error:', error);
+      onError(error instanceof Error ? error.message : 'Unknown error occurred');
+    }
+  }
+
+  /**
+   * Fallback method for non-streaming requests
+   */
+  public async sendMessageSync(message: string): Promise<string> {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/chat`, {
+        message,
+      });
+
+      return response.data.response || '';
+    } catch (error) {
+      console.error('Sync chat service error:', error);
+      throw new Error(
+        axios.isAxiosError(error)
+          ? error.response?.data?.error || error.message
+          : 'Unknown error occurred'
+      );
+    }
+  }
+}
