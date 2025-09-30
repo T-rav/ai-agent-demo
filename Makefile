@@ -91,27 +91,47 @@ test:
 
 # Run UI tests
 test-ui:
-	@echo "🧪 Running UI tests in Docker..."
-	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm test -- --coverage --watchAll=false
+	@if [ "$$CI" = "true" ]; then \
+		echo "🧪 Running UI tests (CI mode)..."; \
+		cd ui && npm test -- --coverage --watchAll=false; \
+	else \
+		echo "🧪 Running UI tests in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm test -- --coverage --watchAll=false; \
+	fi
 
 # Run ingest tests
 test-ingest:
 	@echo "🧪 Running ingest tests..."
 	@cd ingest && make test
 
-# UI-specific linting and formatting
+# UI-specific linting and formatting (Docker version for local dev)
 lint-ui:
-	@echo "🔍 Running UI linting in Docker..."
-	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Running UI linting (CI mode)..."; \
+		cd ui && npm run lint; \
+	else \
+		echo "🔍 Running UI linting in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint; \
+	fi
 
 format-check-ui:
-	@echo "🔍 Checking UI formatting in Docker..."
-	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format:check
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Checking UI formatting (CI mode)..."; \
+		cd ui && npm run format:check; \
+	else \
+		echo "🔍 Checking UI formatting in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format:check; \
+	fi
 
 # Check TypeScript compilation
 check:
-	@echo "🔍 Checking TypeScript compilation in Docker..."
-	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npx tsc --noEmit
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Checking TypeScript compilation (CI mode)..."; \
+		cd ui && npx tsc --noEmit; \
+	else \
+		echo "🔍 Checking TypeScript compilation in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npx tsc --noEmit; \
+	fi
 
 # Run API tests (placeholder)
 test-api:
@@ -120,30 +140,54 @@ test-api:
 
 # Lint all code
 lint:
-	@echo "🔍 Running linters in Docker..."
-	@echo "Linting UI..."
-	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Running linters (CI mode)..."; \
+		echo "Linting UI..."; \
+		cd ui && npm run lint; \
+	else \
+		echo "🔍 Running linters in Docker..."; \
+		echo "Linting UI..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint; \
+	fi
 	@echo "✅ Linting complete"
 
 # Lint and fix issues
 lint-fix:
-	@echo "🔧 Running linters with auto-fix in Docker..."
-	@echo "Linting UI..."
-	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint:fix
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔧 Running linters with auto-fix (CI mode)..."; \
+		echo "Linting UI..."; \
+		cd ui && npm run lint:fix; \
+	else \
+		echo "🔧 Running linters with auto-fix in Docker..."; \
+		echo "Linting UI..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint:fix; \
+	fi
 	@echo "✅ Linting and fixes complete"
 
 # Format code
 format:
-	@echo "✨ Formatting code in Docker..."
-	@echo "Formatting UI..."
-	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format
+	@if [ "$$CI" = "true" ]; then \
+		echo "✨ Formatting code (CI mode)..."; \
+		echo "Formatting UI..."; \
+		cd ui && npm run format; \
+	else \
+		echo "✨ Formatting code in Docker..."; \
+		echo "Formatting UI..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format; \
+	fi
 	@echo "✅ Formatting complete"
 
 # Check code formatting
 format-check:
-	@echo "🔍 Checking code formatting in Docker..."
-	@echo "Checking UI formatting..."
-	@docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format:check
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Checking code formatting (CI mode)..."; \
+		echo "Checking UI formatting..."; \
+		cd ui && npm run format:check; \
+	else \
+		echo "🔍 Checking code formatting in Docker..."; \
+		echo "Checking UI formatting..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format:check; \
+	fi
 	@echo "✅ Format check complete"
 
 # Show logs
