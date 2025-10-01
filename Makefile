@@ -163,7 +163,7 @@ lint-api:
 		cd api && python -m flake8 . --exclude=tests,htmlcov,venv,.venv; \
 	else \
 		echo "🔍 Running API linting in Docker..."; \
-		docker-compose -f docker-compose.dev.yml run --rm api-dev flake8 . --exclude=tests,htmlcov,venv,.venv; \
+		docker-compose -f docker-compose.dev.yml run --rm api-dev python -m flake8 . --exclude=tests,htmlcov,venv,.venv; \
 	fi
 
 # Lint and fix issues

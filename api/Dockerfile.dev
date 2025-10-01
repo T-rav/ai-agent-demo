@@ -14,8 +14,8 @@ COPY pyproject.toml __init__.py ./
 # Copy application code (needed for installation)
 COPY . .
 
-# Install Python dependencies in editable mode
-RUN pip install --no-cache-dir -e .
+# Install Python dependencies in editable mode with dev extras
+RUN pip install --no-cache-dir -e .[dev]
 
 # Expose port
 EXPOSE 8000
