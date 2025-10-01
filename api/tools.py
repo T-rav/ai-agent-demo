@@ -41,20 +41,28 @@ async def search_knowledge_base(query: str) -> str:
         content = doc.page_content
         metadata = doc.metadata
 
-        # Extract source information
-        source_file = metadata.get("source", "Unknown")
-        title = metadata.get("title", "Untitled")
+        # Extract source information (match ingestion field names)
+        source_file = metadata.get("file_name", metadata.get("source", "Unknown"))
+        doc_title = metadata.get("document_title", metadata.get("title", "Untitled"))
+        section_header = metadata.get("section_header")
+
+        # Use document title, but add section context if available
+        if section_header:
+            display_title = f"{source_file}: {section_header}"
+        else:
+            display_title = doc_title if doc_title != "Untitled" else source_file
 
         # Content with citation identifier
         results.append(
-            f"[KB-{i}] {title}\n"
+            f"[KB-{i}] {display_title}\n"
             f"From: {source_file}\n"
             f"Relevance: {score:.3f}\n\n"
             f"{content}\n"
         )
 
-        # Track source for references
-        sources_section += f"[KB-{i}] {title} ({source_file})\n"
+        # Track source for references (use clean file name without extension)
+        clean_source = source_file.replace('.md', '').replace('_', ' ').title()
+        sources_section += f"[KB-{i}] {clean_source} ({source_file})\n"
 
     return "\n---\n\n".join(results) + sources_section
 

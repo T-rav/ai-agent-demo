@@ -142,16 +142,17 @@ IMPORTANT: Definitional questions are ALWAYS simple, regardless of topic complex
 Simple indicators (ALWAYS route to SIMPLE):
 - Direct definitional questions: "What is...", "What are...", "Define...", "Explain what..."
 - Questions about who/when/where: "Who invented...", "When did...", "Where was..."
+- Questions about history/background: "history of...", "background of...", "evolution of..."
 - Requests for definitions, concepts, or brief explanations
 - Quick facts or single-source answers
-- Examples: "What is RAG?", "What is deep learning?", "What is machine learning?"
+- Examples: "What is RAG?", "What is deep learning?", "history of computing", "evolution of AI"
 
 Research indicators (ONLY these trigger RESEARCH):
 - Explicit research keywords: "comprehensive", "research", "write a report", "deep dive into", "in-depth analysis"
-- Multi-part analysis: "analyze", "compare in detail", "history of", "evolution of", "trace the development"
-- Requests for structured multi-section content
-- Requests that need multiple sources or perspectives
-- Complex analytical questions requiring synthesis
+- Multi-part analysis requests: "analyze and compare", "trace the development of", "conduct research on"
+- Requests for structured multi-section content: "write a detailed report", "create a comprehensive guide"
+- Requests that explicitly need multiple sources or perspectives
+- Complex analytical questions requiring synthesis across multiple topics
 
 Respond with ONLY ONE WORD:
 - "RESEARCH" if this needs comprehensive research
@@ -369,12 +370,14 @@ Respond with ONLY ONE WORD:
                     "You are a Research Gathering Agent. You have a research plan. "
                     "Now gather comprehensive information.\n\n"
                     "Your task:\n"
-                    "1. Use 'search_knowledge_base' to find foundational concepts (cite as KB-X)\n"
-                    "2. Use 'tavily_search_results_json' to find latest information (cite as WEB-X)\n"
+                    "1. Use 'search_knowledge_base' to find foundational concepts\n"
+                    "2. Use 'tavily_search_results_json' to find latest information\n"
                     "3. Gather information for each subtopic in your plan\n"
-                    "4. Track ALL sources you find\n\n"
-                    "When you have sufficient sources (aim for 5+ KB sources and 5+ web sources), "
-                    "signal you're ready by saying: 'RESEARCH COMPLETE - Ready to build report'"
+                    "4. For each source, extract key information and insights\n"
+                    "5. Organize findings by topic/subtopic\n\n"
+                    "When you have gathered sufficient sources (aim for 5+ KB sources and 5+ web sources), "
+                    "summarize your findings briefly and say: 'RESEARCH COMPLETE - Ready to build report'\n\n"
+                    "Keep your summary brief - the full report will be written in the next phase."
                 )
             )
             messages = [system_message] + list(messages)
@@ -407,35 +410,32 @@ Respond with ONLY ONE WORD:
         # Add report building system message
         system_message = SystemMessage(
             content=(
-                "You are a Report Building Agent. You have gathered comprehensive research. "
-                "Now write a detailed MARKDOWN report.\n\n"
-                "Your task:\n"
-                "1. Use 'create_report_outline' to structure your report\n"
-                "2. Write a comprehensive MARKDOWN report with proper sections (##, ###)\n"
-                "3. Cite ALL sources inline using (KB-X) or (WEB-X) format\n"
-                "4. Include a '## References' section at the end with:\n"
-                "   - Knowledge Base Sources: [KB-X] Title (source file)\n"
-                "   - Web Sources: [WEB-X] Title (URL)\n\n"
-                "Write in an academic but accessible style. Be thorough and comprehensive."
+                "You are a Report Building Agent. You have gathered comprehensive research from multiple sources. "
+                "Now synthesize ALL the gathered information into a detailed MARKDOWN report.\n\n"
+                "IMPORTANT INSTRUCTIONS:\n"
+                "1. Write a comprehensive, well-structured MARKDOWN report\n"
+                "2. Use proper markdown formatting: # for title, ## for main sections, ### for subsections\n"
+                "3. Create sections covering:\n"
+                "   - Introduction/Overview\n"
+                "   - Core concepts and definitions\n"
+                "   - Historical context and evolution\n"
+                "   - Current state and technologies\n"
+                "   - Challenges and limitations\n"
+                "   - Future trends\n"
+                "   - Real-world applications\n"
+                "   - Conclusion\n"
+                "4. Cite sources inline using [KB-X] or [WEB-X] format where you use information\n"
+                "5. Include a ## References section at the end listing all sources\n"
+                "6. DO NOT just list sources - write detailed explanatory content for each section\n"
+                "7. Make it thorough and comprehensive - aim for 800+ words\n\n"
+                "Write in an academic but accessible style. Be thorough and provide substantive content in each section."
             )
         )
         messages = [system_message] + list(messages)
 
-        # Give access to outline tool
-        from tools import create_report_outline
-
-        building_tools = [create_report_outline]
-        llm_with_building = self.llm.bind_tools(building_tools)
-
-        response = await llm_with_building.ainvoke(messages)
-
-        # If still wants to use tools, execute them
-        if hasattr(response, "tool_calls") and response.tool_calls:
-            return {"messages": [response]}
-
-        # Otherwise generate final report
-        final_response = await self.llm.ainvoke(messages + [response])
-        return {"messages": [final_response]}
+        # Generate final report directly (no tools needed)
+        response = await self.llm.ainvoke(messages)
+        return {"messages": [response]}
 
     def _check_research_ready(self, state: AgentState) -> str:
         """
@@ -597,42 +597,43 @@ Respond with ONLY ONE WORD:
 
         # Use astream_events for token-level streaming (v2 API)
         routing_mode = None
-        routing_done = False
         collected_sources = []
+
+        # Track which phase we're in to filter streaming
+        current_phase = "routing"  # routing -> gathering/rag -> responding
 
         async for event in self.graph.astream_events(initial_state, version="v2"):
             kind = event["event"]
+            node_name = event.get("name", "")
+
+            # Track phase transitions via node completions
+            if kind == "on_chain_start":
+                # Update phase when entering specific nodes
+                if "simple_agent" in node_name or "report_builder" in node_name:
+                    current_phase = "responding"
+                elif "simple_rag" in node_name:
+                    current_phase = "rag"
 
             # Capture routing decision from router node
             if kind == "on_chain_end":
-                node_name = event.get("name", "")
-
-                # Check if this is the router completing
                 if "router" in node_name.lower() or node_name == "_route_request":
-                    routing_done = True
                     output = event.get("data", {}).get("output", {})
                     if isinstance(output, dict) and "routing_decision" in output:
                         routing_mode = output["routing_decision"]
+                        current_phase = "gathering" if routing_mode == "research" else "rag"
                         yield {"type": "step", "content": routing_mode}
 
-                # Check if this is simple_rag completing (has sources)
+                # Capture sources from simple_rag node
                 elif "simple_rag" in node_name.lower() or node_name == "_simple_rag":
                     output = event.get("data", {}).get("output", {})
                     if isinstance(output, dict) and "sources" in output:
                         collected_sources = output["sources"]
 
-            # Stream tokens from the language model (but skip router LLM output)
-            if kind == "on_chat_model_stream":
-                # Only stream tokens AFTER routing is complete
-                if routing_done:
-                    chunk = event["data"]["chunk"]
-                    if hasattr(chunk, "content") and chunk.content:
-                        yield {"type": "token", "content": chunk.content}
-
-            # Track when tools are called (optional, for debugging)
-            elif kind == "on_tool_start":
-                tool_name = event.get("name", "unknown")
-                yield {"type": "step", "content": f"Using tool: {tool_name}"}
+            # Stream tokens ONLY during the responding phase
+            elif kind == "on_chat_model_stream" and current_phase == "responding":
+                chunk = event["data"]["chunk"]
+                if hasattr(chunk, "content") and chunk.content:
+                    yield {"type": "token", "content": chunk.content}
 
         # Emit sources if any were collected
         if collected_sources:
