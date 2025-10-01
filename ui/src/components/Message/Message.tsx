@@ -32,7 +32,17 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
             </>
           )}
         </div>
-        <div className="message-time">{formatTime(message.timestamp)}</div>
+        <div className="message-metadata">
+          <div className="message-time">{formatTime(message.timestamp)}</div>
+          {message.mode && (
+            <div
+              className="message-mode"
+              title={message.mode === 'simple' ? 'Simple Answer' : 'Research Mode'}
+            >
+              {message.mode === 'simple' ? '⚡' : '🔍'}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

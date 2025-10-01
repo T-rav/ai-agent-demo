@@ -42,15 +42,35 @@
   white-space: pre-wrap;
 }
 
+.message-metadata {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 .message-time {
   font-size: 12px;
   opacity: 0.6;
-  margin-top: 4px;
-  text-align: right;
 }
 
-.message.assistant .message-time {
-  text-align: left;
+.message-mode {
+  font-size: 14px;
+  opacity: 0.7;
+  cursor: help;
+  transition: opacity 0.2s;
+}
+
+.message-mode:hover {
+  opacity: 1;
+}
+
+.message.user .message-metadata {
+  justify-content: flex-end;
+}
+
+.message.assistant .message-metadata {
+  justify-content: flex-start;
 }
 
 .cursor {

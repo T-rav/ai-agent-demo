@@ -579,14 +579,29 @@ Respond with ONLY ONE WORD:
         initial_state = {"messages": lc_messages, "sources": []}
 
         # Use astream_events for token-level streaming (v2 API)
+        routing_mode = None
         async for event in self.graph.astream_events(initial_state, version="v2"):
             kind = event["event"]
 
-            # Stream tokens from the language model
+            # Capture routing decision from router node
+            if kind == "on_chain_end":
+                node_name = event.get("name", "")
+                if "router" in node_name.lower():
+                    # Extract routing decision from state if available
+                    output = event.get("data", {}).get("output", {})
+                    if isinstance(output, dict) and "routing_decision" in output:
+                        routing_mode = output["routing_decision"]
+                        # Emit routing decision as a step event
+                        yield {"type": "step", "content": routing_mode}
+
+            # Stream tokens from the language model (but skip router LLM output)
             if kind == "on_chat_model_stream":
-                chunk = event["data"]["chunk"]
-                if hasattr(chunk, "content") and chunk.content:
-                    yield {"type": "token", "content": chunk.content}
+                # Skip tokens from the router LLM (we don't want to show SIMPLE/RESEARCH text)
+                node_name = event.get("name", "")
+                if "router" not in node_name.lower():
+                    chunk = event["data"]["chunk"]
+                    if hasattr(chunk, "content") and chunk.content:
+                        yield {"type": "token", "content": chunk.content}
 
             # Track when tools are called (optional, for debugging)
             elif kind == "on_tool_start":

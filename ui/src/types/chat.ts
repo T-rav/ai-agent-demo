@@ -4,6 +4,7 @@ export interface Message {
   sender: 'user' | 'assistant';
   timestamp: Date;
   isStreaming?: boolean;
+  mode?: 'simple' | 'research';
 }
 
 export interface ChatState {

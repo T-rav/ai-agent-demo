@@ -92,6 +92,15 @@ export const useChat = () => {
             error,
           }));
           currentStreamingMessageId.current = null;
+        },
+        // On mode received (simple/research)
+        (mode: string) => {
+          setState((prev) => ({
+            ...prev,
+            messages: prev.messages.map((msg) =>
+              msg.id === assistantMessageId ? { ...msg, mode: mode as 'simple' | 'research' } : msg
+            ),
+          }));
         }
       );
     } catch (error) {

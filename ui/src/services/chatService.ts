@@ -19,7 +19,8 @@ export class ChatService {
     message: string,
     onChunk: (chunk: string) => void,
     onComplete: () => void,
-    onError: (error: string) => void
+    onError: (error: string) => void,
+    onMode?: (mode: string) => void
   ): Promise<void> {
     // Guard against duplicate onComplete calls
     let completed = false;
@@ -79,6 +80,11 @@ export class ChatService {
               // Handle different chunk types
               if (parsed.type === 'token' && parsed.content) {
                 onChunk(parsed.content);
+              } else if (parsed.type === 'step' && parsed.content) {
+                // Emit mode/step information (like "simple" or "research")
+                if (onMode) {
+                  onMode(parsed.content);
+                }
               } else if (parsed.type === 'done') {
                 safeOnComplete();
                 return;
