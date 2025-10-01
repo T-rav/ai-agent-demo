@@ -208,32 +208,43 @@ Respond with ONLY ONE WORD:
             if docs_with_scores:
                 context_parts = []
                 sources_list = []
+                seen_sources = set()  # Track unique (file_name, title) pairs
 
-                for i, (doc, score) in enumerate(docs_with_scores, 1):
+                source_number = 1
+                for doc, score in docs_with_scores:
                     # Extract metadata (use correct field names from ingestion)
                     source_file = doc.metadata.get("file_name", "Unknown")
                     title = doc.metadata.get("document_title", "Untitled")
 
-                    # Build context with title and source
-                    context_parts.append(
-                        f"[Source {i}]\n"
-                        f"Title: {title}\n"
-                        f"From: {source_file}\n\n"
-                        f"{doc.page_content}"
-                    )
+                    # Create unique key for deduplication
+                    source_key = (source_file, title)
 
-                    # Track source for response metadata
-                    sources_list.append(
-                        {
-                            "content": doc.page_content[:500],
-                            "metadata": {
-                                "file_name": source_file,
-                                "title": title,
-                                "chunk_index": doc.metadata.get("chunk_index", 0),
-                            },
-                            "score": float(score),
-                        }
-                    )
+                    # Only add if we haven't seen this source before
+                    if source_key not in seen_sources:
+                        seen_sources.add(source_key)
+
+                        # Build context with title and source
+                        context_parts.append(
+                            f"[Source {source_number}]\n"
+                            f"Title: {title}\n"
+                            f"From: {source_file}\n\n"
+                            f"{doc.page_content}"
+                        )
+
+                        # Track source for response metadata
+                        sources_list.append(
+                            {
+                                "content": doc.page_content[:500],
+                                "metadata": {
+                                    "file_name": source_file,
+                                    "title": title,
+                                    "chunk_index": doc.metadata.get("chunk_index", 0),
+                                },
+                                "score": float(score),
+                            }
+                        )
+
+                        source_number += 1
 
                 context = "\n\n---\n\n".join(context_parts)
 
