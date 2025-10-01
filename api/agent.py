@@ -580,13 +580,15 @@ Respond with ONLY ONE WORD:
 
         # Use astream_events for token-level streaming (v2 API)
         routing_mode = None
+        routing_done = False
         async for event in self.graph.astream_events(initial_state, version="v2"):
             kind = event["event"]
 
             # Capture routing decision from router node
             if kind == "on_chain_end":
                 node_name = event.get("name", "")
-                if "router" in node_name.lower():
+                if "router" in node_name.lower() or node_name == "_route_request":
+                    routing_done = True
                     # Extract routing decision from state if available
                     output = event.get("data", {}).get("output", {})
                     if isinstance(output, dict) and "routing_decision" in output:
@@ -596,9 +598,9 @@ Respond with ONLY ONE WORD:
 
             # Stream tokens from the language model (but skip router LLM output)
             if kind == "on_chat_model_stream":
-                # Skip tokens from the router LLM (we don't want to show SIMPLE/RESEARCH text)
-                node_name = event.get("name", "")
-                if "router" not in node_name.lower():
+                # Only stream tokens AFTER routing is complete
+                # This ensures we skip the "SIMPLE" or "RESEARCH" tokens from router LLM
+                if routing_done:
                     chunk = event["data"]["chunk"]
                     if hasattr(chunk, "content") and chunk.content:
                         yield {"type": "token", "content": chunk.content}
