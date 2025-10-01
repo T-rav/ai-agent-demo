@@ -43,6 +43,10 @@ class RAGAgent:
             temperature=0,
         )
 
+        # Initialize web search tool instance (maintains state across searches)
+        from tools import create_web_search_tool
+        self.web_search_tool = create_web_search_tool()
+
         self.tools = get_available_tools()
         self.llm_with_tools = self.llm.bind_tools(self.tools)
 
@@ -384,13 +388,12 @@ Respond with ONLY ONE WORD:
             messages = [system_message] + list(messages)
 
         # Give access to KB and web search tools
-        from tools import create_web_search_tool, search_knowledge_base
+        from tools import search_knowledge_base
 
-        web_search_tool_instance = create_web_search_tool()
         gathering_tools = [search_knowledge_base]
-        if web_search_tool_instance:
-            # Use the tool method from the stateful instance
-            gathering_tools.append(web_search_tool_instance.as_tool())
+        if self.web_search_tool:
+            # Use the shared web search tool instance (maintains counter across searches)
+            gathering_tools.append(self.web_search_tool.as_tool())
 
         llm_with_gathering = self.llm.bind_tools(gathering_tools)
         response = await llm_with_gathering.ainvoke(messages)
@@ -589,6 +592,10 @@ Respond with ONLY ONE WORD:
         Yields:
             Chunks of the response as tokens are generated
         """
+        # Reset web search counter for new conversation (if first message or no history)
+        if self.web_search_tool and len(messages) <= 1:
+            self.web_search_tool.source_counter = 0
+
         # Convert message dicts to LangChain message objects
         lc_messages = []
         for msg in messages:
