@@ -312,6 +312,6 @@ def get_available_tools():
     # Add web search if configured
     web_search = create_web_search_tool()
     if web_search:
-        tools.append(web_search)
+        tools.append(web_search.as_tool())
 
     return tools
