@@ -53,23 +53,35 @@ class Config:
 
         return {
             "openai_api_key": os.getenv("OPENAI_API_KEY", api_config.get("openai_api_key", "")),
-            "pinecone_api_key": os.getenv("PINECONE_API_KEY", api_config.get("pinecone_api_key", "")),
-            "pinecone_environment": os.getenv("PINECONE_ENVIRONMENT", api_config.get("pinecone_environment", "")),
+            "pinecone_api_key": os.getenv(
+                "PINECONE_API_KEY", api_config.get("pinecone_api_key", "")
+            ),
+            "pinecone_environment": os.getenv(
+                "PINECONE_ENVIRONMENT", api_config.get("pinecone_environment", "")
+            ),
         }
 
     def get_database_config(self) -> Dict[str, str]:
         """Get database configuration."""
         db_config = self._config.get("database", {})
 
-        return {"index_name": os.getenv("PINECONE_INDEX_NAME", db_config.get("index_name", "ai-agent-demo-index"))}
+        return {
+            "index_name": os.getenv(
+                "PINECONE_INDEX_NAME", db_config.get("index_name", "ai-agent-demo-index")
+            )
+        }
 
     def get_embedding_config(self) -> Dict[str, Any]:
         """Get embedding configuration."""
         embedding_config = self._config.get("embedding", {})
 
         return {
-            "model": os.getenv("EMBEDDING_MODEL", embedding_config.get("model", "text - embedding - 3-small")),
-            "dimensions": int(os.getenv("EMBEDDING_DIMENSIONS", str(embedding_config.get("dimensions", 1536)))),
+            "model": os.getenv(
+                "EMBEDDING_MODEL", embedding_config.get("model", "text - embedding - 3-small")
+            ),
+            "dimensions": int(
+                os.getenv("EMBEDDING_DIMENSIONS", str(embedding_config.get("dimensions", 1536)))
+            ),
         }
 
     def get_processing_config(self) -> Dict[str, int]:
@@ -77,10 +89,16 @@ class Config:
         processing_config = self._config.get("processing", {})
 
         return {
-            "chunk_size": int(os.getenv("CHUNK_SIZE", str(processing_config.get("chunk_size", 1000)))),
-            "chunk_overlap": int(os.getenv("CHUNK_OVERLAP", str(processing_config.get("chunk_overlap", 200)))),
+            "chunk_size": int(
+                os.getenv("CHUNK_SIZE", str(processing_config.get("chunk_size", 1000)))
+            ),
+            "chunk_overlap": int(
+                os.getenv("CHUNK_OVERLAP", str(processing_config.get("chunk_overlap", 200)))
+            ),
             "embedding_batch_size": int(
-                os.getenv("EMBEDDING_BATCH_SIZE", str(processing_config.get("embedding_batch_size", 100)))
+                os.getenv(
+                    "EMBEDDING_BATCH_SIZE", str(processing_config.get("embedding_batch_size", 100))
+                )
             ),
             "upsert_batch_size": int(
                 os.getenv("UPSERT_BATCH_SIZE", str(processing_config.get("upsert_batch_size", 100)))
@@ -91,7 +109,11 @@ class Config:
         """Get paths configuration."""
         paths_config = self._config.get("paths", {})
 
-        return {"corpus_path": os.getenv("CORPUS_PATH", paths_config.get("corpus_path", "../data / corpus"))}
+        return {
+            "corpus_path": os.getenv(
+                "CORPUS_PATH", paths_config.get("corpus_path", "../data / corpus")
+            )
+        }
 
     def get_logging_config(self) -> Dict[str, Any]:
         """Get logging configuration."""
@@ -99,7 +121,9 @@ class Config:
 
         return {
             "level": os.getenv("LOG_LEVEL", logging_config.get("level", "INFO")),
-            "show_progress": os.getenv("SHOW_PROGRESS", str(logging_config.get("show_progress", True))).lower()
+            "show_progress": os.getenv(
+                "SHOW_PROGRESS", str(logging_config.get("show_progress", True))
+            ).lower()
             == "true",
         }
 

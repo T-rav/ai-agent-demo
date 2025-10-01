@@ -8,7 +8,7 @@ Tests organized by concept following the ingest system patterns.
 tests/
 ├── api/                    # API endpoint tests
 │   └── test_endpoints.py   # FastAPI endpoint tests organized by functionality
-├── config/                 # Configuration tests  
+├── config/                 # Configuration tests
 │   └── test_config.py      # Settings and environment variable tests
 ├── models/                 # Pydantic model tests
 │   └── test_models.py      # Model validation tests
@@ -63,7 +63,7 @@ from tests.factories import AgentFactory, VectorStoreFactory
 def test_something():
     mock_agent = AgentFactory.create_mock_agent()
     mock_vector_store = VectorStoreFactory.create_mock_vector_store()
-    
+
     # Use mocks in test
     with patch("module.agent", mock_agent):
         # Test code
@@ -99,16 +99,16 @@ Tests within files are organized into classes by functionality:
 ```python
 class TestHealthEndpoints:
     """Tests for health check endpoints."""
-    
+
     def test_root_endpoint(self):
         ...
-    
+
     def test_health_endpoint(self):
         ...
 
 class TestChatEndpoints:
     """Tests for chat endpoints."""
-    
+
     def test_chat_endpoint(self):
         ...
 ```
@@ -146,4 +146,3 @@ pytest tests/ --cov=. --cov-report=term-missing --cov-fail-under=70
 4. **Class-based organization** - Clear test structure
 5. **Descriptive test names** - Test names should describe what they test
 6. **Minimal fixtures** - Only fixture what's truly shared and complex
-

@@ -75,7 +75,9 @@ class ProcessedDocumentBuilder:
     def with_long_content(self) -> "ProcessedDocumentBuilder":
         """Set long content for chunking tests."""
         long_content = " ".join(["This is sentence {i} in a long document." for i in range(100)])
-        return self.with_content(long_content).with_token_count(500).with_char_count(len(long_content))
+        return (
+            self.with_content(long_content).with_token_count(500).with_char_count(len(long_content))
+        )
 
     def with_empty_content(self) -> "ProcessedDocumentBuilder":
         """Set empty content."""

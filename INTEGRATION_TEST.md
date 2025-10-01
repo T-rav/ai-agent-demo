@@ -84,4 +84,3 @@ UI displays streaming text
 - Check browser supports SSE (all modern browsers do)
 - Check API logs for errors
 - Verify OpenAI/Pinecone keys are valid
-

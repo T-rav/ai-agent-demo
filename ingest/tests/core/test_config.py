@@ -5,7 +5,7 @@ Tests for the config_loader module.
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, mock_open, patch
+from unittest.mock import mock_open, patch
 
 import pytest
 
@@ -252,7 +252,9 @@ CHUNK_SIZE=2000
                             )
                             mock_init.return_value = None
 
-                            with patch("ingest.core.config_loader.Config", return_value=mock_config):
+                            with patch(
+                                "ingest.core.config_loader.Config", return_value=mock_config
+                            ):
                                 config = load_config()
 
                                 assert config.openai_api_key == "dotenv - openai - key"

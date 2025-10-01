@@ -68,7 +68,9 @@ class DocumentContentExtractor:
                         if page_text.strip():
                             content.append(f"--- Page {page_num + 1} ---\n{page_text}")
                     except Exception as page_error:
-                        print(f"Warning: Error extracting page {page_num + 1} from {file_path}: {page_error}")
+                        print(
+                            f"Warning: Error extracting page {page_num + 1} from {file_path}: {page_error}"
+                        )
         except Exception as e:
             raise ProcessingError(f"Failed to read PDF file {file_path}: {e}") from e
 

@@ -142,7 +142,9 @@ def main():
     parser = argparse.ArgumentParser(description="Test queries against the ingested corpus")
     parser.add_argument("--query", type=str, help="Single query to test")
     parser.add_argument("--interactive", action="store_true", help="Run in interactive mode")
-    parser.add_argument("--sample-queries", action="store_true", help="Run sample queries for testing")
+    parser.add_argument(
+        "--sample-queries", action="store_true", help="Run sample queries for testing"
+    )
     parser.add_argument("--top-k", type=int, default=5, help="Number of results to return")
 
     args = parser.parse_args()

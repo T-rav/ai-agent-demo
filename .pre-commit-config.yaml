@@ -45,4 +45,3 @@ repos:
       - id: prettier
         files: ^ui/.*\.(ts|tsx|js|jsx|json|css|md)$
         exclude: node_modules
-

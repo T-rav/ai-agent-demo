@@ -83,7 +83,9 @@ class PineconeVectorStore:
             batch = texts[i : i + batch_size]
 
             try:
-                response = self.openai_client.embeddings.create(model=self.embedding_model, input=batch)
+                response = self.openai_client.embeddings.create(
+                    model=self.embedding_model, input=batch
+                )
 
                 batch_embeddings = [item.embedding for item in response.data]
                 embeddings.extend(batch_embeddings)
@@ -127,7 +129,9 @@ class PineconeVectorStore:
             # Clean content preview (normalize whitespace like we do for embeddings)
             clean_preview = chunk.content.replace("\n", " ").replace("\r", " ")
             clean_preview = " ".join(clean_preview.split())
-            metadata["content_preview"] = clean_preview[:500] + "..." if len(clean_preview) > 500 else clean_preview
+            metadata["content_preview"] = (
+                clean_preview[:500] + "..." if len(clean_preview) > 500 else clean_preview
+            )
 
             vector = {
                 "id": chunk.id,
@@ -170,9 +174,14 @@ class PineconeVectorStore:
         query_embedding = self.generate_embeddings([query_text])[0]
 
         # Query the index
-        results = self.index.query(vector=query_embedding, top_k=top_k, filter=filter_dict, include_metadata=True)
+        results = self.index.query(
+            vector=query_embedding, top_k=top_k, filter=filter_dict, include_metadata=True
+        )
 
-        return [{"id": match.id, "score": match.score, "metadata": match.metadata} for match in results.matches]
+        return [
+            {"id": match.id, "score": match.score, "metadata": match.metadata}
+            for match in results.matches
+        ]
 
     def get_index_stats(self) -> Dict[str, Any]:
         """Get statistics about the current index."""

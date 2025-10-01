@@ -144,4 +144,3 @@ d: dev
 t: test
 l: lint
 f: format
-

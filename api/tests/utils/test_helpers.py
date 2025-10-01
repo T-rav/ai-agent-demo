@@ -2,7 +2,7 @@
 Tests for utility functions and helpers.
 """
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 

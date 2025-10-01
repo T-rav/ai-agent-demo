@@ -14,6 +14,7 @@ class TestScoreThresholdFiltering:
     async def test_filters_low_score_documents(self, mock_env_vars):
         """Test that documents below threshold are filtered out."""
         from langchain_core.documents import Document
+
         from tools import search_knowledge_base
 
         # Create documents with varying scores
@@ -47,6 +48,7 @@ class TestScoreThresholdFiltering:
     async def test_returns_message_when_all_below_threshold(self, mock_env_vars):
         """Test that helpful message is returned when all docs below threshold."""
         from langchain_core.documents import Document
+
         from tools import search_knowledge_base
 
         low_score_doc = Document(
@@ -69,6 +71,7 @@ class TestScoreThresholdFiltering:
     async def test_passes_documents_at_threshold(self, mock_env_vars):
         """Test that documents exactly at threshold pass through."""
         from langchain_core.documents import Document
+
         from tools import search_knowledge_base
 
         threshold_doc = Document(

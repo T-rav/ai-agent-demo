@@ -2,7 +2,6 @@
 Document - related Pydantic models.
 """
 
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 

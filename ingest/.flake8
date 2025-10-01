@@ -1,7 +1,7 @@
 [flake8]
 max-line-length = 120
 max-complexity = 10
-exclude = 
+exclude =
     __pycache__,
     venv,
     build,
@@ -13,7 +13,7 @@ exclude =
     *.egg-info
 
 # Error codes to ignore
-ignore = 
+ignore =
     # E203: whitespace before ':' (conflicts with black)
     E203,
     # W503: line break before binary operator (conflicts with black)
@@ -38,7 +38,7 @@ ignore =
     E305
 
 # Error codes to enforce
-select = 
+select =
     E,  # pycodestyle errors
     W,  # pycodestyle warnings
     F,  # pyflakes

@@ -172,7 +172,9 @@ class CorpusIngester:
 def main():
     """Main entry point for the ingestion script."""
     parser = argparse.ArgumentParser(description="Ingest AI Pocket Projects corpus into Pinecone")
-    parser.add_argument("--corpus-path", type=str, help="Path to the corpus directory (overrides config)")
+    parser.add_argument(
+        "--corpus-path", type=str, help="Path to the corpus directory (overrides config)"
+    )
 
     args = parser.parse_args()
 

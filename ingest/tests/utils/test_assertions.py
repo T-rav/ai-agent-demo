@@ -78,5 +78,7 @@ class TestAssertions:
         if call_args:
             args, kwargs = call_args
             content_found = any(expected_content in str(arg) for arg in args)
-            content_found = content_found or any(expected_content in str(val) for val in kwargs.values())
+            content_found = content_found or any(
+                expected_content in str(val) for val in kwargs.values()
+            )
             assert content_found, "Expected content '{expected_content}' not found in mock calls"

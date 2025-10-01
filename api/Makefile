@@ -140,4 +140,3 @@ clean:
 
 # Shortcuts
 build: clean install
-

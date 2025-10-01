@@ -116,7 +116,7 @@ SIMPLE   RESEARCH
 
 **System Prompt**: "Answer using provided context, cite sources"
 
-**Tools Available**: 
+**Tools Available**:
 - Web search (optional, if needs current info)
 
 **Process**:
@@ -171,7 +171,7 @@ SIMPLE   RESEARCH
 
 **Output**: Gathered research with tracked sources
 
-**Loop Condition**: 
+**Loop Condition**:
 - If has tool calls → back to Tools node (gather more)
 - If signals "RESEARCH COMPLETE" → Report Builder
 
@@ -331,8 +331,8 @@ graph = workflow.compile()
 4. END
 ```
 
-**Time**: ~3 seconds  
-**Cost**: ~$0.02  
+**Time**: ~3 seconds
+**Cost**: ~$0.02
 **Sources**: 3 KB sources
 
 ---
@@ -354,8 +354,8 @@ graph = workflow.compile()
 12. END
 ```
 
-**Time**: ~30 seconds  
-**Cost**: ~$0.15  
+**Time**: ~30 seconds
+**Cost**: ~$0.15
 **Sources**: 5 KB + 5 web = 10 total sources
 
 ---
@@ -433,11 +433,11 @@ View at: https://smith.langchain.com/
 - References section:
   ```markdown
   ## References
-  
+
   ### Knowledge Base Sources
   [KB-1] Title (source.md)
   [KB-2] Title (source.md)
-  
+
   ### Web Sources
   [WEB-1] Title (https://...)
   [WEB-2] Title (https://...)
@@ -463,14 +463,13 @@ Potential improvements:
 
 This architecture provides:
 
-✅ **Intelligent Routing** - Automatic intent classification  
-✅ **Dual Workflows** - Simple RAG vs. Deep Research  
-✅ **Multi-Agent** - Specialized agents per phase  
-✅ **Tool Orchestration** - Dynamic tool selection  
-✅ **Source Tracking** - Complete citation system  
-✅ **Full Observability** - Every step traced  
-✅ **Cost Optimized** - Appropriate resources per path  
-✅ **Scalable** - Easy to add new agents/tools  
+✅ **Intelligent Routing** - Automatic intent classification
+✅ **Dual Workflows** - Simple RAG vs. Deep Research
+✅ **Multi-Agent** - Specialized agents per phase
+✅ **Tool Orchestration** - Dynamic tool selection
+✅ **Source Tracking** - Complete citation system
+✅ **Full Observability** - Every step traced
+✅ **Cost Optimized** - Appropriate resources per path
+✅ **Scalable** - Easy to add new agents/tools
 
 A production-ready agentic research system! 🚀
-

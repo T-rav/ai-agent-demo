@@ -58,7 +58,9 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
                 <span
                   key={index}
                   className="message-source-icon"
-                  data-tooltip={`${source.metadata.document_title || 'Unknown'} - ${source.metadata.file_name || 'Unknown file'}`}
+                  data-tooltip={`${source.metadata.document_title || 'Unknown'} - ${
+                    source.metadata.file_name || 'Unknown file'
+                  }`}
                 >
                   📚
                 </span>

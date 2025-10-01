@@ -3,7 +3,7 @@ Tests for FastAPI endpoints.
 Unit tests only - integration tests marked for future implementation.
 """
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient

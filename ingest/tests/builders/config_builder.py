@@ -90,11 +90,21 @@ class IngestionConfigBuilder:
 
     def for_production(self) -> "IngestionConfigBuilder":
         """Configure for production environment."""
-        return self.with_log_level("WARNING").with_progress_display(False).with_chunk_size(1500).with_chunk_overlap(300)
+        return (
+            self.with_log_level("WARNING")
+            .with_progress_display(False)
+            .with_chunk_size(1500)
+            .with_chunk_overlap(300)
+        )
 
     def for_development(self) -> "IngestionConfigBuilder":
         """Configure for development environment."""
-        return self.with_log_level("DEBUG").with_progress_display(True).with_chunk_size(500).with_chunk_overlap(100)
+        return (
+            self.with_log_level("DEBUG")
+            .with_progress_display(True)
+            .with_chunk_size(500)
+            .with_chunk_overlap(100)
+        )
 
     def build(self) -> IngestionConfig:
         """Build the IngestionConfig."""

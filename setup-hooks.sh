@@ -5,10 +5,34 @@ set -e
 
 echo "🔧 Setting up pre-commit hooks..."
 
+# Function to install pre-commit
+install_precommit() {
+    # Check if we're in a virtual environment
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        echo "📦 Installing pre-commit in virtual environment..."
+        python -m pip install pre-commit
+    # Check if project has a venv directory
+    elif [[ -d "venv" ]]; then
+        echo "📦 Found venv directory, installing pre-commit there..."
+        source venv/bin/activate
+        python -m pip install pre-commit
+    # Try using --user flag for system-wide install
+    else
+        echo "📦 Installing pre-commit with --user flag..."
+        python3 -m pip install --user pre-commit
+        # Add user bin to PATH if not already there
+        if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+            export PATH="$HOME/.local/bin:$PATH"
+            echo "   Added ~/.local/bin to PATH for this session"
+        fi
+    fi
+}
+
 # Install pre-commit if not already installed
 if ! command -v pre-commit &> /dev/null; then
-    echo "📦 Installing pre-commit..."
-    python3 -m pip install pre-commit
+    install_precommit
+else
+    echo "✓ pre-commit already installed"
 fi
 
 # Install the git hooks
@@ -27,4 +51,3 @@ echo "💡 Tips:"
 echo "   - To skip hooks: git commit --no-verify"
 echo "   - To run manually: pre-commit run --all-files"
 echo "   - To update hooks: pre-commit autoupdate"
-

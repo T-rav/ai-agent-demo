@@ -243,12 +243,12 @@ User: "Write a comprehensive report on RAG systems"
 
 **100% of both flows are traced!** Every request is logged with complete visibility:
 
-✅ **Router Decision**: See if it chose SIMPLE or RESEARCH mode  
-✅ **Agent Reasoning**: View which tools it decided to use  
-✅ **Tool Executions**: See inputs, outputs, and latency  
-✅ **Token Usage**: Monitor costs per request  
-✅ **Performance**: Track latency bottlenecks  
-✅ **Debugging**: Understand why decisions were made  
+✅ **Router Decision**: See if it chose SIMPLE or RESEARCH mode
+✅ **Agent Reasoning**: View which tools it decided to use
+✅ **Tool Executions**: See inputs, outputs, and latency
+✅ **Token Usage**: Monitor costs per request
+✅ **Performance**: Track latency bottlenecks
+✅ **Debugging**: Understand why decisions were made
 
 See **`TRACING_GUIDE.md`** for detailed examples of what gets traced!
 
@@ -320,4 +320,3 @@ curl -X POST http://localhost:8000/api/chat \
 ## License
 
 See LICENSE file in project root.
-
