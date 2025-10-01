@@ -38,11 +38,11 @@ describe('MessageList Component', () => {
     expect(screen.getByText('Can you help me with a coding question? - user')).toBeInTheDocument();
   });
 
-  it('renders messages without separate typing indicator', () => {
+  it('renders messages with typing indicator when loading', () => {
     render(<MessageList messages={mockMessages} isLoading={true} />);
 
-    // The typing indicator is now inside the Message component, not in MessageList
-    expect(screen.queryByLabelText('Loading')).not.toBeInTheDocument();
+    // MessageList shows a typing indicator when isLoading is true
+    expect(screen.getByLabelText('Loading')).toBeInTheDocument();
   });
 
   it('applies correct CSS classes for empty state', () => {

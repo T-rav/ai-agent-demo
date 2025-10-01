@@ -30,13 +30,28 @@ repos:
         files: ^(api|ingest)/.*\.py$
         args: [--profile=black, --line-length=100]
 
-  # Linting with Flake8 (matches CI)
+  # Auto-fix unused imports and variables
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.3.1
+    hooks:
+      - id: autoflake
+        files: ^(api|ingest)/.*\.py$
+        args:
+          - --in-place
+          - --remove-all-unused-imports
+          - --remove-unused-variables
+          - --remove-duplicate-keys
+          - --ignore-init-module-imports
+
+  # Linting with Flake8 (matches CI) - runs after auto-fixes
   - repo: https://github.com/PyCQA/flake8
     rev: 7.3.0
     hooks:
       - id: flake8
         files: ^(api|ingest)/.*\.py$
-        args: [--max-line-length=100, --extend-ignore=E203,W503]
+        args:
+          - --max-line-length=100
+          - --extend-ignore=E203,W503
 
   # TypeScript/JavaScript formatting with Prettier
   - repo: https://github.com/pre-commit/mirrors-prettier

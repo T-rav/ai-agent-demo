@@ -2,7 +2,6 @@
 Document - related Pydantic models.
 """
 
-
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .enums import FileType
