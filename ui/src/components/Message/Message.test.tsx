@@ -44,7 +44,17 @@ describe('Message Component', () => {
     expect(messageElement).toHaveClass('message', 'assistant');
   });
 
-  it('shows streaming cursor when message is streaming', () => {
+  it('shows typing dots when streaming with no content', () => {
+    const streamingMessage = anAssistantMessage().withContent('').isStreaming(true).build();
+
+    render(<Message message={streamingMessage} />);
+
+    const typingDots = document.querySelector('.typing-dots');
+    expect(typingDots).toBeInTheDocument();
+    expect(typingDots?.querySelectorAll('span')).toHaveLength(3);
+  });
+
+  it('shows streaming cursor when message is streaming with content', () => {
     const streamingMessage = anAssistantMessage()
       .withContent('Streaming message')
       .isStreaming(true)

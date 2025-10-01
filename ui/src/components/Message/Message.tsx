@@ -19,8 +19,18 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
     <div className={`message ${message.sender}`}>
       <div className="message-content">
         <div className="message-text">
-          {message.content}
-          {message.isStreaming && <span className="cursor">|</span>}
+          {message.isStreaming && !message.content ? (
+            <div className="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          ) : (
+            <>
+              {message.content}
+              {message.isStreaming && <span className="cursor">|</span>}
+            </>
+          )}
         </div>
         <div className="message-time">{formatTime(message.timestamp)}</div>
       </div>

@@ -37,15 +37,6 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, isLoading })
         {messages.map((message) => (
           <Message key={message.id} message={message} />
         ))}
-        {isLoading && (
-          <div className="typing-indicator" role="status" aria-label="Loading">
-            <div className="typing-dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </div>
-        )}
         <div ref={messagesEndRef} />
       </div>
     </div>
