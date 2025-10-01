@@ -43,10 +43,6 @@ class RAGAgent:
             temperature=0,
         )
 
-        # Initialize web search tool instance (maintains state across searches)
-        from tools import create_web_search_tool
-        self.web_search_tool = create_web_search_tool()
-
         self.tools = get_available_tools()
         self.llm_with_tools = self.llm.bind_tools(self.tools)
 
@@ -388,17 +384,24 @@ Respond with ONLY ONE WORD:
             messages = [system_message] + list(messages)
 
         # Give access to KB and web search tools
-        from tools import search_knowledge_base
+        from tools import create_web_search_tool, search_knowledge_base
+
+        # Create a new web search tool instance for this request
+        # Initialize it with the current counter from state
+        web_search_tool = create_web_search_tool()
+        if web_search_tool:
+            web_search_tool.source_counter = state.get("web_source_counter", 0)
 
         gathering_tools = [search_knowledge_base]
-        if self.web_search_tool:
-            # Use the shared web search tool instance (maintains counter across searches)
-            gathering_tools.append(self.web_search_tool.as_tool())
+        if web_search_tool:
+            gathering_tools.append(web_search_tool.as_tool())
 
         llm_with_gathering = self.llm.bind_tools(gathering_tools)
         response = await llm_with_gathering.ainvoke(messages)
 
-        return {"messages": [response]}
+        # Update the counter in state for next search
+        new_counter = web_search_tool.source_counter if web_search_tool else 0
+        return {"messages": [response], "web_source_counter": new_counter}
 
     async def _report_builder(self, state: AgentState) -> AgentState:
         """
@@ -592,10 +595,6 @@ Respond with ONLY ONE WORD:
         Yields:
             Chunks of the response as tokens are generated
         """
-        # Reset web search counter for new conversation (if first message or no history)
-        if self.web_search_tool and len(messages) <= 1:
-            self.web_search_tool.source_counter = 0
-
         # Convert message dicts to LangChain message objects
         lc_messages = []
         for msg in messages:
@@ -606,8 +605,8 @@ Respond with ONLY ONE WORD:
             elif msg["role"] == "system":
                 lc_messages.append(SystemMessage(content=msg["content"]))
 
-        # Initialize state
-        initial_state = {"messages": lc_messages, "sources": []}
+        # Initialize state with web source counter starting at 0
+        initial_state = {"messages": lc_messages, "sources": [], "web_source_counter": 0}
 
         # Use astream_events for token-level streaming (v2 API)
         routing_mode = None
