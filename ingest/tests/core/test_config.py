@@ -29,27 +29,21 @@ class TestConfigLoader:
             "CHUNK_OVERLAP": "300",
         }
 
+        from ingest.tests.factories.config_factory import ConfigFactory
+
         with patch.dict(os.environ, env_vars):
             with patch("ingest.core.config_loader.Config.__init__") as mock_init:
-                mock_config = Mock()
-                mock_config.validate_required_config.return_value = None
-                mock_config.get_all_config.return_value = {
+                # Use factory to create mock config
+                mock_config = ConfigFactory.create_mock_config()
+                # Override with specific test values
+                mock_config.get_all_config.return_value.update({
                     "openai_api_key": "test - openai - key",
                     "pinecone_api_key": "test - pinecone - key",
-                    "pinecone_environment": "test - env",
-                    "index_name": "test - index",
                     "model": "text - embedding - 3-large",
                     "dimensions": 3072,
                     "chunk_size": 1500,
                     "chunk_overlap": 300,
-                    "min_chunk_size": 100,
-                    "max_chunk_size": 2000,
-                    "embedding_batch_size": 100,
-                    "upsert_batch_size": 100,
-                    "corpus_path": "data / corpus",
-                    "level": "INFO",
-                    "show_progress": True,
-                }
+                })
                 mock_init.return_value = None
 
                 with patch("ingest.core.config_loader.Config", return_value=mock_config):
@@ -120,25 +114,22 @@ show_progress = false
                         with patch("pathlib.Path.exists") as mock_exists:
                             mock_exists.return_value = True
                 with patch("ingest.core.config_loader.Config.__init__") as mock_init:
-                    mock_config = Mock()
-                    mock_config.validate_required_config.return_value = None
-                    mock_config.get_all_config.return_value = {
+                    # Use factory
+                    from ingest.tests.factories.config_factory import ConfigFactory
+
+                    mock_config = ConfigFactory.create_mock_config()
+                    mock_config.get_all_config.return_value.update({
                         "openai_api_key": "env - openai - key",
                         "pinecone_api_key": "env - pinecone - key",
                         "pinecone_environment": "env - environment",
                         "index_name": "test - index - from - toml",
-                        "model": "text - embedding - 3-small",
-                        "dimensions": 1536,
                         "chunk_size": 800,
                         "chunk_overlap": 150,
                         "min_chunk_size": 50,
                         "max_chunk_size": 1200,
-                        "embedding_batch_size": 100,
-                        "upsert_batch_size": 100,
-                        "corpus_path": "test / corpus",
                         "level": "DEBUG",
                         "show_progress": False,
-                    }
+                    })
                     mock_init.return_value = None
 
                     with patch("ingest.core.config_loader.Config", return_value=mock_config):
@@ -169,25 +160,13 @@ show_progress = false
 
         with patch.dict(os.environ, env_vars):
             with patch("ingest.core.config_loader.Config.__init__") as mock_init:
-                mock_config = Mock()
-                mock_config.validate_required_config.return_value = None
-                mock_config.get_all_config.return_value = {
-                    "openai_api_key": "test - key",
-                    "pinecone_api_key": "test - key",
-                    "pinecone_environment": "test - env",
+                # Use factory
+                from ingest.tests.factories.config_factory import ConfigFactory
+
+                mock_config = ConfigFactory.create_mock_config()
+                mock_config.get_all_config.return_value.update({
                     "index_name": "ai - agent - demo - index",
-                    "model": "text - embedding - 3-small",
-                    "dimensions": 1536,
-                    "chunk_size": 1000,
-                    "chunk_overlap": 200,
-                    "min_chunk_size": 100,
-                    "max_chunk_size": 2000,
-                    "embedding_batch_size": 100,
-                    "upsert_batch_size": 100,
-                    "corpus_path": "data / corpus",
-                    "level": "INFO",
-                    "show_progress": True,
-                }
+                })
                 mock_init.return_value = None
 
                 with patch("ingest.core.config_loader.Config", return_value=mock_config):
@@ -253,25 +232,16 @@ CHUNK_SIZE=2000
 
                     with patch.dict(os.environ, env_vars):
                         with patch("ingest.core.config_loader.Config.__init__") as mock_init:
-                            mock_config = Mock()
-                            mock_config.validate_required_config.return_value = None
-                            mock_config.get_all_config.return_value = {
+                            # Use factory
+                            from ingest.tests.factories.config_factory import ConfigFactory
+
+                            mock_config = ConfigFactory.create_mock_config()
+                            mock_config.get_all_config.return_value.update({
                                 "openai_api_key": "dotenv - openai - key",
                                 "pinecone_api_key": "dotenv - pinecone - key",
                                 "pinecone_environment": "dotenv - env",
-                                "index_name": "ai - agent - demo - index",
-                                "model": "text - embedding - 3-small",
-                                "dimensions": 1536,
                                 "chunk_size": 2000,
-                                "chunk_overlap": 200,
-                                "min_chunk_size": 100,
-                                "max_chunk_size": 2000,
-                                "embedding_batch_size": 100,
-                                "upsert_batch_size": 100,
-                                "corpus_path": "data / corpus",
-                                "level": "INFO",
-                                "show_progress": True,
-                            }
+                            })
                             mock_init.return_value = None
 
                             with patch("ingest.core.config_loader.Config", return_value=mock_config):
