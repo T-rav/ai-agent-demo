@@ -8,7 +8,12 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 from ..models import ChunkingError, ChunkMetadata, DocumentChunk, ProcessedDocument
-from ..utils import MarkdownSectionSplitter, ParagraphSplitter, SentenceSplitter, TiktokenEncoder
+from ..utils import (
+    MarkdownSectionSplitter,
+    ParagraphSplitter,
+    SentenceSplitter,
+    TiktokenEncoder,
+)
 
 
 class ChunkingStrategy(ABC):
@@ -200,7 +205,11 @@ class DocumentChunkingService:
 
                     if current_tokens + sentence_tokens > self.chunk_size and current_chunk:
                         current_chunk, current_tokens = self._finalize_and_start_new_chunk(
-                            chunks, current_chunk, document, section_header, page_num
+                            chunks,
+                            current_chunk,
+                            document,
+                            section_header,
+                            page_num,
                         )
 
                     current_chunk.append(sentence)

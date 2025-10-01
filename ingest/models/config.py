@@ -17,12 +17,16 @@ class IngestionConfig(BaseModel):
 
     # Database Configuration
     index_name: str = Field(
-        default="ai - agent - demo - index", min_length=1, description="Pinecone index name"
+        default="ai - agent - demo - index",
+        min_length=1,
+        description="Pinecone index name",
     )
 
     # Embedding Configuration
     model: str = Field(
-        default="text - embedding - 3-small", min_length=1, description="OpenAI embedding model"
+        default="text - embedding - 3-small",
+        min_length=1,
+        description="OpenAI embedding model",
     )
     dimensions: int = Field(default=1536, gt=0, description="Embedding dimensions")
 

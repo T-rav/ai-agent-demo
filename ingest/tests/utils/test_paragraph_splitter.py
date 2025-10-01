@@ -26,7 +26,11 @@ class TestParagraphSplitter:
         """Test paragraph splitting with extra whitespace."""
         text = "First paragraph.\n\n\n\nSecond paragraph with extra newlines.\n\n\nThird paragraph."
         result = splitter.split(text)
-        expected = ["First paragraph.", "Second paragraph with extra newlines.", "Third paragraph."]
+        expected = [
+            "First paragraph.",
+            "Second paragraph with extra newlines.",
+            "Third paragraph.",
+        ]
         assert result == expected
 
     def test_empty_text(self, splitter):

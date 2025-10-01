@@ -26,7 +26,11 @@ class VectorStoreFactory:
         )
         mock_doc2 = Document(
             page_content="Vector databases store embeddings efficiently.",
-            metadata={"source": "vector_db.md", "title": "Vector Databases", "chunk_index": 1},
+            metadata={
+                "source": "vector_db.md",
+                "title": "Vector Databases",
+                "chunk_index": 1,
+            },
         )
 
         # Mock similarity_search_with_score

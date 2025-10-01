@@ -105,11 +105,19 @@ class TestSimpleRAGScoreFiltering:
         # Create mock documents
         high_score_doc = Document(
             page_content="Relevant answer",
-            metadata={"file_name": "good.md", "document_title": "Good Source", "chunk_index": 0},
+            metadata={
+                "file_name": "good.md",
+                "document_title": "Good Source",
+                "chunk_index": 0,
+            },
         )
         low_score_doc = Document(
             page_content="Irrelevant answer",
-            metadata={"file_name": "bad.md", "document_title": "Bad Source", "chunk_index": 0},
+            metadata={
+                "file_name": "bad.md",
+                "document_title": "Bad Source",
+                "chunk_index": 0,
+            },
         )
 
         mock_vs = AsyncMock()
@@ -137,7 +145,11 @@ class TestSimpleRAGScoreFiltering:
 
         low_score_doc = Document(
             page_content="Low relevance",
-            metadata={"file_name": "low.md", "document_title": "Low Doc", "chunk_index": 0},
+            metadata={
+                "file_name": "low.md",
+                "document_title": "Low Doc",
+                "chunk_index": 0,
+            },
         )
 
         mock_vs = AsyncMock()

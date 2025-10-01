@@ -64,7 +64,11 @@ class TestConfigLoader:
     def test_load_config_missing_required_env_vars(self):
         """Test that missing required environment variables raise an error."""
         # Clear any existing env vars
-        env_vars = {"OPENAI_API_KEY": "", "PINECONE_API_KEY": "", "PINECONE_ENVIRONMENT": ""}
+        env_vars = {
+            "OPENAI_API_KEY": "",
+            "PINECONE_API_KEY": "",
+            "PINECONE_ENVIRONMENT": "",
+        }
 
         with patch.dict(os.environ, env_vars, clear=True):
             with pytest.raises(ConfigurationError, match="Failed to load configuration"):
@@ -239,7 +243,9 @@ CHUNK_SIZE=2000
                     with patch.dict(os.environ, env_vars):
                         with patch("ingest.core.config_loader.Config.__init__") as mock_init:
                             # Use factory
-                            from ingest.tests.factories.config_factory import ConfigFactory
+                            from ingest.tests.factories.config_factory import (
+                                ConfigFactory,
+                            )
 
                             mock_config = ConfigFactory.create_mock_config()
                             mock_config.get_all_config.return_value.update(
@@ -253,7 +259,8 @@ CHUNK_SIZE=2000
                             mock_init.return_value = None
 
                             with patch(
-                                "ingest.core.config_loader.Config", return_value=mock_config
+                                "ingest.core.config_loader.Config",
+                                return_value=mock_config,
                             ):
                                 config = load_config()
 

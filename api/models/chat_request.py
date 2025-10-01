@@ -18,5 +18,6 @@ class ChatRequest(BaseModel):
     )
     session_id: Optional[str] = Field(None, description="Optional session ID for tracking")
     research_mode: bool = Field(
-        default=False, description="If True, activates deep research mode for comprehensive reports"
+        default=False,
+        description="If True, activates deep research mode for comprehensive reports",
     )

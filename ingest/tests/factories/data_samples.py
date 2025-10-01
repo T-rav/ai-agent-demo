@@ -22,7 +22,11 @@ class TestDataSamples:
         "CHUNK_OVERLAP": "300",
     }
 
-    EMPTY_ENV_VARS = {"OPENAI_API_KEY": "", "PINECONE_API_KEY": "", "PINECONE_ENVIRONMENT": ""}
+    EMPTY_ENV_VARS = {
+        "OPENAI_API_KEY": "",
+        "PINECONE_API_KEY": "",
+        "PINECONE_ENVIRONMENT": "",
+    }
 
     # TOML configuration content
     SAMPLE_TOML_CONFIG = """

@@ -66,7 +66,9 @@ class TestSourceDocumentModel:
     def test_source_document_serialization(self):
         """Test source document can be serialized."""
         doc = SourceDocument(
-            content="Test content", metadata={"source": "test.md", "title": "Test"}, score=0.85
+            content="Test content",
+            metadata={"source": "test.md", "title": "Test"},
+            score=0.85,
         )
 
         json_data = doc.model_dump()
@@ -87,7 +89,11 @@ class TestStreamChunkModel:
 
     def test_stream_chunk_sources_type(self):
         """Test stream chunk with sources type."""
-        source_dict = {"content": "Test content", "metadata": {"source": "test.md"}, "score": 0.9}
+        source_dict = {
+            "content": "Test content",
+            "metadata": {"source": "test.md"},
+            "score": 0.9,
+        }
         chunk = StreamChunk(type="sources", sources=[source_dict])
 
         assert chunk.type == "sources"

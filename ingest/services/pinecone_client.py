@@ -154,7 +154,10 @@ class PineconeVectorStore:
         print(f"Successfully upserted {len(vectors)} vectors!")
 
     def query_similar(
-        self, query_text: str, top_k: int = 10, filter_dict: Optional[Dict[str, Any]] = None
+        self,
+        query_text: str,
+        top_k: int = 10,
+        filter_dict: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
         """
         Query for similar vectors in the index.
@@ -175,7 +178,10 @@ class PineconeVectorStore:
 
         # Query the index
         results = self.index.query(
-            vector=query_embedding, top_k=top_k, filter=filter_dict, include_metadata=True
+            vector=query_embedding,
+            top_k=top_k,
+            filter=filter_dict,
+            include_metadata=True,
         )
 
         return [

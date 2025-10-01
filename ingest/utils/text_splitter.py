@@ -74,7 +74,10 @@ class SentenceSplitter(TextSplitter):
         """Replace dots in abbreviations with placeholder."""
         pattern = r"\b(?:" + "|".join(re.escape(abbr) for abbr in self._abbreviations) + r")\."
         return re.sub(
-            pattern, lambda m: m.group().replace(".", "<!DOT!>"), text, flags=re.IGNORECASE
+            pattern,
+            lambda m: m.group().replace(".", "<!DOT!>"),
+            text,
+            flags=re.IGNORECASE,
         )
 
     def _restore_abbreviations(self, text: str) -> str:

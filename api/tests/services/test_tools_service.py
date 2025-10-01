@@ -64,7 +64,10 @@ class TestResearchTools:
         from tools import create_report_outline
 
         result = await create_report_outline.ainvoke(
-            {"topic": "AI in Healthcare", "findings_summary": "Key findings about AI applications"}
+            {
+                "topic": "AI in Healthcare",
+                "findings_summary": "Key findings about AI applications",
+            }
         )
 
         assert "AI in Healthcare" in result

@@ -77,7 +77,9 @@ class TestSourceDocument:
     def test_create_source_document(self):
         """Test creating a source document."""
         doc = SourceDocument(
-            content="Test content", metadata={"source": "test.md", "title": "Test"}, score=0.95
+            content="Test content",
+            metadata={"source": "test.md", "title": "Test"},
+            score=0.95,
         )
         assert doc.content == "Test content"
         assert doc.metadata["source"] == "test.md"

@@ -252,7 +252,12 @@ async def search_web(query: str) -> str:
             api_key=settings.tavily_api_key,
             max_results=5,
             search_depth="advanced",
-            include_domains=["arxiv.org", "github.com", "medium.com", "towardsdatascience.com"],
+            include_domains=[
+                "arxiv.org",
+                "github.com",
+                "medium.com",
+                "towardsdatascience.com",
+            ],
         )
 
         # Execute search

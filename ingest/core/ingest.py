@@ -11,7 +11,11 @@ from pathlib import Path
 from typing import List
 
 from ..models import DocumentChunk, IngestionConfig, ProcessedDocument
-from ..services import DocumentChunkingService, DocumentProcessorService, PineconeVectorStore
+from ..services import (
+    DocumentChunkingService,
+    DocumentProcessorService,
+    PineconeVectorStore,
+)
 from .config_loader import load_config
 
 
@@ -173,7 +177,9 @@ def main():
     """Main entry point for the ingestion script."""
     parser = argparse.ArgumentParser(description="Ingest AI Pocket Projects corpus into Pinecone")
     parser.add_argument(
-        "--corpus-path", type=str, help="Path to the corpus directory (overrides config)"
+        "--corpus-path",
+        type=str,
+        help="Path to the corpus directory (overrides config)",
     )
 
     args = parser.parse_args()

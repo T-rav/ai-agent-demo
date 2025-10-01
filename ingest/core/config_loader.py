@@ -67,7 +67,8 @@ class Config:
 
         return {
             "index_name": os.getenv(
-                "PINECONE_INDEX_NAME", db_config.get("index_name", "ai-agent-demo-index")
+                "PINECONE_INDEX_NAME",
+                db_config.get("index_name", "ai-agent-demo-index"),
             )
         }
 
@@ -77,10 +78,14 @@ class Config:
 
         return {
             "model": os.getenv(
-                "EMBEDDING_MODEL", embedding_config.get("model", "text - embedding - 3-small")
+                "EMBEDDING_MODEL",
+                embedding_config.get("model", "text - embedding - 3-small"),
             ),
             "dimensions": int(
-                os.getenv("EMBEDDING_DIMENSIONS", str(embedding_config.get("dimensions", 1536)))
+                os.getenv(
+                    "EMBEDDING_DIMENSIONS",
+                    str(embedding_config.get("dimensions", 1536)),
+                )
             ),
         }
 
@@ -97,11 +102,15 @@ class Config:
             ),
             "embedding_batch_size": int(
                 os.getenv(
-                    "EMBEDDING_BATCH_SIZE", str(processing_config.get("embedding_batch_size", 100))
+                    "EMBEDDING_BATCH_SIZE",
+                    str(processing_config.get("embedding_batch_size", 100)),
                 )
             ),
             "upsert_batch_size": int(
-                os.getenv("UPSERT_BATCH_SIZE", str(processing_config.get("upsert_batch_size", 100)))
+                os.getenv(
+                    "UPSERT_BATCH_SIZE",
+                    str(processing_config.get("upsert_batch_size", 100)),
+                )
             ),
         }
 

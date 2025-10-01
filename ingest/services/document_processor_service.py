@@ -7,7 +7,12 @@ from pathlib import Path
 from typing import Optional
 
 from ..models import FileType, ProcessedDocument, ProcessingError
-from ..utils import DocumentContentExtractor, DocumentTitleExtractor, TextCleaner, TiktokenEncoder
+from ..utils import (
+    DocumentContentExtractor,
+    DocumentTitleExtractor,
+    TextCleaner,
+    TiktokenEncoder,
+)
 
 
 class DocumentProcessorService:
