@@ -1,128 +1,258 @@
-# AI Agent Demo
+# 🤖 AI Assistant Demo
 
-A modern, dockerized chat application with a React TypeScript frontend and Python backend (backend to be implemented).
+![AI Assistant Demo](./docs/screenshot.png)
+
+> A production-ready AI assistant with intelligent routing, RAG (Retrieval-Augmented Generation) with source citation, and a beautiful React TypeScript frontend.
+
+This system features **automatic knowledge base search** for quick answers (95% of queries) and **multi-agent research workflows** for comprehensive reports (when explicitly requested). Built with LangGraph, FastAPI, and React.
+
+---
 
 ## 🚀 Features
 
-### Frontend (React UI)
-- ✅ **Modern Chat Interface**: Clean, responsive design inspired by popular messaging apps
-- ✅ **Real-time Streaming**: Support for streaming responses from AI models
+### 🤖 Intelligent Routing System
+- ✅ **Smart Mode Detection**: Automatically routes to simple RAG or multi-agent research based on user intent
+- ✅ **Simple Mode**: Quick answers with automatic knowledge base retrieval (95% of queries)
+- ✅ **Research Mode**: Comprehensive multi-agent workflow for detailed reports (explicit requests only)
+- ✅ **GPT-4o-mini Router**: Fast, accurate routing with clear instruction-following
+
+### 🧠 Advanced RAG Pipeline
+- ✅ **Vector Store Integration**: Pinecone-powered semantic search across knowledge base
+- ✅ **Automatic Retrieval**: Simple queries automatically fetch relevant context
+- ✅ **Source Citations**: All responses include source documents with relevance scores
+- ✅ **Markdown Documents**: Supports ingestion of markdown and PDF documentation
+
+### 🔬 Multi-Agent Research System
+- ✅ **Research Planner**: Breaks down complex topics into research subtopics
+- ✅ **Research Gatherer**: Collects information from knowledge base and web sources
+- ✅ **Report Builder**: Synthesizes findings into comprehensive markdown reports
+- ✅ **LangGraph Orchestration**: Sophisticated workflow management with state tracking
+
+### 💬 Modern Frontend (React UI)
+- ✅ **Beautiful Dark Theme**: Professional, modern interface with smooth animations
+- ✅ **Real-time Streaming**: Token-by-token streaming for natural conversation flow
+- ✅ **Mode Indicators**: Visual badges showing simple vs research mode
+- ✅ **Source Display**: Expandable source citations with document titles and scores
+- ✅ **Export to Markdown**: Download full conversations with sources and metadata
 - ✅ **TypeScript**: Full type safety and excellent developer experience
 - ✅ **Comprehensive Testing**: Full test coverage with Jest and React Testing Library
-- ✅ **Docker Ready**: Production and development Docker configurations
 - ✅ **Mobile Responsive**: Works seamlessly on desktop and mobile devices
 
-### Backend (Python API)
-- 🔄 **To be implemented**: Python FastAPI backend with LLM integration
+### ⚡ Backend (Python FastAPI)
+- ✅ **FastAPI Framework**: High-performance async API with automatic OpenAPI docs
+- ✅ **LangGraph Workflows**: Sophisticated agent orchestration and state management
+- ✅ **Streaming Responses**: Server-Sent Events for real-time token streaming
+- ✅ **Web Search Integration**: Tavily API for current information and trends
+- ✅ **OpenAI Integration**: GPT-4 for responses, GPT-4o-mini for routing
+- ✅ **Docker Ready**: Production and development Docker configurations
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 18** - Modern UI framework with hooks
+- **TypeScript** - Type safety and better DX
+- **CSS3** - Custom styling with dark theme
+- **Jest & React Testing Library** - Comprehensive test coverage
+- **Server-Sent Events** - Real-time streaming
+
+### Backend
+- **Python 3.11** - Modern Python with type hints
+- **FastAPI** - High-performance async web framework
+- **LangChain** - LLM orchestration and tooling
+- **LangGraph** - Multi-agent workflow management
+- **OpenAI GPT-4** - Main language model
+- **OpenAI GPT-4o-mini** - Fast routing decisions
+- **Pinecone** - Vector database for semantic search
+- **Tavily** - Web search API
+- **Pydantic** - Data validation and settings
+- **Pytest** - Testing framework
+
+### Infrastructure
+- **Docker & Docker Compose** - Containerization
+- **Nginx** - Production web server
+- **Uvicorn** - ASGI server
+- **Make** - Build automation
 
 ## 📁 Project Structure
 
 ```
 ai-agent-demo/
+├── api/                         # Python FastAPI backend
+│   ├── agent.py                 # LangGraph RAG agent with routing
+│   ├── main.py                  # FastAPI application
+│   ├── tools.py                 # Knowledge base & web search tools
+│   ├── vector_store.py          # Pinecone integration
+│   ├── models/                  # Pydantic models
+│   └── tests/                   # Backend test suite
+├── ingest/                      # Document ingestion pipeline
+│   ├── core/
+│   │   ├── ingest.py            # Main ingestion script
+│   │   └── setup.py             # Vector store setup
+│   ├── data/corpus/             # Knowledge base documents
+│   ├── models/                  # Data models
+│   ├── services/                # Processing services
+│   └── utils/                   # Utilities
 ├── ui/                          # React TypeScript frontend
 │   ├── src/
 │   │   ├── components/          # React components
 │   │   │   ├── ChatContainer/   # Main chat container
-│   │   │   ├── MessageList/     # Message display
+│   │   │   ├── MessageList/     # Message display with sources
 │   │   │   ├── MessageInput/    # Message input
 │   │   │   └── Message/         # Individual message
-│   │   ├── hooks/               # Custom React hooks
-│   │   ├── services/            # API services
+│   │   ├── hooks/               # Custom React hooks (useChat)
+│   │   ├── services/            # API service (streaming)
 │   │   ├── types/               # TypeScript definitions
 │   │   └── test-utils/          # Testing utilities
 │   ├── Dockerfile               # Production Docker config
-│   ├── Dockerfile.dev           # Development Docker config
-│   └── nginx.conf               # Nginx configuration
-├── backend/                     # Python backend (to be implemented)
+│   └── Dockerfile.dev           # Development Docker config
 ├── docker-compose.yml           # Production compose
-├── docker-compose.dev.yml       # Development compose
-└── README.md                    # This file
+└── docker-compose.dev.yml       # Development compose
+```
+
+## 🎯 How It Works
+
+### Simple Query Flow (95% of queries)
+```
+User: "How does AI support exploring Mars?"
+  ↓
+Router (GPT-4o-mini): Classifies as SIMPLE
+  ↓
+Simple RAG Node: Auto-queries Pinecone vector store
+  ↓
+Simple Agent: Generates answer with source citations
+  ↓
+Response: "AI supports exploring Mars in several key ways..."
+```
+
+### Research Query Flow (explicit requests)
+```
+User: "Write a comprehensive report on AI in healthcare"
+  ↓
+Router (GPT-4o-mini): Classifies as RESEARCH
+  ↓
+Research Planner: Breaks down into subtopics
+  ↓
+Research Gatherer: Searches KB + Web for each topic
+  ↓
+Report Builder: Synthesizes into structured markdown report
+  ↓
+Response: Comprehensive multi-section report with citations
 ```
 
 ## 🛠️ Quick Start
 
-### Using Makefile (Recommended)
+### Prerequisites
+- Docker & Docker Compose (recommended)
+- OR: Node.js 18+, Python 3.11+
+- OpenAI API key
+- Pinecone API key
+- Tavily API key (optional, for web search)
+
+### 1. Environment Setup
+
+Create `.env` files in both `api/` and `ingest/` directories:
 
 ```bash
-# See all available commands
-make help
-
-# Start all services (UI + API when available)
-make start
-
-# Start only UI development server
-make ui
-
-# Stop all services
-make stop
-
-# Check service status
-make status
-
-# Install dependencies
-make install
-
-# Run tests
-make test
-
-# Build for production
-make build
+# api/.env
+OPENAI_API_KEY=your_openai_key
+OPENAI_MODEL=gpt-4o
+PINECONE_API_KEY=your_pinecone_key
+PINECONE_ENVIRONMENT=your_environment
+PINECONE_INDEX_NAME=your_index
+TAVILY_API_KEY=your_tavily_key  # optional
 ```
 
-### Manual Setup
-
-#### Frontend Only
 ```bash
+# ingest/.env
+OPENAI_API_KEY=your_openai_key
+PINECONE_API_KEY=your_pinecone_key
+PINECONE_ENVIRONMENT=your_environment
+PINECONE_INDEX_NAME=your_index
+```
+
+### 2. Ingest Knowledge Base
+
+```bash
+cd ingest
+pip install -e .
+python -m core.setup        # Create Pinecone index
+python -m core.ingest       # Ingest documents from data/corpus/
+```
+
+### 3. Start Services
+
+#### Using Docker Compose (Recommended)
+```bash
+docker-compose -f docker-compose.dev.yml up
+```
+
+#### Using Makefile
+```bash
+make install    # Install dependencies
+make start      # Start all services
+```
+
+#### Manual Setup
+```bash
+# Terminal 1: Start API
+cd api
+pip install -e .
+uvicorn main:app --reload --port 8000
+
+# Terminal 2: Start UI
 cd ui
 npm install
 npm start
 ```
 
-#### With Docker (Development)
-```bash
-# Start frontend in development mode
-docker-compose -f docker-compose.dev.yml up frontend-dev
-```
-
-### Production
-
-```bash
-# Build and start all services
-docker-compose up --build
-# Or using Makefile
-make build
-```
+The application will be available at:
+- **Frontend**: http://localhost:3000
+- **API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
 
 ## 🧪 Testing
 
-The React frontend includes comprehensive tests:
-
+### Frontend Tests
 ```bash
 cd ui
 npm test                    # Interactive mode
 npm run test -- --coverage # With coverage report
 ```
 
+### Backend Tests
+```bash
+cd api
+pytest                      # Run all tests
+pytest --cov                # With coverage
+```
+
+### Ingest Tests
+```bash
+cd ingest
+pytest                      # Run all tests
+pytest --cov                # With coverage
+```
+
 ## 🎨 UI Features
 
 ### Chat Interface
 - **Empty State**: Welcoming message when no conversation exists
-- **Message Display**: User and assistant messages with timestamps
-- **Streaming Responses**: Real-time display of AI responses as they arrive
-- **Input Field**: Auto-resizing textarea with send button
-- **Error Handling**: User-friendly error messages with dismiss option
+- **Message Display**: User and assistant messages with timestamps and mode badges
+- **Source Citations**: Expandable source panels showing document titles, files, and relevance scores
+- **Streaming Responses**: Real-time token-by-token display as AI generates responses
+- **Export Chat**: Download full conversation history as markdown with sources
 - **Clear Conversation**: Option to clear chat history
+- **Error Handling**: User-friendly error messages with dismiss option
 
 ### Design System
-- **Colors**: iOS-inspired color palette
+- **Dark Theme**: Professional dark mode with green accent colors
 - **Typography**: System fonts for optimal readability
-- **Layout**: Flexbox-based responsive design
-- **Animations**: Smooth transitions and loading states
+- **Layout**: Flexbox-based responsive design with centered max-width
+- **Animations**: Smooth transitions, hover effects, and loading states
 - **Accessibility**: ARIA labels and keyboard navigation
+- **Icons**: Custom SVG icons for all actions
 
-## 🔌 API Integration
-
-The frontend expects a backend API with these endpoints:
+## 🔌 API Endpoints
 
 ### Streaming Chat (Primary)
 ```http
@@ -130,52 +260,85 @@ POST /api/chat/stream
 Content-Type: application/json
 
 {
-  "message": "User message here"
+  "message": "User message",
+  "conversation_history": [],  // Optional
+  "session_id": "string"       // Optional
 }
 
 Response: Server-Sent Events
-data: {"content": "Partial response"}
-data: {"content": " more content"}
-data: [DONE]
+data: {"type": "step", "content": "simple"}  // Routing decision
+data: {"type": "token", "content": "AI"}
+data: {"type": "token", "content": " supports"}
+data: {"type": "sources", "content": [...]} // Source documents
 ```
 
-### Synchronous Chat (Fallback)
+### Health Check
 ```http
-POST /api/chat
-Content-Type: application/json
-
-{
-  "message": "User message here"
-}
+GET /health
 
 Response:
 {
-  "response": "Complete AI response"
+  "status": "healthy",
+  "timestamp": "2024-10-01T12:00:00",
+  "features": {
+    "streaming": true,
+    "langsmith": true
+  }
 }
 ```
 
+### Interactive API Documentation
+Visit http://localhost:8000/docs for full interactive Swagger documentation.
+
 ## ⚙️ Configuration
 
-### Environment Variables
+### API Environment Variables (api/.env)
 
 ```bash
-# Frontend
-REACT_APP_API_URL=http://localhost:8000
+# Required
+OPENAI_API_KEY=sk-...          # Your OpenAI API key
+OPENAI_MODEL=gpt-4             # Model for agent responses
+PINECONE_API_KEY=...           # Pinecone vector store API key
+PINECONE_ENVIRONMENT=...       # e.g., us-east-1-aws
+PINECONE_INDEX_NAME=...        # Your index name
 
-# Backend (when implemented)
-PORT=8000
-DEBUG=1
+# Optional
+TAVILY_API_KEY=...             # For web search (optional)
+LANGCHAIN_API_KEY=...          # For LangSmith tracing (optional)
+LANGCHAIN_TRACING_V2=true      # Enable tracing
 ```
+
+### Ingest Environment Variables (ingest/.env)
+
+```bash
+# Required
+OPENAI_API_KEY=sk-...          # For embeddings
+PINECONE_API_KEY=...           # Vector store
+PINECONE_ENVIRONMENT=...       
+PINECONE_INDEX_NAME=...        
+```
+
+### Frontend Configuration
+
+The UI automatically connects to the API at `http://localhost:8000` during development.
 
 ## 🐳 Docker
 
-### Development
-- **Frontend**: React dev server with hot reload
-- **Backend**: Python with auto-reload (to be implemented)
+### Development Mode
+```bash
+docker-compose -f docker-compose.dev.yml up
+```
+- **Frontend**: React dev server with hot reload on port 3000
+- **API**: FastAPI with uvicorn auto-reload on port 8000
+- Volume mounts for live code updates
 
-### Production
+### Production Mode
+```bash
+docker-compose up --build
+```
 - **Frontend**: Nginx serving optimized React build
-- **Backend**: Gunicorn with Python app (to be implemented)
+- **API**: FastAPI with production settings
+- Multi-stage builds for smaller images
 
 ## 📱 Browser Support
 
@@ -204,25 +367,38 @@ The project includes a comprehensive Makefile for easy development:
 | `make logs` | Show logs from running services |
 | `make clean` | Clean build artifacts and dependencies |
 
-## 🔮 Next Steps
+## 🎯 Example Use Cases
 
-1. **Implement Python Backend**:
-   - FastAPI server
-   - LLM integration (OpenAI, Anthropic, etc.)
-   - Streaming response endpoints
-   - Error handling and validation
+### Simple Queries (Automatic RAG)
+- **Definitions**: "What is machine learning?"
+- **Explanations**: "How does neural network training work?"
+- **Comparisons**: "Compare SQL and NoSQL databases"
+- **History**: "History of computing"
+- **How-to**: "How does AI support exploring Mars?"
 
-2. **Enhanced Features**:
-   - Message persistence
-   - User authentication
-   - Multiple conversation threads
-   - File upload support
-   - Markdown rendering
+### Research Queries (Multi-Agent)
+- **Reports**: "Write a comprehensive report on renewable energy"
+- **Analysis**: "Research and write about quantum computing applications"
+- **Deep Dives**: "Create a detailed report on blockchain technology"
 
-3. **Deployment**:
-   - Production Docker orchestration
-   - CI/CD pipeline
-   - Environment-specific configurations
+## 🔮 Future Enhancements
+
+### Potential Features
+- ✨ **Multi-modal Support**: Image and document upload
+- ✨ **Conversation Memory**: Persistent conversation threads with database
+- ✨ **User Authentication**: Multi-user support with auth
+- ✨ **Custom Knowledge Bases**: Per-user or per-organization document collections
+- ✨ **Advanced Citations**: Click-through to source documents with highlighting
+- ✨ **Voice Interface**: Speech-to-text and text-to-speech
+- ✨ **Collaborative Features**: Share conversations and reports
+- ✨ **API Rate Limiting**: User-based quotas and rate limits
+- ✨ **Analytics Dashboard**: Usage metrics and popular queries
+
+### Infrastructure
+- 🚀 **CI/CD Pipeline**: Automated testing and deployment
+- 🚀 **Production Deployment**: Kubernetes or cloud deployment
+- 🚀 **Monitoring**: Application performance monitoring
+- 🚀 **Caching**: Redis for response caching
 
 ## 🤝 Contributing
 

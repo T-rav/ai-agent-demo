@@ -138,7 +138,7 @@ B) RESEARCH (comprehensive report, deep analysis, detailed exploration)
 User request: "{user_message}"
 
 Research indicators:
-- Words like: "comprehensive", "research", "write a report", "deep dive", "analyze", "compare in detail", "history of", "evolution of"
+- Words like: "comprehensive", "research", "write a report", "deep dive", "analyze", "compare in detail"
 - Requests for structured content with multiple sections
 - Requests that need multiple sources or perspectives
 - Complex analytical questions
@@ -157,9 +157,8 @@ Respond with ONLY ONE WORD:
         # Store routing decision in state metadata
         decision = "research" if "RESEARCH" in routing_response.content.upper() else "simple"
 
-        # Add routing decision as metadata to state
-        if "routing_decision" not in state:
-            state["routing_decision"] = decision
+        # Update routing decision in state (overwrite default)
+        state["routing_decision"] = decision
 
         return state
 
@@ -666,7 +665,6 @@ Respond with ONLY ONE WORD:
         initial_state = {
             "messages": lc_messages,
             "sources": [],
-            "routing_decision": "simple",  # Default, will be determined by router
         }
 
         # Run the graph
