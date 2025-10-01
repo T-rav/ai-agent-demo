@@ -294,4 +294,12 @@ install-all:
 dev: start
 prod: build
 restart: stop start
-ci: lint test
+ci:
+	@echo "🔍 Running CI checks for all services..."
+	@make format-check-ui
+	@make lint-ui
+	@make test-ui
+	@make lint-api
+	@make test-api
+	@make test-ingest
+	@echo "✅ CI checks passed"
