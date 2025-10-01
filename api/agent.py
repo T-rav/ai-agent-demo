@@ -210,9 +210,9 @@ Respond with ONLY ONE WORD:
                 sources_list = []
 
                 for i, (doc, score) in enumerate(docs_with_scores, 1):
-                    # Extract metadata
-                    source_file = doc.metadata.get("source", "Unknown")
-                    title = doc.metadata.get("title", "Untitled")
+                    # Extract metadata (use correct field names from ingestion)
+                    source_file = doc.metadata.get("file_name", "Unknown")
+                    title = doc.metadata.get("document_title", "Untitled")
 
                     # Build context with title and source
                     context_parts.append(
@@ -227,7 +227,7 @@ Respond with ONLY ONE WORD:
                         {
                             "content": doc.page_content[:500],
                             "metadata": {
-                                "source": source_file,
+                                "file_name": source_file,
                                 "title": title,
                                 "chunk_index": doc.metadata.get("chunk_index", 0),
                             },
