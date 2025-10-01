@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Message as MessageType } from '../../types/chat';
 import './Message.css';
 
@@ -15,15 +17,6 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
     }).format(timestamp);
   };
 
-  // Debug logging
-  if (message.sources && message.sources.length > 0) {
-    console.log('Message sources:', message.sources);
-    console.log('First source metadata:', message.sources[0]?.metadata);
-  }
-  if (message.mode) {
-    console.log('Message mode:', message.mode);
-  }
-
   return (
     <div className={`message ${message.sender}`}>
       <div className="message-content">
@@ -36,8 +29,19 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
             </div>
           ) : (
             <>
-              {message.content}
-              {message.isStreaming && <span className="cursor">|</span>}
+              {message.sender === 'assistant' ? (
+                <>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {message.content}
+                  </ReactMarkdown>
+                  {message.isStreaming && <span className="cursor">|</span>}
+                </>
+              ) : (
+                <>
+                  {message.content}
+                  {message.isStreaming && <span className="cursor">|</span>}
+                </>
+              )}
             </>
           )}
         </div>
