@@ -1,13 +1,10 @@
-import { render, screen } from '../../test-utils';
+import { render, screen, aMessage, anAssistantMessage } from '../../test-utils';
 import { Message } from './Message';
-import { createMockMessage } from '../../test-utils/mockData';
 
 describe('Message Component', () => {
   it('renders user message correctly', () => {
-    const userMessage = createMockMessage({
-      content: 'Hello, this is a user message',
-      sender: 'user',
-    });
+    // Use fluent builder pattern
+    const userMessage = aMessage().withContent('Hello, this is a user message').asUser().build();
 
     render(<Message message={userMessage} />);
 
@@ -17,10 +14,10 @@ describe('Message Component', () => {
   });
 
   it('renders assistant message correctly', () => {
-    const assistantMessage = createMockMessage({
-      content: 'Hello, this is an assistant message',
-      sender: 'assistant',
-    });
+    // Use fluent builder pattern with assistant helper
+    const assistantMessage = anAssistantMessage()
+      .withContent('Hello, this is an assistant message')
+      .build();
 
     render(<Message message={assistantMessage} />);
 
@@ -30,10 +27,7 @@ describe('Message Component', () => {
   });
 
   it('applies correct CSS classes for user messages', () => {
-    const userMessage = createMockMessage({
-      content: 'User message',
-      sender: 'user',
-    });
+    const userMessage = aMessage().withContent('User message').asUser().build();
 
     render(<Message message={userMessage} />);
     const messageElement = screen.getByText('User message').closest('.message');
@@ -42,10 +36,7 @@ describe('Message Component', () => {
   });
 
   it('applies correct CSS classes for assistant messages', () => {
-    const assistantMessage = createMockMessage({
-      content: 'Assistant message',
-      sender: 'assistant',
-    });
+    const assistantMessage = anAssistantMessage().withContent('Assistant message').build();
 
     render(<Message message={assistantMessage} />);
     const messageElement = screen.getByText('Assistant message').closest('.message');
@@ -54,11 +45,10 @@ describe('Message Component', () => {
   });
 
   it('shows streaming cursor when message is streaming', () => {
-    const streamingMessage = createMockMessage({
-      content: 'Streaming message',
-      sender: 'assistant',
-      isStreaming: true,
-    });
+    const streamingMessage = anAssistantMessage()
+      .withContent('Streaming message')
+      .isStreaming(true)
+      .build();
 
     render(<Message message={streamingMessage} />);
 
@@ -66,11 +56,10 @@ describe('Message Component', () => {
   });
 
   it('does not show streaming cursor when message is not streaming', () => {
-    const normalMessage = createMockMessage({
-      content: 'Normal message',
-      sender: 'assistant',
-      isStreaming: false,
-    });
+    const normalMessage = anAssistantMessage()
+      .withContent('Normal message')
+      .isStreaming(false)
+      .build();
 
     render(<Message message={normalMessage} />);
 
@@ -78,9 +67,7 @@ describe('Message Component', () => {
   });
 
   it('formats timestamp correctly', () => {
-    const message = createMockMessage({
-      timestamp: new Date('2023-01-01T14:30:00Z'),
-    });
+    const message = aMessage().withTimestamp(new Date('2023-01-01T14:30:00Z')).build();
 
     render(<Message message={message} />);
 
@@ -89,9 +76,7 @@ describe('Message Component', () => {
   });
 
   it('handles multiline content correctly', () => {
-    const multilineMessage = createMockMessage({
-      content: 'Line 1\nLine 2\nLine 3',
-    });
+    const multilineMessage = aMessage().withContent('Line 1\nLine 2\nLine 3').build();
 
     render(<Message message={multilineMessage} />);
 

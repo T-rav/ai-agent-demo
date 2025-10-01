@@ -8,12 +8,14 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt* ./
-RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
+# Copy project configuration
+COPY pyproject.toml __init__.py ./
 
-# Copy application code
+# Copy application code (needed for installation)
 COPY . .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir .
 
 # Expose port
 EXPOSE 8000

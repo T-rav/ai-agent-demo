@@ -8,22 +8,25 @@ help:
 	@echo "AI Agent Demo - Available Commands:"
 	@echo ""
 	@echo "Development:"
-	@echo "  make start        - Start all services (UI + API when available)"
+	@echo "  make start        - Start all services (UI + API)"
 	@echo "  make stop         - Stop all running services"
 	@echo "  make ui           - Start only the UI development server"
-	@echo "  make api          - Start only the API server (when implemented)"
+	@echo "  make api          - Start only the API server"
+	@echo "  make dev          - Alias for 'make start'"
 	@echo ""
 	@echo "Ingest System:"
-	@echo "  cd ingest && make help   - Show ingest commands (run from ingest/ folder)"
+	@echo "  make ingest       - Run document ingestion"
+	@echo "  cd ingest && make help   - Show all ingest commands"
 	@echo ""
 	@echo "Building:"
 	@echo "  make build        - Build all services for production"
 	@echo "  make install      - Install dependencies for all services"
 	@echo ""
 	@echo "Testing:"
-	@echo "  make test         - Run all tests"
+	@echo "  make test         - Run all tests (UI + API + Ingest)"
 	@echo "  make test-ui      - Run UI tests only"
-	@echo "  make test-api     - Run API tests only (when implemented)"
+	@echo "  make test-api     - Run API tests only"
+	@echo "  make test-ingest  - Run ingest tests only"
 	@echo "  make check        - Check TypeScript compilation"
 	@echo ""
 	@echo "Code Quality:"
@@ -36,6 +39,7 @@ help:
 	@echo "  make logs         - Show logs from running services"
 	@echo "  make clean        - Clean build artifacts and dependencies"
 	@echo "  make status       - Show status of running services"
+	@echo "  make restart      - Restart all services"
 
 # Start all services
 start:
@@ -87,7 +91,8 @@ install:
 test:
 	@echo "🧪 Running all tests..."
 	@make test-ui
-	# @make test-api  # Uncomment when API is implemented
+	@make test-api
+	@make test-ingest
 
 # Run UI tests
 test-ui:
@@ -133,23 +138,33 @@ check:
 		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npx tsc --noEmit; \
 	fi
 
-# Run API tests (placeholder)
+# Run API tests
 test-api:
-	@echo "🔧 API tests not yet implemented"
-	# @docker-compose -f docker-compose.dev.yml run --rm api-dev pytest
+	@echo "🧪 Running API tests..."
+	@if [ "$$CI" = "true" ]; then \
+		echo "🧪 Running API tests (CI mode)..."; \
+		cd api && python -m pytest tests/ -v --cov=. --cov-report=term-missing --cov-fail-under=70; \
+	else \
+		echo "🧪 Running API tests in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm api-dev pytest tests/ -v --cov=. --cov-report=term-missing --cov-fail-under=70; \
+	fi
 
 # Lint all code
 lint:
-	@if [ "$$CI" = "true" ]; then \
-		echo "🔍 Running linters (CI mode)..."; \
-		echo "Linting UI..."; \
-		cd ui && npm run lint; \
-	else \
-		echo "🔍 Running linters in Docker..."; \
-		echo "Linting UI..."; \
-		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint; \
-	fi
+	@echo "🔍 Running linters on all services..."
+	@make lint-ui
+	@make lint-api
 	@echo "✅ Linting complete"
+
+# Lint API code
+lint-api:
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Running API linting (CI mode)..."; \
+		cd api && python -m flake8 . --exclude=tests,htmlcov,venv,.venv; \
+	else \
+		echo "🔍 Running API linting in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm api-dev flake8 . --exclude=tests,htmlcov,venv,.venv; \
+	fi
 
 # Lint and fix issues
 lint-fix:
@@ -166,16 +181,30 @@ lint-fix:
 
 # Format code
 format:
+	@echo "✨ Formatting all services..."
+	@make format-ui
+	@make format-api
+	@echo "✅ Formatting complete"
+
+# Format UI code
+format-ui:
 	@if [ "$$CI" = "true" ]; then \
-		echo "✨ Formatting code (CI mode)..."; \
-		echo "Formatting UI..."; \
+		echo "✨ Formatting UI (CI mode)..."; \
 		cd ui && npm run format; \
 	else \
-		echo "✨ Formatting code in Docker..."; \
-		echo "Formatting UI..."; \
+		echo "✨ Formatting UI in Docker..."; \
 		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format; \
 	fi
-	@echo "✅ Formatting complete"
+
+# Format API code
+format-api:
+	@if [ "$$CI" = "true" ]; then \
+		echo "✨ Formatting API (CI mode)..."; \
+		cd api && python -m black . && python -m isort .; \
+	else \
+		echo "✨ Formatting API in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm api-dev bash -c "black . && isort ."; \
+	fi
 
 # Check code formatting
 format-check:
@@ -228,7 +257,18 @@ status:
 		echo "  ❌ Not running"; \
 	fi
 
-# For ingest commands, use: cd ingest && make <command>
+# Ingest commands
+ingest:
+	@echo "🚀 Running document ingestion..."
+	@cd ingest && make run
+
+ingest-clean:
+	@echo "🧹 Cleaning vector index..."
+	@cd ingest && make run-clean
+
+ingest-fresh:
+	@echo "🚀 Running fresh ingestion (clean + ingest)..."
+	@cd ingest && make run-fresh
 
 
 # Clean all build artifacts

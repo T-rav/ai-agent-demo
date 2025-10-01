@@ -1,0 +1,87 @@
+[project]
+name = "ai-agent-api"
+version = "0.1.0"
+description = "RAG system with LangChain, LangGraph, and LangSmith"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+
+dependencies = [
+    # FastAPI and Web Server
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "gunicorn>=21.2.0",
+    "sse-starlette>=1.8.0",
+    
+    # Pydantic
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    
+    # Environment
+    "python-dotenv>=1.0.0",
+    
+    # LangChain Core
+    "langchain>=0.1.0",
+    "langchain-core>=0.1.0",
+    "langchain-openai>=0.0.2",
+    "langchain-community>=0.0.10",
+    
+    # LangGraph for Agent Workflow
+    "langgraph>=0.0.20",
+    
+    # LangSmith for Observability
+    "langsmith>=0.0.69",
+    
+    # Vector Store (Pinecone - renamed from pinecone-client)
+    "pinecone>=5.0.0",
+    
+    # Web Search Tool
+    "tavily-python>=0.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+    "httpx>=0.25.0",
+    "flake8>=6.1.0",
+    "isort>=5.12.0",
+    "bandit>=1.7.5",
+]
+
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["main", "agent", "tools", "vector_store", "models", "config"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
