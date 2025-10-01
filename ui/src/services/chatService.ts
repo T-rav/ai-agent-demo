@@ -30,7 +30,8 @@ export class ChatService {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
+      // Use non-streaming endpoint for now (streaming has parsing issues)
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,54 +43,18 @@ export class ChatService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('No response body reader available');
+      // Parse the JSON response
+      const data = await response.json();
+
+      // Handle the response message
+      if (data.message) {
+        onChunk(data.message);
+      } else if (data.error) {
+        onError(data.error);
+        return;
       }
 
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-          safeOnComplete();
-          break;
-        }
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (line.trim() === '') continue;
-
-          try {
-            // Handle Server-Sent Events format
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') {
-                safeOnComplete();
-                return;
-              }
-
-              const parsed = JSON.parse(data);
-              if (parsed.content) {
-                onChunk(parsed.content);
-              }
-            } else {
-              // Not SSE format, treat as plain text
-              onChunk(line);
-            }
-          } catch (parseError) {
-            // eslint-disable-next-line no-console
-            console.warn('Failed to parse streaming chunk:', parseError);
-            // Treat as plain text if JSON parsing fails
-            onChunk(line);
-          }
-        }
-      }
+      safeOnComplete();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Chat service error:', error);
