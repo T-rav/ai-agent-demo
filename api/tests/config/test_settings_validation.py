@@ -3,7 +3,6 @@ Additional tests for Settings validation and configuration.
 """
 
 
-
 class TestSettingsDefaults:
     """Tests for Settings default values."""
 

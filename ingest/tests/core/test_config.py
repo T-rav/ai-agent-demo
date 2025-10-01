@@ -36,14 +36,16 @@ class TestConfigLoader:
                 # Use factory to create mock config
                 mock_config = ConfigFactory.create_mock_config()
                 # Override with specific test values
-                mock_config.get_all_config.return_value.update({
-                    "openai_api_key": "test - openai - key",
-                    "pinecone_api_key": "test - pinecone - key",
-                    "model": "text - embedding - 3-large",
-                    "dimensions": 3072,
-                    "chunk_size": 1500,
-                    "chunk_overlap": 300,
-                })
+                mock_config.get_all_config.return_value.update(
+                    {
+                        "openai_api_key": "test - openai - key",
+                        "pinecone_api_key": "test - pinecone - key",
+                        "model": "text - embedding - 3-large",
+                        "dimensions": 3072,
+                        "chunk_size": 1500,
+                        "chunk_overlap": 300,
+                    }
+                )
                 mock_init.return_value = None
 
                 with patch("ingest.core.config_loader.Config", return_value=mock_config):
@@ -118,18 +120,20 @@ show_progress = false
                     from ingest.tests.factories.config_factory import ConfigFactory
 
                     mock_config = ConfigFactory.create_mock_config()
-                    mock_config.get_all_config.return_value.update({
-                        "openai_api_key": "env - openai - key",
-                        "pinecone_api_key": "env - pinecone - key",
-                        "pinecone_environment": "env - environment",
-                        "index_name": "test - index - from - toml",
-                        "chunk_size": 800,
-                        "chunk_overlap": 150,
-                        "min_chunk_size": 50,
-                        "max_chunk_size": 1200,
-                        "level": "DEBUG",
-                        "show_progress": False,
-                    })
+                    mock_config.get_all_config.return_value.update(
+                        {
+                            "openai_api_key": "env - openai - key",
+                            "pinecone_api_key": "env - pinecone - key",
+                            "pinecone_environment": "env - environment",
+                            "index_name": "test - index - from - toml",
+                            "chunk_size": 800,
+                            "chunk_overlap": 150,
+                            "min_chunk_size": 50,
+                            "max_chunk_size": 1200,
+                            "level": "DEBUG",
+                            "show_progress": False,
+                        }
+                    )
                     mock_init.return_value = None
 
                     with patch("ingest.core.config_loader.Config", return_value=mock_config):
@@ -164,9 +168,11 @@ show_progress = false
                 from ingest.tests.factories.config_factory import ConfigFactory
 
                 mock_config = ConfigFactory.create_mock_config()
-                mock_config.get_all_config.return_value.update({
-                    "index_name": "ai - agent - demo - index",
-                })
+                mock_config.get_all_config.return_value.update(
+                    {
+                        "index_name": "ai - agent - demo - index",
+                    }
+                )
                 mock_init.return_value = None
 
                 with patch("ingest.core.config_loader.Config", return_value=mock_config):
@@ -236,12 +242,14 @@ CHUNK_SIZE=2000
                             from ingest.tests.factories.config_factory import ConfigFactory
 
                             mock_config = ConfigFactory.create_mock_config()
-                            mock_config.get_all_config.return_value.update({
-                                "openai_api_key": "dotenv - openai - key",
-                                "pinecone_api_key": "dotenv - pinecone - key",
-                                "pinecone_environment": "dotenv - env",
-                                "chunk_size": 2000,
-                            })
+                            mock_config.get_all_config.return_value.update(
+                                {
+                                    "openai_api_key": "dotenv - openai - key",
+                                    "pinecone_api_key": "dotenv - pinecone - key",
+                                    "pinecone_environment": "dotenv - env",
+                                    "chunk_size": 2000,
+                                }
+                            )
                             mock_init.return_value = None
 
                             with patch("ingest.core.config_loader.Config", return_value=mock_config):

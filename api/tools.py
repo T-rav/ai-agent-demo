@@ -41,7 +41,7 @@ async def search_knowledge_base(query: str) -> str:
         # Skip documents below score threshold
         if score < settings.score_threshold:
             continue
-            
+
         content = doc.page_content
         metadata = doc.metadata
 
@@ -65,14 +65,14 @@ async def search_knowledge_base(query: str) -> str:
         )
 
         # Track source for references (use clean file name without extension)
-        clean_source = source_file.replace('.md', '').replace('_', ' ').title()
+        clean_source = source_file.replace(".md", "").replace("_", " ").title()
         sources_section += f"[KB-{kb_number}] {clean_source} ({source_file})\n"
         kb_number += 1
 
     # Return no results message if all were filtered out
     if not results:
         return "No relevant information found above the similarity threshold."
-    
+
     return "\n---\n\n".join(results) + sources_section
 
 
@@ -270,11 +270,7 @@ async def search_web(query: str) -> str:
             url = result.get("url", "Unknown URL")
             content = result.get("content", "")
 
-            formatted_results.append(
-                f"[WEB-{i}] {title}\n"
-                f"URL: {url}\n\n"
-                f"{content}\n"
-            )
+            formatted_results.append(f"[WEB-{i}] {title}\n" f"URL: {url}\n\n" f"{content}\n")
 
             sources_section += f"[WEB-{i}] {title} ({url})\n"
 

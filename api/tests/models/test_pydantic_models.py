@@ -2,7 +2,6 @@
 Additional tests for Pydantic models to increase coverage.
 """
 
-
 from models import ChatMessage, ChatRequest, SourceDocument, StreamChunk
 
 

@@ -9,7 +9,8 @@ interface ChatContainerProps {
 }
 
 export const ChatContainer: React.FC<ChatContainerProps> = ({ title = 'AI Assistant' }) => {
-  const { messages, isLoading, error, sendMessage, clearMessages, clearError, exportToMarkdown } = useChat();
+  const { messages, isLoading, error, sendMessage, clearMessages, clearError, exportToMarkdown } =
+    useChat();
 
   return (
     <div className="chat-container">

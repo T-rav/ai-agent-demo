@@ -214,7 +214,7 @@ Respond with ONLY ONE WORD:
                     # Skip documents below score threshold
                     if score < settings.score_threshold:
                         continue
-                    
+
                     # Extract metadata (use correct field names from ingestion)
                     source_file = doc.metadata.get("file_name", "Unknown")
                     title = doc.metadata.get("document_title", "Untitled")

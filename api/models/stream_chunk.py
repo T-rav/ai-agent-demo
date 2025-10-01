@@ -7,7 +7,6 @@ from typing import List, Literal, Optional
 from pydantic import BaseModel, Field
 
 
-
 class StreamChunk(BaseModel):
     """A chunk of streaming response."""
 

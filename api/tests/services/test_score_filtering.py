@@ -28,7 +28,10 @@ class TestScoreThresholdFiltering:
 
         mock_vs = AsyncMock()
         mock_vs.similarity_search_with_score = AsyncMock(
-            return_value=[(high_score_doc, 0.75), (low_score_doc, 0.3)]  # 0.3 is below 0.5 threshold
+            return_value=[
+                (high_score_doc, 0.75),
+                (low_score_doc, 0.3),
+            ]  # 0.3 is below 0.5 threshold
         )
 
         with patch("tools.vector_store_service", mock_vs):
@@ -111,7 +114,7 @@ class TestSimpleRAGScoreFiltering:
             return_value=[(high_score_doc, 0.8), (low_score_doc, 0.2)]
         )
 
-        with patch("agent.vector_store_service", mock_vs):
+        with patch("vector_store.vector_store_service", mock_vs):
             agent = RAGAgent()
             state = {"messages": [HumanMessage(content="test query")], "sources": []}
 
@@ -139,7 +142,7 @@ class TestSimpleRAGScoreFiltering:
             return_value=[(low_score_doc, 0.3), (low_score_doc, 0.2)]
         )
 
-        with patch("agent.vector_store_service", mock_vs):
+        with patch("vector_store.vector_store_service", mock_vs):
             agent = RAGAgent()
             state = {"messages": [HumanMessage(content="test query")], "sources": []}
 
@@ -153,4 +156,3 @@ class TestSimpleRAGScoreFiltering:
             system_messages = [m for m in messages if isinstance(m, SystemMessage)]
             assert len(system_messages) > 0
             assert "No relevant information found" in system_messages[0].content
-

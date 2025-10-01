@@ -6,8 +6,6 @@ Unit tests for agent components.
 from unittest.mock import patch
 
 
-
-
 class TestAgentStateManagement:
     """Tests for agent state and message handling."""
 

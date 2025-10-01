@@ -115,6 +115,7 @@ class TestStreamingFunctionality:
             assert all(isinstance(chunk, str) for chunk in chunks)
             # Verify we got expected chunk types
             import json
+
             chunk_data = [json.loads(chunk) for chunk in chunks]
             assert any(c["type"] == "token" for c in chunk_data)
             assert any(c["type"] == "done" for c in chunk_data)

@@ -195,9 +195,11 @@ describe('useChat Hook', () => {
 
     // Simulate error
     let onError: (error: string) => void;
-    mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete, errorCallback) => {
-      onError = errorCallback;
-    });
+    mockSendMessage.mockImplementation(
+      async (message, history, onChunk, onComplete, errorCallback) => {
+        onError = errorCallback;
+      }
+    );
 
     act(() => {
       result.current.sendMessage('Test message');

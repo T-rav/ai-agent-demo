@@ -30,9 +30,7 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
             <>
               {message.sender === 'assistant' ? (
                 <>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {message.content}
-                  </ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
                   {message.isStreaming && <span className="cursor">|</span>}
                 </>
               ) : (

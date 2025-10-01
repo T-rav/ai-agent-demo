@@ -158,7 +158,7 @@ export const useChat = () => {
     state.messages.forEach((message) => {
       const sender = message.sender === 'user' ? 'User' : 'Assistant';
       const timestamp = new Date(message.timestamp).toLocaleTimeString();
-      
+
       // Add mode for assistant messages
       const modeText = message.mode ? ` [${message.mode.toUpperCase()}]` : '';
       markdown += `## ${sender} (${timestamp})${modeText}\n\n`;
