@@ -4,9 +4,7 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
-  transformIgnorePatterns: [
-    'node_modules/(?!(react-markdown|remark-gfm|unified|bail|is-plain-obj|trough|vfile|vfile-message|unist-.*|micromark.*|mdast.*|decode-named-character-reference|character-entities|escape-string-regexp)/)',
-  ],
+  transformIgnorePatterns: [],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',

@@ -47,10 +47,11 @@ describe('ChatContainer Component', () => {
     ).toBeInTheDocument();
   });
 
-  it('does not show clear button when no messages', () => {
+  it('does not show clear or export buttons when no messages', () => {
     render(<ChatContainer />);
 
     expect(screen.queryByText('Clear')).not.toBeInTheDocument();
+    expect(screen.queryByText('Export')).not.toBeInTheDocument();
   });
 
   it('handles successful message sending', async () => {
@@ -85,8 +86,9 @@ describe('ChatContainer Component', () => {
       { timeout: 1000 }
     );
 
-    // Clear button should now be visible
+    // Clear and Export buttons should now be visible
     expect(screen.getByText('Clear')).toBeInTheDocument();
+    expect(screen.getByText('Export')).toBeInTheDocument();
   });
 
   it('shows loading state during message sending', async () => {
@@ -220,8 +222,9 @@ describe('ChatContainer Component', () => {
     expect(screen.queryByText('Hello, AI!')).not.toBeInTheDocument();
     expect(screen.queryByText('Response')).not.toBeInTheDocument();
 
-    // Clear button should be hidden
+    // Clear and Export buttons should be hidden
     expect(screen.queryByText('Clear')).not.toBeInTheDocument();
+    expect(screen.queryByText('Export')).not.toBeInTheDocument();
   });
 
   it('handles streaming responses correctly', async () => {
@@ -287,5 +290,63 @@ describe('ChatContainer Component', () => {
 
     // Should only have been called once
     expect(mockSendMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls exportToMarkdown when export button is clicked', async () => {
+    const user = userEvent.setup();
+
+    // Mock DOM APIs for export
+    const mockCreateObjectURL = jest.fn(() => 'blob:mock-url');
+    const mockRevokeObjectURL = jest.fn();
+    const mockClick = jest.fn();
+    global.URL.createObjectURL = mockCreateObjectURL;
+    global.URL.revokeObjectURL = mockRevokeObjectURL;
+
+    const originalCreateElement = document.createElement.bind(document);
+    jest.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+      const element = originalCreateElement(tagName);
+      if (tagName === 'a') {
+        element.click = mockClick;
+      }
+      return element;
+    });
+
+    jest.spyOn(document.body, 'appendChild').mockImplementation(jest.fn());
+    jest.spyOn(document.body, 'removeChild').mockImplementation(jest.fn());
+
+    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      onChunk('Response');
+      onComplete();
+    });
+
+    render(<ChatContainer />);
+
+    const input = screen.getByPlaceholderText('Type your message...');
+
+    // Send a message first
+    await user.type(input, 'Hello, AI!');
+    await user.keyboard('{Enter}');
+
+    // Wait for messages to appear
+    await waitFor(() => {
+      expect(screen.getByText('Hello, AI!')).toBeInTheDocument();
+    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Response')).toBeInTheDocument();
+      },
+      { timeout: 1000 }
+    );
+
+    // Click export button
+    const exportButton = screen.getByText('Export');
+    await user.click(exportButton);
+
+    // Should have triggered download
+    expect(mockCreateObjectURL).toHaveBeenCalled();
+    expect(mockClick).toHaveBeenCalled();
+
+    jest.restoreAllMocks();
   });
 });

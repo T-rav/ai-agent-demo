@@ -274,11 +274,25 @@ describe('useChat Hook', () => {
     });
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      // Only restore mocks we created
+      (document.createElement as jest.Mock).mockRestore();
+      (document.body.appendChild as jest.Mock).mockRestore();
+      (document.body.removeChild as jest.Mock).mockRestore();
     });
 
     it('does not export when there are no messages', () => {
-      const { result } = renderHook(() => useChat());
+      // Temporarily restore appendChild/removeChild for test setup
+      (document.body.appendChild as jest.Mock).mockRestore();
+      (document.body.removeChild as jest.Mock).mockRestore();
+
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      // Re-mock after setup
+      jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+      jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+
+      const { result } = renderHook(() => useChat(), { container });
 
       act(() => {
         result.current.exportToMarkdown();
@@ -289,7 +303,18 @@ describe('useChat Hook', () => {
     });
 
     it('exports messages with mode and sources to markdown', async () => {
-      const { result } = renderHook(() => useChat());
+      // Temporarily restore appendChild/removeChild for test setup
+      (document.body.appendChild as jest.Mock).mockRestore();
+      (document.body.removeChild as jest.Mock).mockRestore();
+
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      // Re-mock after setup
+      jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+      jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+
+      const { result } = renderHook(() => useChat(), { container });
 
       // Add messages with sources
       mockSendMessage.mockImplementation(
@@ -359,7 +384,18 @@ describe('useChat Hook', () => {
     });
 
     it('exports messages without mode or sources', async () => {
-      const { result } = renderHook(() => useChat());
+      // Temporarily restore appendChild/removeChild for test setup
+      (document.body.appendChild as jest.Mock).mockRestore();
+      (document.body.removeChild as jest.Mock).mockRestore();
+
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      // Re-mock after setup
+      jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+      jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+
+      const { result } = renderHook(() => useChat(), { container });
 
       mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete) => {
         onChunk('Simple response');
