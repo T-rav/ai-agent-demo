@@ -35,6 +35,7 @@ class Settings(BaseSettings):
 
     # RAG Configuration
     retrieval_k: int = Field(default=5, description="Number of documents to retrieve")
+    score_threshold: float = Field(default=0.5, description="Minimum similarity score threshold")
 
     # Tavily Search Configuration
     tavily_api_key: Optional[str] = Field(None, description="Tavily API key for web search")

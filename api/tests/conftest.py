@@ -18,6 +18,7 @@ def mock_env_vars(monkeypatch):
         "EMBEDDING_MODEL": "text-embedding-3-small",
         "EMBEDDING_DIMENSIONS": "1536",
         "RETRIEVAL_K": "5",
+        "SCORE_THRESHOLD": "0.5",
         "TAVILY_API_KEY": "test-tavily-key",
         "LANGCHAIN_TRACING_V2": "false",
         "LANGCHAIN_API_KEY": "",

@@ -211,6 +211,10 @@ Respond with ONLY ONE WORD:
 
                 source_number = 1
                 for doc, score in docs_with_scores:
+                    # Skip documents below score threshold
+                    if score < settings.score_threshold:
+                        continue
+                    
                     # Extract metadata (use correct field names from ingestion)
                     source_file = doc.metadata.get("file_name", "Unknown")
                     title = doc.metadata.get("document_title", "Untitled")
@@ -245,21 +249,32 @@ Respond with ONLY ONE WORD:
 
                         source_number += 1
 
-                context = "\n\n---\n\n".join(context_parts)
+                # Check if any sources passed the threshold
+                if context_parts:
+                    context = "\n\n---\n\n".join(context_parts)
 
-                # Store sources in state
-                state["sources"] = sources_list
+                    # Store sources in state
+                    state["sources"] = sources_list
 
-                # Add context as a system message
-                context_message = SystemMessage(
-                    content=(
-                        f"RETRIEVED CONTEXT FROM KNOWLEDGE BASE:\n\n{context}\n\n"
-                        "Instructions:\n"
-                        "- Use this context to answer the user's question\n"
-                        "- Be clear and concise\n"
-                        "- The UI will automatically display source citations, so you don't need to list them"
+                    # Add context as a system message
+                    context_message = SystemMessage(
+                        content=(
+                            f"RETRIEVED CONTEXT FROM KNOWLEDGE BASE:\n\n{context}\n\n"
+                            "Instructions:\n"
+                            "- Use this context to answer the user's question\n"
+                            "- Be clear and concise\n"
+                            "- The UI will automatically display source citations, so you don't need to list them"
+                        )
                     )
-                )
+                else:
+                    # No sources passed the threshold
+                    context_message = SystemMessage(
+                        content=(
+                            "No relevant information found in the knowledge base above the similarity threshold.\n"
+                            "Please provide a general answer based on your knowledge, "
+                            "and mention that this is not backed by specific sources from the knowledge base."
+                        )
+                    )
                 messages = [context_message] + list(messages)
 
         # Return both messages and sources

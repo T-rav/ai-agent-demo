@@ -32,11 +32,16 @@ async def search_knowledge_base(query: str) -> str:
     if not docs_with_scores:
         return "No relevant information found in the knowledge base."
 
-    # Format results with source citations for tracking
+    # Filter by score threshold and format results with source citations for tracking
     results = []
     sources_section = "\n\n=== KNOWLEDGE BASE SOURCES (Cite these in your References) ===\n"
 
-    for i, (doc, score) in enumerate(docs_with_scores, 1):
+    kb_number = 1
+    for doc, score in docs_with_scores:
+        # Skip documents below score threshold
+        if score < settings.score_threshold:
+            continue
+            
         content = doc.page_content
         metadata = doc.metadata
 
@@ -53,7 +58,7 @@ async def search_knowledge_base(query: str) -> str:
 
         # Content with citation identifier
         results.append(
-            f"[KB-{i}] {display_title}\n"
+            f"[KB-{kb_number}] {display_title}\n"
             f"From: {source_file}\n"
             f"Relevance: {score:.3f}\n\n"
             f"{content}\n"
@@ -61,8 +66,13 @@ async def search_knowledge_base(query: str) -> str:
 
         # Track source for references (use clean file name without extension)
         clean_source = source_file.replace('.md', '').replace('_', ' ').title()
-        sources_section += f"[KB-{i}] {clean_source} ({source_file})\n"
+        sources_section += f"[KB-{kb_number}] {clean_source} ({source_file})\n"
+        kb_number += 1
 
+    # Return no results message if all were filtered out
+    if not results:
+        return "No relevant information found above the similarity threshold."
+    
     return "\n---\n\n".join(results) + sources_section
 
 
