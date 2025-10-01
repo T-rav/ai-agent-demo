@@ -556,14 +556,14 @@ Respond with ONLY ONE WORD:
 
     async def astream(self, messages: List[dict], session_id: str = None):
         """
-        Stream responses from the agent.
+        Stream responses from the agent with token-level streaming.
 
         Args:
             messages: List of message dictionaries with 'role' and 'content'
             session_id: Optional session ID for tracking
 
         Yields:
-            Chunks of the response
+            Chunks of the response as tokens are generated
         """
         # Convert message dicts to LangChain message objects
         lc_messages = []
@@ -578,23 +578,20 @@ Respond with ONLY ONE WORD:
         # Initialize state
         initial_state = {"messages": lc_messages, "sources": []}
 
-        # Stream the graph execution
-        async for event in self.graph.astream(initial_state):
-            # Extract the current state
-            for node_name, node_output in event.items():
-                if node_name == "agent":
-                    # Check if we have a response message
-                    if "messages" in node_output:
-                        for message in node_output["messages"]:
-                            if isinstance(message, AIMessage):
-                                # Stream the content
-                                if message.content:
-                                    yield {"type": "token", "content": message.content}
+        # Use astream_events for token-level streaming (v2 API)
+        async for event in self.graph.astream_events(initial_state, version="v2"):
+            kind = event["event"]
 
-                elif node_name == "tools":
-                    # Tool execution completed
-                    # We could extract sources here if needed
-                    pass
+            # Stream tokens from the language model
+            if kind == "on_chat_model_stream":
+                chunk = event["data"]["chunk"]
+                if hasattr(chunk, "content") and chunk.content:
+                    yield {"type": "token", "content": chunk.content}
+
+            # Track when tools are called (optional, for debugging)
+            elif kind == "on_tool_start":
+                tool_name = event.get("name", "unknown")
+                yield {"type": "step", "content": f"Using tool: {tool_name}"}
 
         # Signal completion
         yield {"type": "done"}
