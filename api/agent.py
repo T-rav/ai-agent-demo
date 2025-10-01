@@ -296,7 +296,8 @@ Respond with ONLY ONE WORD:
         else:
             response = await self.llm.ainvoke(messages)
 
-        return {"messages": [response]}
+        # Preserve sources from state (populated by _simple_rag node)
+        return {"messages": [response], "sources": state.get("sources", [])}
 
     async def _research_planner(self, state: AgentState) -> AgentState:
         """
