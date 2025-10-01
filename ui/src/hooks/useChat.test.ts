@@ -239,4 +239,157 @@ describe('useChat Hook', () => {
 
     expect(result.current.messages[0].content).toBe('Test message');
   });
+
+  describe('exportToMarkdown', () => {
+    let mockCreateObjectURL: jest.Mock;
+    let mockRevokeObjectURL: jest.Mock;
+    let mockClick: jest.Mock;
+    let mockAppendChild: jest.Mock;
+    let mockRemoveChild: jest.Mock;
+    let createdLink: HTMLAnchorElement;
+
+    beforeEach(() => {
+      mockCreateObjectURL = jest.fn(() => 'blob:mock-url');
+      mockRevokeObjectURL = jest.fn();
+      mockClick = jest.fn();
+      mockAppendChild = jest.fn();
+      mockRemoveChild = jest.fn();
+
+      global.URL.createObjectURL = mockCreateObjectURL;
+      global.URL.revokeObjectURL = mockRevokeObjectURL;
+
+      // Mock document.createElement to capture the created link
+      const originalCreateElement = document.createElement.bind(document);
+      jest.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+        const element = originalCreateElement(tagName);
+        if (tagName === 'a') {
+          createdLink = element as HTMLAnchorElement;
+          element.click = mockClick;
+        }
+        return element;
+      });
+
+      jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+      jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('does not export when there are no messages', () => {
+      const { result } = renderHook(() => useChat());
+
+      act(() => {
+        result.current.exportToMarkdown();
+      });
+
+      expect(mockCreateObjectURL).not.toHaveBeenCalled();
+      expect(mockClick).not.toHaveBeenCalled();
+    });
+
+    it('exports messages with mode and sources to markdown', async () => {
+      const { result } = renderHook(() => useChat());
+
+      // Add messages with sources
+      mockSendMessage.mockImplementation(
+        async (message, history, onChunk, onComplete, onError, onMode, onSources) => {
+          onMode('simple');
+          onChunk('This is a response');
+          onSources([
+            {
+              metadata: {
+                document_title: 'Test Document',
+                file_name: 'test.md',
+                chunk_index: 0,
+              },
+              score: 0.95,
+            },
+          ]);
+          onComplete();
+        }
+      );
+
+      await act(async () => {
+        await result.current.sendMessage('Test question');
+      });
+
+      await waitFor(() => {
+        expect(result.current.messages).toHaveLength(2);
+      });
+
+      // Export
+      act(() => {
+        result.current.exportToMarkdown();
+      });
+
+      // Verify blob was created
+      expect(mockCreateObjectURL).toHaveBeenCalledWith(expect.any(Blob));
+
+      // Verify link was created and clicked
+      expect(mockClick).toHaveBeenCalled();
+      expect(createdLink.href).toBe('blob:mock-url');
+      expect(createdLink.download).toMatch(/chat-export-\d{4}-\d{2}-\d{2}\.md/);
+
+      // Verify cleanup
+      expect(mockAppendChild).toHaveBeenCalled();
+      expect(mockRemoveChild).toHaveBeenCalled();
+      expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
+
+      // Verify markdown content
+      const blobCall = mockCreateObjectURL.mock.calls[0][0];
+      const reader = new FileReader();
+      const readPromise = new Promise((resolve) => {
+        reader.onload = () => resolve(reader.result);
+      });
+      reader.readAsText(blobCall);
+      const markdown = await readPromise;
+
+      expect(markdown).toContain('# Chat Export');
+      expect(markdown).toContain('## User');
+      expect(markdown).toContain('Test question');
+      expect(markdown).toContain('## Assistant');
+      expect(markdown).toContain('[SIMPLE]');
+      expect(markdown).toContain('This is a response');
+      expect(markdown).toContain('### Sources');
+      expect(markdown).toContain('**Test Document**');
+      expect(markdown).toContain('File: test.md');
+      expect(markdown).toContain('Chunk: 0');
+      expect(markdown).toContain('Relevance: 95.0%');
+    });
+
+    it('exports messages without mode or sources', async () => {
+      const { result } = renderHook(() => useChat());
+
+      mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete) => {
+        onChunk('Simple response');
+        onComplete();
+      });
+
+      await act(async () => {
+        await result.current.sendMessage('Test question');
+      });
+
+      await waitFor(() => {
+        expect(result.current.messages).toHaveLength(2);
+      });
+
+      act(() => {
+        result.current.exportToMarkdown();
+      });
+
+      const blobCall = mockCreateObjectURL.mock.calls[0][0];
+      const reader = new FileReader();
+      const readPromise = new Promise((resolve) => {
+        reader.onload = () => resolve(reader.result);
+      });
+      reader.readAsText(blobCall);
+      const markdown = await readPromise;
+
+      expect(markdown).toContain('## User');
+      expect(markdown).toContain('## Assistant');
+      expect(markdown).not.toContain('[SIMPLE]');
+      expect(markdown).not.toContain('### Sources');
+    });
+  });
 });
