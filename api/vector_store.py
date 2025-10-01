@@ -4,10 +4,10 @@ Vector store service for RAG retrieval using Pinecone.
 
 from typing import List, Optional
 
-from langchain_community.vectorstores import Pinecone as LangchainPinecone
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
-from pinecone import Pinecone, ServerlessSpec
+from langchain_pinecone import PineconeVectorStore
+from pinecone import Pinecone
 
 from config import settings
 
@@ -22,7 +22,7 @@ class VectorStoreService:
             openai_api_key=settings.openai_api_key, model=settings.embedding_model
         )
         self.index_name = settings.pinecone_index_name
-        self._vectorstore: Optional[LangchainPinecone] = None
+        self._vectorstore: Optional[PineconeVectorStore] = None
 
     def _ensure_index_exists(self):
         """Ensure the Pinecone index exists."""
@@ -35,17 +35,15 @@ class VectorStoreService:
             )
 
     @property
-    def vectorstore(self) -> LangchainPinecone:
+    def vectorstore(self) -> PineconeVectorStore:
         """Get or create the vector store instance."""
         if self._vectorstore is None:
             self._ensure_index_exists()
-            # Get the index from the Pinecone client
-            index = self.pc.Index(self.index_name)
-            # Pass the index to LangChain
-            self._vectorstore = LangchainPinecone(
-                index=index,
+            # Use langchain-pinecone which properly supports Pinecone v3+
+            self._vectorstore = PineconeVectorStore(
+                index_name=self.index_name,
                 embedding=self.embeddings,
-                text_key="content"
+                pinecone_api_key=settings.pinecone_api_key,
             )
         return self._vectorstore
 

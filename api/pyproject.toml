@@ -28,13 +28,14 @@ dependencies = [
     "langchain-core>=0.1.0",
     "langchain-openai>=0.0.2",
     "langchain-community>=0.0.10",
-    
+    "langchain-pinecone>=0.1.0",
+
     # LangGraph for Agent Workflow
     "langgraph>=0.0.20",
-    
+
     # LangSmith for Observability
     "langsmith>=0.0.69",
-    
+
     # Vector Store (Pinecone - renamed from pinecone-client)
     "pinecone>=5.0.0",
     
