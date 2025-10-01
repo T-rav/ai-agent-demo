@@ -40,10 +40,12 @@ class VectorStoreService:
         if self._vectorstore is None:
             self._ensure_index_exists()
             # Use langchain-pinecone which properly supports Pinecone v3+
+            # Note: text_key must match the metadata field from ingestion
             self._vectorstore = PineconeVectorStore(
                 index_name=self.index_name,
                 embedding=self.embeddings,
                 pinecone_api_key=settings.pinecone_api_key,
+                text_key="content_preview",  # Match the field name from ingestion
             )
         return self._vectorstore
 
