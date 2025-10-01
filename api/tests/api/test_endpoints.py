@@ -124,13 +124,8 @@ class TestStreamingFunctionality:
         """Test chat stream handles errors gracefully."""
         from main import generate_chat_stream
 
-        # Mock agent that raises error
-        mock_agent = AsyncMock()
-
-        async def error_stream(*args, **kwargs):
-            raise Exception("Test error")
-
-        mock_agent.astream = error_stream
+        # Use factory to create error agent
+        mock_agent = AgentFactory.create_mock_agent_with_error()
 
         request = ChatRequest(**sample_chat_request_dict)
 

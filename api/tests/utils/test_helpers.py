@@ -14,6 +14,7 @@ class TestKnowledgeBaseSearchTool:
     async def test_search_knowledge_base_returns_formatted_results(self):
         """Test that search_knowledge_base returns formatted results."""
         from tests.builders import a_document
+        from tests.factories.vector_store_search_factory import VectorStoreSearchFactory
         from tools import search_knowledge_base
 
         # Use builder with fluent syntax
@@ -25,9 +26,10 @@ class TestKnowledgeBaseSearchTool:
             .build_with_score()
         )
 
-        with patch("tools.vector_store_service") as mock_vs:
-            mock_vs.similarity_search_with_score = AsyncMock(return_value=[doc_with_score])
+        # Use factory to create mock
+        mock_vs = VectorStoreSearchFactory.create_mock_with_results([doc_with_score])
 
+        with patch("tools.vector_store_service", mock_vs):
             result = await search_knowledge_base.ainvoke({"query": "What is RAG?"})
 
             assert "[KB-1]" in result
@@ -37,11 +39,13 @@ class TestKnowledgeBaseSearchTool:
     @pytest.mark.asyncio
     async def test_search_knowledge_base_empty_results(self):
         """Test search_knowledge_base with no results."""
+        from tests.factories.vector_store_search_factory import VectorStoreSearchFactory
         from tools import search_knowledge_base
 
-        with patch("tools.vector_store_service") as mock_vs:
-            mock_vs.similarity_search_with_score = AsyncMock(return_value=[])
+        # Use factory to create empty results mock
+        mock_vs = VectorStoreSearchFactory.create_mock_with_empty_results()
 
+        with patch("tools.vector_store_service", mock_vs):
             result = await search_knowledge_base.ainvoke({"query": "Unknown topic"})
 
             assert "No relevant information found" in result
