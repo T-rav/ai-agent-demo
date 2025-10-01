@@ -88,12 +88,12 @@ class TestStreamChunkModel:
 
     def test_stream_chunk_sources_type(self):
         """Test stream chunk with sources type."""
-        source_doc = SourceDocument(content="Test content", metadata={"source": "test.md"})
-        chunk = StreamChunk(type="sources", sources=[source_doc])
+        source_dict = {"content": "Test content", "metadata": {"source": "test.md"}, "score": 0.9}
+        chunk = StreamChunk(type="sources", sources=[source_dict])
 
         assert chunk.type == "sources"
         assert len(chunk.sources) == 1
-        assert chunk.sources[0].content == "Test content"
+        assert chunk.sources[0]["content"] == "Test content"
 
     def test_stream_chunk_error_type(self):
         """Test stream chunk with error type."""

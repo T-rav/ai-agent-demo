@@ -32,7 +32,7 @@ class TestAgentToolIntegration:
         with patch("tools.settings") as mock_settings:
             mock_settings.tavily_api_key = "test-key"
 
-            with patch("tools.TavilySearchResults"), patch("tools.search_knowledge_base"):
+            with patch("tools.search_web"), patch("tools.search_knowledge_base"):
                 tools = get_available_tools()
 
                 assert isinstance(tools, list)

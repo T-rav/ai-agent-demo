@@ -125,7 +125,7 @@ class TestStreamChunk:
 
     def test_sources_chunk(self):
         """Test creating a sources chunk."""
-        sources = [SourceDocument(content="Test", metadata={}, score=0.9)]
+        sources = [{"content": "Test", "metadata": {}, "score": 0.9}]
         chunk = StreamChunk(type="sources", sources=sources)
         assert chunk.type == "sources"
         assert len(chunk.sources) == 1
