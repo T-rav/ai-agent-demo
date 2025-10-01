@@ -149,6 +149,54 @@ export const useChat = () => {
     setState((prev) => ({ ...prev, error: null }));
   }, []);
 
+  const exportToMarkdown = useCallback(() => {
+    if (state.messages.length === 0) return;
+
+    let markdown = '# Chat Export\n\n';
+    markdown += `*Exported on ${new Date().toLocaleString()}*\n\n---\n\n`;
+
+    state.messages.forEach((message) => {
+      const sender = message.sender === 'user' ? 'User' : 'Assistant';
+      const timestamp = new Date(message.timestamp).toLocaleTimeString();
+      
+      // Add mode for assistant messages
+      const modeText = message.mode ? ` [${message.mode.toUpperCase()}]` : '';
+      markdown += `## ${sender} (${timestamp})${modeText}\n\n`;
+      markdown += `${message.content}\n\n`;
+
+      // Add sources if available
+      if (message.sources && message.sources.length > 0) {
+        markdown += `### Sources\n\n`;
+        message.sources.forEach((source: any, index: number) => {
+          const title = source.metadata?.document_title || source.title || 'Untitled';
+          const fileName = source.metadata?.file_name || source.source || '';
+          const chunkIndex = source.metadata?.chunk_index;
+          const score = source.score;
+
+          markdown += `${index + 1}. **${title}**\n`;
+          if (fileName) markdown += `   - File: ${fileName}\n`;
+          if (chunkIndex !== undefined) markdown += `   - Chunk: ${chunkIndex}\n`;
+          if (score !== undefined) markdown += `   - Relevance: ${(score * 100).toFixed(1)}%\n`;
+          if (source.url) markdown += `   - URL: ${source.url}\n`;
+          markdown += '\n';
+        });
+      }
+
+      markdown += '---\n\n';
+    });
+
+    // Create and download the file
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `chat-export-${new Date().toISOString().slice(0, 10)}.md`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [state.messages]);
+
   return {
     messages: state.messages,
     isLoading: state.isLoading,
@@ -156,5 +204,6 @@ export const useChat = () => {
     sendMessage,
     clearMessages,
     clearError,
+    exportToMarkdown,
   };
 };
