@@ -1,1 +1,2 @@
-export default () => {};
+const remarkGfm = () => {};
+export default remarkGfm;

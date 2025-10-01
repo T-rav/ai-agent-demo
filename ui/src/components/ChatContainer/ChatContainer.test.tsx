@@ -325,18 +325,16 @@ describe('ChatContainer Component', () => {
     global.URL.revokeObjectURL = mockRevokeObjectURL;
 
     const originalCreateElement = document.createElement.bind(document);
-    const createElementSpy = jest
-      .spyOn(document, 'createElement')
-      .mockImplementation((tagName: string) => {
-        const element = originalCreateElement(tagName);
-        if (tagName === 'a') {
-          element.click = mockClick;
-        }
-        return element;
-      });
+    jest.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+      const element = originalCreateElement(tagName);
+      if (tagName === 'a') {
+        element.click = mockClick;
+      }
+      return element;
+    });
 
-    const appendChildSpy = jest.spyOn(document.body, 'appendChild').mockImplementation(jest.fn());
-    const removeChildSpy = jest.spyOn(document.body, 'removeChild').mockImplementation(jest.fn());
+    jest.spyOn(document.body, 'appendChild').mockImplementation(jest.fn());
+    jest.spyOn(document.body, 'removeChild').mockImplementation(jest.fn());
 
     const input = screen.getByPlaceholderText('Type your message...');
 
