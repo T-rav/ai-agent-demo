@@ -5,7 +5,7 @@ module.exports = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(axios)/)',
+    'node_modules/(?!(react-markdown|remark-gfm|unified|bail|is-plain-obj|trough|vfile|vfile-message|unist-.*|micromark.*|mdast.*|decode-named-character-reference|character-entities|escape-string-regexp)/)',
   ],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',

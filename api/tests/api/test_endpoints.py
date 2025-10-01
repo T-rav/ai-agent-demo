@@ -111,7 +111,13 @@ class TestStreamingFunctionality:
                 chunks.append(chunk)
 
             assert len(chunks) > 0
-            assert all("data: " in chunk for chunk in chunks)
+            # Chunks are JSON strings (EventSourceResponse adds "data: " prefix later)
+            assert all(isinstance(chunk, str) for chunk in chunks)
+            # Verify we got expected chunk types
+            import json
+            chunk_data = [json.loads(chunk) for chunk in chunks]
+            assert any(c["type"] == "token" for c in chunk_data)
+            assert any(c["type"] == "done" for c in chunk_data)
 
     @pytest.mark.asyncio
     async def test_generate_chat_stream_handles_errors(self, sample_chat_request_dict):

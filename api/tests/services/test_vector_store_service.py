@@ -15,6 +15,10 @@ class TestVectorStoreServiceInitialization:
     def mock_pinecone(self):
         """Mock Pinecone client."""
         with patch("vector_store.Pinecone") as mock:
+            # Mock list_indexes to return test index
+            mock_index = MagicMock()
+            mock_index.name = "test-index"
+            mock.return_value.list_indexes.return_value = [mock_index]
             yield mock
 
     @pytest.fixture
@@ -26,7 +30,7 @@ class TestVectorStoreServiceInitialization:
     @pytest.fixture
     def mock_langchain_pinecone(self):
         """Mock LangChain Pinecone."""
-        with patch("vector_store.LangchainPinecone") as mock:
+        with patch("vector_store.PineconeVectorStore") as mock:
             yield mock
 
     def test_vector_store_initialization(self, mock_env_vars, mock_pinecone, mock_embeddings):
@@ -45,13 +49,13 @@ class TestVectorStoreServiceInitialization:
         from vector_store import VectorStoreService
 
         mock_vs = MagicMock()
-        mock_langchain_pinecone.from_existing_index.return_value = mock_vs
+        mock_langchain_pinecone.return_value = mock_vs
 
         service = VectorStoreService()
         vectorstore = service.vectorstore
 
         assert vectorstore == mock_vs
-        mock_langchain_pinecone.from_existing_index.assert_called_once()
+        mock_langchain_pinecone.assert_called_once()
 
 
 class TestVectorStoreServiceSingleton:
