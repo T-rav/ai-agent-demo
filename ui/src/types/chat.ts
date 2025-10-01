@@ -1,3 +1,13 @@
+export interface Source {
+  content: string;
+  metadata: {
+    file_name: string;
+    title: string;
+    chunk_index: number;
+  };
+  score: number;
+}
+
 export interface Message {
   id: string;
   content: string;
@@ -5,6 +15,7 @@ export interface Message {
   timestamp: Date;
   isStreaming?: boolean;
   mode?: 'simple' | 'research';
+  sources?: Source[];
 }
 
 export interface ChatState {

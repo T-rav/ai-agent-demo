@@ -42,6 +42,19 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
               {message.mode === 'simple' ? '⚡' : '🔍'}
             </div>
           )}
+          {message.sources && message.sources.length > 0 && (
+            <div className="message-sources">
+              {message.sources.map((source, index) => (
+                <div
+                  key={index}
+                  className="message-source-icon"
+                  title={`${source.metadata.title}\nFile: ${source.metadata.file_name}`}
+                >
+                  📚
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

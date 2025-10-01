@@ -20,7 +20,8 @@ export class ChatService {
     onChunk: (chunk: string) => void,
     onComplete: () => void,
     onError: (error: string) => void,
-    onMode?: (mode: string) => void
+    onMode?: (mode: string) => void,
+    onSources?: (sources: any[]) => void
   ): Promise<void> {
     // Guard against duplicate onComplete calls
     let completed = false;
@@ -84,6 +85,11 @@ export class ChatService {
                 // Emit mode/step information (like "simple" or "research")
                 if (onMode) {
                   onMode(parsed.content);
+                }
+              } else if (parsed.type === 'sources' && parsed.sources) {
+                // Emit sources
+                if (onSources) {
+                  onSources(parsed.sources);
                 }
               } else if (parsed.type === 'done') {
                 safeOnComplete();

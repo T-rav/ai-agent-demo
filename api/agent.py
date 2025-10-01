@@ -594,25 +594,32 @@ Respond with ONLY ONE WORD:
         # Use astream_events for token-level streaming (v2 API)
         routing_mode = None
         routing_done = False
+        collected_sources = []
+
         async for event in self.graph.astream_events(initial_state, version="v2"):
             kind = event["event"]
 
             # Capture routing decision from router node
             if kind == "on_chain_end":
                 node_name = event.get("name", "")
+
+                # Check if this is the router completing
                 if "router" in node_name.lower() or node_name == "_route_request":
                     routing_done = True
-                    # Extract routing decision from state if available
                     output = event.get("data", {}).get("output", {})
                     if isinstance(output, dict) and "routing_decision" in output:
                         routing_mode = output["routing_decision"]
-                        # Emit routing decision as a step event
                         yield {"type": "step", "content": routing_mode}
+
+                # Check if this is simple_rag completing (has sources)
+                elif "simple_rag" in node_name.lower() or node_name == "_simple_rag":
+                    output = event.get("data", {}).get("output", {})
+                    if isinstance(output, dict) and "sources" in output:
+                        collected_sources = output["sources"]
 
             # Stream tokens from the language model (but skip router LLM output)
             if kind == "on_chat_model_stream":
                 # Only stream tokens AFTER routing is complete
-                # This ensures we skip the "SIMPLE" or "RESEARCH" tokens from router LLM
                 if routing_done:
                     chunk = event["data"]["chunk"]
                     if hasattr(chunk, "content") and chunk.content:
@@ -622,6 +629,10 @@ Respond with ONLY ONE WORD:
             elif kind == "on_tool_start":
                 tool_name = event.get("name", "unknown")
                 yield {"type": "step", "content": f"Using tool: {tool_name}"}
+
+        # Emit sources if any were collected
+        if collected_sources:
+            yield {"type": "sources", "sources": collected_sources}
 
         # Signal completion
         yield {"type": "done"}

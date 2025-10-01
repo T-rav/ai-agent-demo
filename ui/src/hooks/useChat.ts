@@ -101,6 +101,15 @@ export const useChat = () => {
               msg.id === assistantMessageId ? { ...msg, mode: mode as 'simple' | 'research' } : msg
             ),
           }));
+        },
+        // On sources received
+        (sources: any[]) => {
+          setState((prev) => ({
+            ...prev,
+            messages: prev.messages.map((msg) =>
+              msg.id === assistantMessageId ? { ...msg, sources } : msg
+            ),
+          }));
         }
       );
     } catch (error) {

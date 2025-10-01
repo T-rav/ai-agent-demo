@@ -16,6 +16,6 @@ class StreamChunk(BaseModel):
         ..., description="Type of chunk"
     )
     content: Optional[str] = Field(None, description="Content for token chunks")
-    sources: Optional[List[SourceDocument]] = Field(None, description="Sources for sources chunks")
+    sources: Optional[List[dict]] = Field(None, description="Sources for sources chunks")
     error: Optional[str] = Field(None, description="Error message for error chunks")
     step: Optional[str] = Field(None, description="Research step description (for research mode)")
