@@ -8,7 +8,7 @@ echo "🔧 Setting up pre-commit hooks..."
 # Install pre-commit if not already installed
 if ! command -v pre-commit &> /dev/null; then
     echo "📦 Installing pre-commit..."
-    pip install pre-commit
+    python3 -m pip install pre-commit
 fi
 
 # Install the git hooks

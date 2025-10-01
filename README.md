@@ -20,18 +20,21 @@
 ## ⚡ Quick Start
 
 ```bash
-# 1. Setup environment files
+# 1. Setup pre-commit hooks (optional but recommended)
+./setup-hooks.sh
+
+# 2. Setup environment files
 cp api/env.example api/.env
 cp ingest/env.example ingest/.env
 # Edit both .env files with your API keys (OpenAI, Pinecone, Tavily optional)
 
-# 2. Ingest knowledge base
+# 3. Ingest knowledge base
 cd ingest
 pip install -e .
 python -m core.setup
 python -m core.ingest
 
-# 3. Start services
+# 4. Start services
 cd ..
 make start
 
