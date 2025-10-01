@@ -128,9 +128,9 @@ def run_sample_queries(vector_store: PineconeVectorStore) -> None:
                 # Print just the top result details
                 top_result = results[0]
                 metadata = top_result["metadata"]
-                print(
-                    f"   Best match: {metadata.get('file_name', 'Unknown')} (chunk {metadata.get('chunk_index', 'Unknown')})"
-                )
+                file_name = metadata.get("file_name", "Unknown")
+                chunk_idx = metadata.get("chunk_index", "Unknown")
+                print(f"   Best match: {file_name} (chunk {chunk_idx})")
             else:
                 print("❌ No results found")
         except Exception as e:
