@@ -3,12 +3,9 @@ Tests for agent service functionality.
 Unit tests for agent components.
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
-import pytest
-from langchain_core.messages import AIMessage, HumanMessage
 
-from ..factories import LLMFactory, VectorStoreFactory
 
 
 class TestAgentStateManagement:
@@ -16,7 +13,6 @@ class TestAgentStateManagement:
 
     def test_agent_state_structure(self):
         """Test that agent state has correct structure."""
-        from agent import AgentState
 
         # AgentState is a TypedDict, test we can create it
         state = {"messages": [], "sources": [], "routing_decision": "simple"}

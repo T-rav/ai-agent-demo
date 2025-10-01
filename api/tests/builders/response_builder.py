@@ -2,7 +2,7 @@
 Fluent builders for API response objects.
 """
 
-from typing import List, Optional
+from typing import List
 
 from models import ChatResponse, SourceDocument, StreamChunk
 

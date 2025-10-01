@@ -2,13 +2,11 @@
 AI Agent API with RAG capabilities using LangChain, LangGraph, and LangSmith.
 """
 
-import json
 import os
 from typing import AsyncIterator
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
 from sse_starlette.sse import EventSourceResponse
 
 from agent import agent

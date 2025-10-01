@@ -2,8 +2,6 @@
 Additional tests for Settings validation and configuration.
 """
 
-import pytest
-from pydantic import ValidationError
 
 
 class TestSettingsDefaults:

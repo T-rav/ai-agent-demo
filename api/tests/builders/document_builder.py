@@ -3,7 +3,7 @@ Builder for creating mock documents in tests.
 Uses fluent interface pattern.
 """
 
-from typing import Dict, Optional
+from typing import Dict
 from unittest.mock import MagicMock
 
 

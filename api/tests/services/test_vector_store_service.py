@@ -6,7 +6,6 @@ Testing vector store interactions and search functionality.
 from unittest.mock import MagicMock, patch
 
 import pytest
-from langchain_core.documents import Document
 
 
 class TestVectorStoreServiceInitialization:

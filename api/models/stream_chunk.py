@@ -6,7 +6,6 @@ from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
-from .source_document import SourceDocument
 
 
 class StreamChunk(BaseModel):

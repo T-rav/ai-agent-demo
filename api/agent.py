@@ -21,7 +21,6 @@ class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
     sources: List[dict]
     routing_decision: str  # "simple" or "research"
-    web_source_counter: int  # Global counter for web sources across searches
 
 
 class RAGAgent:
@@ -386,22 +385,15 @@ Respond with ONLY ONE WORD:
         # Give access to KB and web search tools
         from tools import create_web_search_tool, search_knowledge_base
 
-        # Create a new web search tool instance for this request
-        # Initialize it with the current counter from state
+        gathering_tools = [search_knowledge_base]
         web_search_tool = create_web_search_tool()
         if web_search_tool:
-            web_search_tool.source_counter = state.get("web_source_counter", 0)
-
-        gathering_tools = [search_knowledge_base]
-        if web_search_tool:
-            gathering_tools.append(web_search_tool.as_tool())
+            gathering_tools.append(web_search_tool)
 
         llm_with_gathering = self.llm.bind_tools(gathering_tools)
         response = await llm_with_gathering.ainvoke(messages)
 
-        # Update the counter in state for next search
-        new_counter = web_search_tool.source_counter if web_search_tool else 0
-        return {"messages": [response], "web_source_counter": new_counter}
+        return {"messages": [response]}
 
     async def _report_builder(self, state: AgentState) -> AgentState:
         """
@@ -605,8 +597,8 @@ Respond with ONLY ONE WORD:
             elif msg["role"] == "system":
                 lc_messages.append(SystemMessage(content=msg["content"]))
 
-        # Initialize state with web source counter starting at 0
-        initial_state = {"messages": lc_messages, "sources": [], "web_source_counter": 0}
+        # Initialize state
+        initial_state = {"messages": lc_messages, "sources": []}
 
         # Use astream_events for token-level streaming (v2 API)
         routing_mode = None

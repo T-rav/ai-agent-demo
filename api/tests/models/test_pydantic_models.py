@@ -2,10 +2,8 @@
 Additional tests for Pydantic models to increase coverage.
 """
 
-import pytest
-from pydantic import ValidationError
 
-from models import ChatMessage, ChatRequest, ChatResponse, SourceDocument, StreamChunk
+from models import ChatMessage, ChatRequest, SourceDocument, StreamChunk
 
 
 class TestChatMessageEdgeCases:

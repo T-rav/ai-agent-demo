@@ -2,7 +2,7 @@
 Tests for main application service functionality.
 """
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -14,7 +14,6 @@ class TestMessageConversion:
 
     def test_chat_endpoint_converts_messages_correctly(self):
         """Test that chat endpoint correctly converts message format."""
-        from models import ChatMessage
 
         # Test that ChatMessage pydantic model works correctly
         msg = ChatMessage(role="user", content="Hello")
@@ -27,7 +26,6 @@ class TestMessageConversion:
 
     def test_conversation_history_to_dict_list(self):
         """Test converting conversation history to dict format."""
-        from models import ChatMessage
 
         history = [
             ChatMessage(role="user", content="Hello"),
