@@ -253,7 +253,8 @@ Respond with ONLY ONE WORD:
                 )
                 messages = [context_message] + list(messages)
 
-        return {"messages": messages}
+        # Return both messages and sources
+        return {"messages": messages, "sources": state.get("sources", [])}
 
     async def _simple_agent(self, state: AgentState) -> AgentState:
         """
