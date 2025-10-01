@@ -302,16 +302,15 @@ def create_web_search_tool() -> Optional[WebSearchTool]:
 
 # List of available tools
 def get_available_tools():
-    """Get list of available tools for the research agent."""
+    """Get list of available tools for the research agent.
+
+    Note: Web search tool is NOT included here as it's created per-request
+    to maintain isolated source counters for concurrent requests.
+    """
     tools = [
         research_topic_breakdown,
         search_knowledge_base,
         create_report_outline,
     ]
-
-    # Add web search if configured
-    web_search = create_web_search_tool()
-    if web_search:
-        tools.append(web_search.as_tool())
 
     return tools
