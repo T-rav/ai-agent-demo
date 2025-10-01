@@ -21,6 +21,7 @@ class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
     sources: List[dict]
     routing_decision: str  # "simple" or "research"
+    web_source_counter: int  # Global counter for web sources across searches
 
 
 class RAGAgent:
@@ -385,10 +386,11 @@ Respond with ONLY ONE WORD:
         # Give access to KB and web search tools
         from tools import create_web_search_tool, search_knowledge_base
 
-        web_tool = create_web_search_tool()
+        web_search_tool_instance = create_web_search_tool()
         gathering_tools = [search_knowledge_base]
-        if web_tool:
-            gathering_tools.append(web_tool)
+        if web_search_tool_instance:
+            # Use the tool method from the stateful instance
+            gathering_tools.append(web_search_tool_instance.as_tool())
 
         llm_with_gathering = self.llm.bind_tools(gathering_tools)
         response = await llm_with_gathering.ainvoke(messages)
@@ -430,12 +432,9 @@ Respond with ONLY ONE WORD:
                 "   [KB-1] Title (filename)\n"
                 "   ### Web Sources\n"
                 "   [WEB-1] Title (URL)\n"
-                "6. IMPORTANT: Renumber ALL sources sequentially in the References section\n"
-                "   - If you have duplicate numbers from multiple searches, renumber them uniquely\n"
-                "   - Example: If you see [WEB-1], [WEB-2], [WEB-1], [WEB-2] renumber as [WEB-1], [WEB-2], [WEB-3], [WEB-4]\n"
-                "7. DO NOT include any text after the References section\n"
-                "8. DO NOT just list sources - write detailed explanatory content for each section\n"
-                "9. Make it thorough and comprehensive - aim for 800+ words\n\n"
+                "6. DO NOT include any text after the References section\n"
+                "7. DO NOT just list sources - write detailed explanatory content for each section\n"
+                "8. Make it thorough and comprehensive - aim for 800+ words\n\n"
                 "Write in an academic but accessible style. Be thorough and provide substantive content in each section."
             )
         )

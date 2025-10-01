@@ -219,73 +219,85 @@ IMPORTANT: Make sure to populate the References section with ALL sources you use
     return outline
 
 
-@tool
-async def search_web(query: str) -> str:
-    """
-    Search the web for latest information, recent research, and current trends.
-    Use this for recent developments, current events, and real-world examples.
+class WebSearchTool:
+    """Stateful web search tool that maintains global source numbering."""
 
-    IMPORTANT: Track the sources returned! Use the [WEB-X] identifiers to cite them in your report.
+    def __init__(self):
+        self.source_counter = 0
 
-    Args:
-        query: Specific search query
+    async def search(self, query: str) -> str:
+        """
+        Search the web for latest information, recent research, and current trends.
+        Use this for recent developments, current events, and real-world examples.
 
-    Returns:
-        Relevant web search results with URLs for citations
-    """
-    if not settings.tavily_api_key:
-        return "Web search is not available (no API key configured)."
+        IMPORTANT: Track the sources returned! Use the [WEB-X] identifiers to cite them in your report.
 
-    try:
-        from langchain_community.tools.tavily_search import TavilySearchResults
+        Args:
+            query: Specific search query
 
-        search_tool = TavilySearchResults(
-            api_key=settings.tavily_api_key,
-            max_results=5,
-            search_depth="advanced",
-            include_domains=["arxiv.org", "github.com", "medium.com", "towardsdatascience.com"],
-        )
+        Returns:
+            Relevant web search results with URLs for citations
+        """
+        if not settings.tavily_api_key:
+            return "Web search is not available (no API key configured)."
 
-        # Execute search
-        results = await search_tool.ainvoke(query)
+        try:
+            from langchain_community.tools.tavily_search import TavilySearchResults
 
-        if not results:
-            return "No web results found for this query."
-
-        # Format results with clear source tracking
-        formatted_results = []
-        sources_section = "\n\n=== WEB SOURCES (Cite these in your References) ===\n"
-
-        for i, result in enumerate(results, 1):
-            title = result.get("title", "Untitled")
-            url = result.get("url", "Unknown URL")
-            content = result.get("content", "")
-
-            formatted_results.append(
-                f"[WEB-{i}] {title}\n"
-                f"URL: {url}\n\n"
-                f"{content}\n"
+            search_tool = TavilySearchResults(
+                api_key=settings.tavily_api_key,
+                max_results=5,
+                search_depth="advanced",
+                include_domains=["arxiv.org", "github.com", "medium.com", "towardsdatascience.com"],
             )
 
-            sources_section += f"[WEB-{i}] {title} ({url})\n"
+            # Execute search
+            results = await search_tool.ainvoke(query)
 
-        return "\n---\n\n".join(formatted_results) + sources_section
+            if not results:
+                return "No web results found for this query."
 
-    except Exception as e:
-        return f"Error performing web search: {str(e)}"
+            # Format results with clear source tracking using global counter
+            formatted_results = []
+            sources_section = "\n\n=== WEB SOURCES (Cite these in your References) ===\n"
+
+            for result in results:
+                self.source_counter += 1
+                source_num = self.source_counter
+
+                title = result.get("title", "Untitled")
+                url = result.get("url", "Unknown URL")
+                content = result.get("content", "")
+
+                formatted_results.append(
+                    f"[WEB-{source_num}] {title}\n"
+                    f"URL: {url}\n\n"
+                    f"{content}\n"
+                )
+
+                sources_section += f"[WEB-{source_num}] {title} ({url})\n"
+
+            return "\n---\n\n".join(formatted_results) + sources_section
+
+        except Exception as e:
+            return f"Error performing web search: {str(e)}"
+
+    def as_tool(self):
+        """Convert to LangChain tool."""
+        return tool(self.search)
 
 
-def create_web_search_tool() -> Optional[tool]:
+def create_web_search_tool() -> Optional[WebSearchTool]:
     """
-    Create a web search tool for finding latest information and research.
+    Create a stateful web search tool for finding latest information and research.
 
     Returns:
-        Custom web search tool with formatted results
+        WebSearchTool instance that maintains global source numbering
     """
     if not settings.tavily_api_key:
         return None
 
-    return search_web
+    return WebSearchTool()
 
 
 # List of available tools
