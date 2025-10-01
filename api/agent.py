@@ -35,9 +35,9 @@ class RAGAgent:
             streaming=True,
         )
 
-        # Separate LLM for routing decisions (faster, cheaper)
+        # Separate LLM for routing decisions (fast, smart, cost-effective)
         self.router_llm = ChatOpenAI(
-            model="gpt-3.5-turbo",  # Faster for routing
+            model="gpt-4o-mini",  # Better instruction following than 3.5-turbo
             openai_api_key=settings.openai_api_key,
             temperature=0,
         )
@@ -137,22 +137,16 @@ B) RESEARCH (comprehensive report, deep analysis, detailed exploration)
 
 User request: "{user_message}"
 
-IMPORTANT: Definitional questions are ALWAYS simple, regardless of topic complexity.
+Research indicators:
+- Words like: "comprehensive", "research", "write a report", "deep dive", "analyze", "compare in detail", "history of", "evolution of"
+- Requests for structured content with multiple sections
+- Requests that need multiple sources or perspectives
+- Complex analytical questions
 
-Simple indicators (ALWAYS route to SIMPLE):
-- Direct definitional questions: "What is...", "What are...", "Define...", "Explain what..."
-- Questions about who/when/where: "Who invented...", "When did...", "Where was..."
-- Questions about history/background: "history of...", "background of...", "evolution of..."
-- Requests for definitions, concepts, or brief explanations
+Simple indicators:
+- Direct questions: "What is...", "Who invented...", "When did..."
+- Requests for definitions or brief explanations
 - Quick facts or single-source answers
-- Examples: "What is RAG?", "What is deep learning?", "history of computing", "evolution of AI"
-
-Research indicators (ONLY these trigger RESEARCH):
-- Explicit research keywords: "comprehensive", "research", "write a report", "deep dive into", "in-depth analysis"
-- Multi-part analysis requests: "analyze and compare", "trace the development of", "conduct research on"
-- Requests for structured multi-section content: "write a detailed report", "create a comprehensive guide"
-- Requests that explicitly need multiple sources or perspectives
-- Complex analytical questions requiring synthesis across multiple topics
 
 Respond with ONLY ONE WORD:
 - "RESEARCH" if this needs comprehensive research
