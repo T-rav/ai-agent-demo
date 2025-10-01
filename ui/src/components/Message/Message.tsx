@@ -15,6 +15,15 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
     }).format(timestamp);
   };
 
+  // Debug logging
+  if (message.sources && message.sources.length > 0) {
+    console.log('Message sources:', message.sources);
+    console.log('First source metadata:', message.sources[0]?.metadata);
+  }
+  if (message.mode) {
+    console.log('Message mode:', message.mode);
+  }
+
   return (
     <div className={`message ${message.sender}`}>
       <div className="message-content">
@@ -35,23 +44,23 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
         <div className="message-metadata">
           <div className="message-time">{formatTime(message.timestamp)}</div>
           {message.mode && (
-            <div
+            <span
               className="message-mode"
-              title={message.mode === 'simple' ? 'Simple Answer' : 'Research Mode'}
+              data-tooltip={message.mode === 'simple' ? 'Simple Answer' : 'Research Mode'}
             >
               {message.mode === 'simple' ? '⚡' : '🔍'}
-            </div>
+            </span>
           )}
           {message.sources && message.sources.length > 0 && (
             <div className="message-sources">
               {message.sources.map((source, index) => (
-                <div
+                <span
                   key={index}
                   className="message-source-icon"
-                  title={`${source.metadata.title}\nFile: ${source.metadata.file_name}`}
+                  data-tooltip={`${source.metadata.document_title || 'Unknown'} - ${source.metadata.file_name || 'Unknown file'}`}
                 >
                   📚
-                </div>
+                </span>
               ))}
             </div>
           )}

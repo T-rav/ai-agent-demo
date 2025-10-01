@@ -2,7 +2,7 @@ export interface Source {
   content: string;
   metadata: {
     file_name: string;
-    title: string;
+    document_title: string;
     chunk_index: number;
   };
   score: number;

@@ -137,16 +137,21 @@ B) RESEARCH (comprehensive report, deep analysis, detailed exploration)
 
 User request: "{user_message}"
 
-Research indicators:
-- Words like: "comprehensive", "research", "write a report", "deep dive", "analyze", "compare in detail", "history of", "evolution of"
-- Requests for structured content with multiple sections
-- Requests that need multiple sources or perspectives
-- Complex analytical questions
+IMPORTANT: Definitional questions are ALWAYS simple, regardless of topic complexity.
 
-Simple indicators:
-- Direct questions: "What is...", "Who invented...", "When did..."
-- Requests for definitions or brief explanations
+Simple indicators (ALWAYS route to SIMPLE):
+- Direct definitional questions: "What is...", "What are...", "Define...", "Explain what..."
+- Questions about who/when/where: "Who invented...", "When did...", "Where was..."
+- Requests for definitions, concepts, or brief explanations
 - Quick facts or single-source answers
+- Examples: "What is RAG?", "What is deep learning?", "What is machine learning?"
+
+Research indicators (ONLY these trigger RESEARCH):
+- Explicit research keywords: "comprehensive", "research", "write a report", "deep dive into", "in-depth analysis"
+- Multi-part analysis: "analyze", "compare in detail", "history of", "evolution of", "trace the development"
+- Requests for structured multi-section content
+- Requests that need multiple sources or perspectives
+- Complex analytical questions requiring synthesis
 
 Respond with ONLY ONE WORD:
 - "RESEARCH" if this needs comprehensive research
@@ -237,7 +242,7 @@ Respond with ONLY ONE WORD:
                                 "content": doc.page_content[:500],
                                 "metadata": {
                                     "file_name": source_file,
-                                    "title": title,
+                                    "document_title": title,
                                     "chunk_index": doc.metadata.get("chunk_index", 0),
                                 },
                                 "score": float(score),
@@ -257,9 +262,8 @@ Respond with ONLY ONE WORD:
                         f"RETRIEVED CONTEXT FROM KNOWLEDGE BASE:\n\n{context}\n\n"
                         "Instructions:\n"
                         "- Use this context to answer the user's question\n"
-                        "- ALWAYS cite sources by their number and title when using information\n"
-                        "- Example: 'According to Source 1 (RAG Systems Overview)...'\n"
-                        "- List all sources used at the end of your response"
+                        "- Be clear and concise\n"
+                        "- The UI will automatically display source citations, so you don't need to list them"
                     )
                 )
                 messages = [context_message] + list(messages)
