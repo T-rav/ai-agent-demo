@@ -82,13 +82,13 @@ async def generate_chat_stream(request: ChatRequest) -> AsyncIterator[str]:
             # Convert chunk to StreamChunk model
             stream_chunk = StreamChunk(**chunk)
 
-            # Yield as SSE event
-            yield f"data: {stream_chunk.model_dump_json()}\n\n"
+            # Yield JSON (EventSourceResponse will add "data: " prefix)
+            yield stream_chunk.model_dump_json()
 
     except Exception as e:
         # Send error chunk
         error_chunk = StreamChunk(type="error", error=str(e))
-        yield f"data: {error_chunk.model_dump_json()}\n\n"
+        yield error_chunk.model_dump_json()
 
 
 @app.post("/api/chat/stream")
