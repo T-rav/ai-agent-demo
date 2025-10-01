@@ -371,7 +371,7 @@ Respond with ONLY ONE WORD:
                     "Now gather comprehensive information.\n\n"
                     "Your task:\n"
                     "1. Use 'search_knowledge_base' to find foundational concepts\n"
-                    "2. Use 'tavily_search_results_json' to find latest information\n"
+                    "2. Use 'search_web' to find latest information and current trends\n"
                     "3. Gather information for each subtopic in your plan\n"
                     "4. For each source, extract key information and insights\n"
                     "5. Organize findings by topic/subtopic\n\n"
