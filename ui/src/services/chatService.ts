@@ -17,6 +17,7 @@ export class ChatService {
    */
   public async sendMessage(
     message: string,
+    conversationHistory: Array<{ role: string; content: string }>,
     onChunk: (chunk: string) => void,
     onComplete: () => void,
     onError: (error: string) => void,
@@ -37,7 +38,10 @@ export class ChatService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({
+          message,
+          conversation_history: conversationHistory,
+        }),
       });
 
       if (!response.ok) {

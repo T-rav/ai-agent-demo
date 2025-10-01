@@ -40,7 +40,7 @@ describe('useChat Hook', () => {
     const { result } = renderHook(() => useChat());
 
     // Mock successful streaming - call sync to test
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+    mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete) => {
       // Call immediately without delay
       onChunk('Hello');
       onChunk(' there!');
@@ -75,7 +75,7 @@ describe('useChat Hook', () => {
   it('handles streaming response correctly', async () => {
     const { result } = renderHook(() => useChat());
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+    mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete) => {
       // Wait for state to settle, then call callbacks
       await new Promise((resolve) => setTimeout(resolve, 100));
       onChunk('Hello');
@@ -107,7 +107,7 @@ describe('useChat Hook', () => {
   it('handles errors correctly', async () => {
     const { result } = renderHook(() => useChat());
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete, onError) => {
+    mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete, onError) => {
       // Wait for state to settle, then call error callback
       await new Promise((resolve) => setTimeout(resolve, 100));
       onError('Network error');
@@ -195,7 +195,7 @@ describe('useChat Hook', () => {
 
     // Simulate error
     let onError: (error: string) => void;
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete, errorCallback) => {
+    mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete, errorCallback) => {
       onError = errorCallback;
     });
 
@@ -219,7 +219,7 @@ describe('useChat Hook', () => {
   it('trims message content before sending', async () => {
     const { result } = renderHook(() => useChat());
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+    mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete) => {
       onComplete();
     });
 
@@ -229,6 +229,9 @@ describe('useChat Hook', () => {
 
     expect(mockSendMessage).toHaveBeenCalledWith(
       'Test message',
+      expect.any(Array),
+      expect.any(Function),
+      expect.any(Function),
       expect.any(Function),
       expect.any(Function),
       expect.any(Function)

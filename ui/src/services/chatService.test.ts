@@ -57,7 +57,7 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/chat/stream', {
         method: 'POST',
@@ -100,7 +100,7 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(onChunk).toHaveBeenCalledWith('Hello');
       expect(onComplete).toHaveBeenCalled();
@@ -134,7 +134,7 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(onChunk).toHaveBeenCalledWith('Plain text response');
       expect(onComplete).toHaveBeenCalled();
@@ -153,7 +153,7 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(onError).toHaveBeenCalledWith('HTTP error! status: 500');
       expect(onChunk).not.toHaveBeenCalled();
@@ -172,7 +172,7 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(onError).toHaveBeenCalledWith('No response body reader available');
       expect(onChunk).not.toHaveBeenCalled();
@@ -186,7 +186,7 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(onError).toHaveBeenCalledWith('Network error');
       expect(onChunk).not.toHaveBeenCalled();

@@ -23,11 +23,20 @@ export const useChat = () => {
 
     // Single atomic state update to add both messages and set loading
     let shouldProceed = false;
+    let conversationHistory: Array<{ role: string; content: string }> = [];
+
     setState((prev) => {
       // Check if already loading
       if (prev.isLoading) return prev;
 
       shouldProceed = true;
+
+      // Build conversation history from existing messages (before adding new ones)
+      conversationHistory = prev.messages.map((msg) => ({
+        role: msg.sender,
+        content: msg.content,
+      }));
+
       return {
         ...prev,
         messages: [
@@ -61,6 +70,7 @@ export const useChat = () => {
     try {
       await chatService.current.sendMessage(
         trimmedContent,
+        conversationHistory,
         // On chunk received
         (chunk: string) => {
           setState((prev) => ({
