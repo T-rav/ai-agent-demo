@@ -119,9 +119,7 @@ class Config:
         paths_config = self._config.get("paths", {})
 
         return {
-            "corpus_path": os.getenv(
-                "CORPUS_PATH", paths_config.get("corpus_path", "../data/corpus")
-            )
+            "corpus_path": os.getenv("CORPUS_PATH", paths_config.get("corpus_path", "data/corpus"))
         }
 
     def get_logging_config(self) -> Dict[str, Any]:
