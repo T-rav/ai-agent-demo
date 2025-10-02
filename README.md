@@ -18,32 +18,21 @@
 ## ⚡ Quick Start
 
 ```bash
-# 1. Setup pre-commit hooks (optional but recommended)
-./setup-hooks.sh
-
-# 2. Setup environment files
+# 1. Setup environment variables
 cp api/env.example api/.env
 cp ingest/env.example ingest/.env
 # Edit both .env files with your API keys (OpenAI, Pinecone, Tavily optional)
 
-# 3. Ingest knowledge base
-cd ingest
-pip install -e .
-python -m core.setup
-python -m core.ingest
+# 2. Ingest knowledge base (one-time setup)
+cd ingest && make dev-install && make run
 
-# 4. Start services
-cd ..
-make start
-
-# Or with Docker:
-docker-compose -f docker-compose.dev.yml up
+# 3. Start the application
+cd .. && make start
 ```
 
 **Access:**
 - UI: http://localhost:3000
 - API: http://localhost:8000
-- Docs: http://localhost:8000/docs
 
 ## 📖 Usage
 
@@ -54,6 +43,15 @@ docker-compose -f docker-compose.dev.yml up
 **Research mode** (multi-agent):
 - "Write a comprehensive report on AI in healthcare"
 - "Research quantum computing and create a detailed report"
+
+## 📐 Architecture
+
+Want to understand how it works? Check out the [detailed architecture documentation](./docs/ARCHITECTURE.md) for:
+- System design and workflow diagrams
+- Multi-agent orchestration with LangGraph
+- Intelligent routing decisions
+- RAG implementation details
+- Citation system
 
 ## 🧪 Testing
 
