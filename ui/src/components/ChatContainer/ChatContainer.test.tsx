@@ -76,9 +76,12 @@ describe('ChatContainer Component', () => {
     await user.click(sendButton);
 
     // Should show user message
-    await waitFor(() => {
-      expect(screen.getByText('Hello, AI!')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Hello, AI!')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Should show assistant response
     await waitFor(

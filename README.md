@@ -4,8 +4,6 @@
 
 > Production-ready AI assistant with intelligent routing, RAG with source citations, and a beautiful React TypeScript frontend.
 
-**Smart routing:** 95% of queries use simple RAG. Multi-agent research workflow triggers only when you explicitly ask for a comprehensive report.
-
 ## 🚀 Features
 
 - **Intelligent Routing** - GPT-4o-mini classifies queries as simple or research
