@@ -109,10 +109,10 @@ npm test -- ChatContainer.test.tsx
 ```
 
 **Test requirements**:
-- **API**: 70% coverage minimum (`--cov-fail-under=70`)
-- **Ingest**: 70% coverage minimum
-- **UI**: No strict coverage requirement
-- All tests must use `--cache-clear` to avoid pytest caching issues
+- **API**: 70% coverage minimum (all metrics)
+- **Ingest**: 70% coverage minimum (all metrics)
+- **UI**: 70% coverage minimum (60% for branches due to React edge cases)
+- All API tests must use `--cache-clear` to avoid pytest caching issues
 
 ### Code Quality
 
@@ -246,7 +246,7 @@ cp ingest/env.example ingest/.env
 - **Router Speed**: Uses GPT-3.5-turbo for cost/speed, other agents use GPT-4
 - **Test Isolation**: Always run API tests with `--cache-clear` flag
 - **Docker Development**: All services run in Docker by default for consistency
-- **Coverage Threshold**: 70% minimum for API and Ingest, enforced in CI
+- **Coverage Threshold**: 70% minimum enforced in CI (UI branches at 60% due to React edge cases)
 
 ## Documentation
 
