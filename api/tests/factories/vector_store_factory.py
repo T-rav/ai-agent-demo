@@ -19,16 +19,16 @@ class VectorStoreFactory:
         mock_doc1 = Document(
             page_content="RAG systems combine retrieval with generation.",
             metadata={
-                "source": "rag_overview.md",
-                "title": "RAG Systems Overview",
+                "file_name": "rag-guide.md",
+                "document_title": "RAG Systems Overview",
                 "chunk_index": 0,
             },
         )
         mock_doc2 = Document(
             page_content="Vector databases store embeddings efficiently.",
             metadata={
-                "source": "vector_db.md",
-                "title": "Vector Databases",
+                "file_name": "vector-db-guide.md",
+                "document_title": "Vector Databases",
                 "chunk_index": 1,
             },
         )
