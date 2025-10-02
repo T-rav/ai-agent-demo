@@ -39,7 +39,7 @@ jobs:
     - name: Upload UI coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
-        file: ./ui/coverage/lcov.info
+        files: ./ui/coverage/lcov.info
         flags: ui
         name: ui-coverage
 
@@ -82,7 +82,7 @@ jobs:
     - name: Upload API coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
-        file: ./api/coverage.xml
+        files: ./api/coverage.xml
         flags: api
         name: api-coverage
 
@@ -118,6 +118,6 @@ jobs:
     - name: Upload ingest coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
-        file: ./ingest/coverage.xml
+        files: ./ingest/coverage.xml
         flags: ingest
         name: ingest-coverage
