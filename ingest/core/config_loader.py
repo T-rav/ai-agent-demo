@@ -120,7 +120,7 @@ class Config:
 
         return {
             "corpus_path": os.getenv(
-                "CORPUS_PATH", paths_config.get("corpus_path", "../data / corpus")
+                "CORPUS_PATH", paths_config.get("corpus_path", "../data/corpus")
             )
         }
 

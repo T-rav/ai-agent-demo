@@ -44,7 +44,7 @@ class IngestionConfig(BaseModel):
 
     # Path Configuration
     corpus_path: str = Field(
-        default="data / corpus", min_length=1, description="Path to corpus directory"
+        default="data/corpus", min_length=1, description="Path to corpus directory"
     )
 
     # Logging Configuration

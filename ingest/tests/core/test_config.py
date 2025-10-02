@@ -96,7 +96,7 @@ min_chunk_size = 50
 max_chunk_size = 1200
 
 [tool.ai - agent - demo.paths]
-corpus_path = "test / corpus"
+corpus_path = "test/corpus"
 
 [tool.ai - agent - demo.logging]
 level = "DEBUG"
@@ -134,7 +134,7 @@ show_progress = false
                             "chunk_overlap": 150,
                             "min_chunk_size": 50,
                             "max_chunk_size": 1200,
-                            "corpus_path": "test / corpus",
+                            "corpus_path": "test/corpus",
                             "level": "DEBUG",
                             "show_progress": False,
                         }
@@ -153,7 +153,7 @@ show_progress = false
                         assert config.index_name == "test - index - from - toml"
                         assert config.chunk_size == 800
                         assert config.chunk_overlap == 150
-                        assert config.corpus_path == "test / corpus"
+                        assert config.corpus_path == "test/corpus"
                         assert config.level == "DEBUG"
                         assert config.show_progress is False
             finally:
