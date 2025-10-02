@@ -19,7 +19,11 @@ class TestSentenceSplitter:
         """Test basic sentence splitting."""
         text = "This is the first sentence. This is the second sentence! Is this the third?"
         result = splitter.split(text)
-        expected = ["This is the first sentence.", "This is the second sentence!", "Is this the third?"]
+        expected = [
+            "This is the first sentence.",
+            "This is the second sentence!",
+            "Is this the third?",
+        ]
         assert result == expected
 
     def test_abbreviation_handling(self, splitter):

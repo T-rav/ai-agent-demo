@@ -321,4 +321,3 @@ The future of AI is not predetermined but will be shaped by the choices we make 
 The next decades will likely be the most consequential in human history as we navigate the transition to a world shared with artificial intelligence. The decisions we make and actions we take during this critical period will echo through generations, potentially shaping the entire future of human civilization and beyond.
 
 As we stand at this pivotal moment in 2025, the future of AI remains unwritten. It is up to us to write it wisely, courageously, and with the long-term flourishing of all sentient beings in mind. The age of artificial intelligence has begun, and how we shape it will determine whether it becomes humanity's greatest triumph or its greatest challenge.
-

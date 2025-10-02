@@ -8,14 +8,21 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 from ..models import ChunkingError, ChunkMetadata, DocumentChunk, ProcessedDocument
-from ..utils import MarkdownSectionSplitter, ParagraphSplitter, SentenceSplitter, TiktokenEncoder
+from ..utils import (
+    MarkdownSectionSplitter,
+    ParagraphSplitter,
+    SentenceSplitter,
+    TiktokenEncoder,
+)
 
 
 class ChunkingStrategy(ABC):
     """Abstract base class for chunking strategies."""
 
     @abstractmethod
-    def chunk(self, document: ProcessedDocument, chunker: "DocumentChunkingService") -> List[DocumentChunk]:
+    def chunk(
+        self, document: ProcessedDocument, chunker: "DocumentChunkingService"
+    ) -> List[DocumentChunk]:
         """Chunk a document using this strategy."""
 
 
@@ -26,7 +33,9 @@ class MarkdownChunkingStrategy(ChunkingStrategy):
         """Initialize the Markdown chunking strategy."""
         self._section_splitter = MarkdownSectionSplitter()
 
-    def chunk(self, document: ProcessedDocument, chunker: "DocumentChunkingService") -> List[DocumentChunk]:
+    def chunk(
+        self, document: ProcessedDocument, chunker: "DocumentChunkingService"
+    ) -> List[DocumentChunk]:
         """Chunk Markdown document respecting section structure."""
         chunks = []
 
@@ -43,7 +52,9 @@ class MarkdownChunkingStrategy(ChunkingStrategy):
 class PDFChunkingStrategy(ChunkingStrategy):
     """Chunking strategy for PDF documents that maintains page boundaries."""
 
-    def chunk(self, document: ProcessedDocument, chunker: "DocumentChunkingService") -> List[DocumentChunk]:
+    def chunk(
+        self, document: ProcessedDocument, chunker: "DocumentChunkingService"
+    ) -> List[DocumentChunk]:
         """Chunk PDF document with page awareness."""
         chunks = []
 
@@ -68,7 +79,9 @@ class PDFChunkingStrategy(ChunkingStrategy):
 class TextChunkingStrategy(ChunkingStrategy):
     """Chunking strategy for plain text documents."""
 
-    def chunk(self, document: ProcessedDocument, chunker: "DocumentChunkingService") -> List[DocumentChunk]:
+    def chunk(
+        self, document: ProcessedDocument, chunker: "DocumentChunkingService"
+    ) -> List[DocumentChunk]:
         """Chunk plain text document."""
         return chunker._chunk_text_content(document, document.content)
 
@@ -147,7 +160,9 @@ class DocumentChunkingService:
         except Exception as e:
             raise ChunkingError(f"Failed to chunk document {document.file_name}: {e}") from e
 
-    def _chunk_section(self, document: ProcessedDocument, section: Dict[str, Any]) -> List[DocumentChunk]:
+    def _chunk_section(
+        self, document: ProcessedDocument, section: Dict[str, Any]
+    ) -> List[DocumentChunk]:
         """Chunk a document section intelligently."""
         content = section["content"]
         header = section.get("header", "")
@@ -155,7 +170,9 @@ class DocumentChunkingService:
         # If section is small enough, keep as single chunk
         token_count = self._token_encoder.count_tokens(content)
         if token_count <= self.chunk_size:
-            chunk = self._create_chunk(document, content, self._global_chunk_index, section_header=header)
+            chunk = self._create_chunk(
+                document, content, self._global_chunk_index, section_header=header
+            )
             self._global_chunk_index += 1
             return [chunk]
 
@@ -188,7 +205,11 @@ class DocumentChunkingService:
 
                     if current_tokens + sentence_tokens > self.chunk_size and current_chunk:
                         current_chunk, current_tokens = self._finalize_and_start_new_chunk(
-                            chunks, current_chunk, document, section_header, page_num
+                            chunks,
+                            current_chunk,
+                            document,
+                            section_header,
+                            page_num,
                         )
 
                     current_chunk.append(sentence)
@@ -209,7 +230,11 @@ class DocumentChunkingService:
             if self._token_encoder.count_tokens(chunk_text) >= self.min_chunk_size:
                 chunks.append(
                     self._create_chunk(
-                        document, chunk_text, self._global_chunk_index, section_header=section_header, page_num=page_num
+                        document,
+                        chunk_text,
+                        self._global_chunk_index,
+                        section_header=section_header,
+                        page_num=page_num,
                     )
                 )
                 self._global_chunk_index += 1

@@ -15,5 +15,5 @@ test('renders chat container with title', () => {
   render(<App />);
   const chatContainer = screen.getByTestId('chat-container');
   expect(chatContainer).toBeInTheDocument();
-  expect(screen.getByText('Nexus AI')).toBeInTheDocument();
+  expect(screen.getByText('AI Assistant')).toBeInTheDocument();
 });

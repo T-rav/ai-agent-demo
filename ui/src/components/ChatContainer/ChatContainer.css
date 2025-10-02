@@ -1,10 +1,10 @@
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 20px);
   background: #1a1a1a;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  margin: 20px;
+  margin: 10px;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
   border: 1px solid #2a2a2a;
@@ -33,6 +33,13 @@
   margin: 0;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.export-button,
 .clear-button {
   display: flex;
   align-items: center;
@@ -48,6 +55,18 @@
   transition: all 0.2s ease;
 }
 
+.export-button {
+  background-color: #1a4d2e;
+  border-color: #2a5d3e;
+}
+
+.export-button:hover {
+  background-color: #2a5d3e;
+  border-color: #3a6d4e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
 .clear-button:hover {
   background-color: #3a3a3a;
   border-color: #4a4a4a;
@@ -55,6 +74,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
+.export-button:active,
 .clear-button:active {
   transform: translateY(0);
 }

@@ -1,0 +1,24 @@
+# Development Dockerfile for Python API
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy project configuration
+COPY pyproject.toml __init__.py ./
+
+# Copy application code (needed for installation)
+COPY . .
+
+# Install Python dependencies in editable mode with dev extras
+RUN pip install --no-cache-dir -e .[dev]
+
+# Expose port
+EXPOSE 8000
+
+# Run the application with hot reload
+CMD ["uvicorn", "main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]

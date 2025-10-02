@@ -73,7 +73,12 @@ class SentenceSplitter(TextSplitter):
     def _protect_abbreviations(self, text: str) -> str:
         """Replace dots in abbreviations with placeholder."""
         pattern = r"\b(?:" + "|".join(re.escape(abbr) for abbr in self._abbreviations) + r")\."
-        return re.sub(pattern, lambda m: m.group().replace(".", "<!DOT!>"), text, flags=re.IGNORECASE)
+        return re.sub(
+            pattern,
+            lambda m: m.group().replace(".", "<!DOT!>"),
+            text,
+            flags=re.IGNORECASE,
+        )
 
     def _restore_abbreviations(self, text: str) -> str:
         """Restore dots in abbreviations."""
@@ -129,7 +134,11 @@ class MarkdownSectionSplitter(TextSplitter):
                 # Start new section
                 header_level = len(line) - len(line.lstrip("#"))
                 header_text = line.strip("#").strip()
-                current_section = {"header": header_text, "content": line + "\n", "level": header_level}
+                current_section = {
+                    "header": header_text,
+                    "content": line + "\n",
+                    "level": header_level,
+                }
             else:
                 current_section["content"] = str(current_section["content"]) + line + "\n"
 

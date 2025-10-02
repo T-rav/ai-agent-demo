@@ -74,6 +74,7 @@ src/
 The chat interface expects a backend API with the following endpoints:
 
 ### Streaming Chat (Recommended)
+
 ```
 POST /api/chat/stream
 Content-Type: application/json
@@ -89,6 +90,7 @@ data: [DONE]
 ```
 
 ### Synchronous Chat (Fallback)
+
 ```
 POST /api/chat
 Content-Type: application/json
@@ -121,6 +123,7 @@ The project includes comprehensive tests for all components and functionality:
 - **Service Tests**: API service testing
 
 Run tests with:
+
 ```bash
 npm test                    # Interactive mode
 npm run test -- --coverage # With coverage report

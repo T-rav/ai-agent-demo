@@ -21,7 +21,12 @@ class TestScenarios:
 
         chunks = TestDataGenerator.generate_chunk_list(3, "AI Research Paper")
 
-        return {"document": document, "chunks": chunks, "expected_chunk_count": 3, "file_type": "markdown"}
+        return {
+            "document": document,
+            "chunks": chunks,
+            "expected_chunk_count": 3,
+            "file_type": "markdown",
+        }
 
     @staticmethod
     def create_pdf_processing_scenario():
@@ -35,7 +40,12 @@ class TestScenarios:
 
         chunks = TestDataGenerator.generate_chunk_list(2, "Technical Manual")
 
-        return {"document": document, "chunks": chunks, "expected_chunk_count": 2, "file_type": "pdf"}
+        return {
+            "document": document,
+            "chunks": chunks,
+            "expected_chunk_count": 2,
+            "file_type": "pdf",
+        }
 
     @staticmethod
     def create_config_loading_scenario(config_type: str = "default"):
@@ -43,7 +53,12 @@ class TestScenarios:
         scenarios = {
             "default": TestDataGenerator.generate_config_dict(),
             "production": TestDataGenerator.generate_config_dict(
-                {"model": "text - embedding - 3-large", "dimensions": 3072, "chunk_size": 1500, "level": "WARNING"}
+                {
+                    "model": "text - embedding - 3-large",
+                    "dimensions": 3072,
+                    "chunk_size": 1500,
+                    "level": "WARNING",
+                }
             ),
             "development": TestDataGenerator.generate_config_dict(
                 {"chunk_size": 500, "level": "DEBUG", "show_progress": True}
@@ -61,9 +76,17 @@ class TestScenarios:
             return TestScenarios.create_pdf_processing_scenario()
         else:  # text
             document = (
-                a_text_document().with_title("NLP Guide").with_content(TestDataGenerator.generate_long_text(30)).build()
+                a_text_document()
+                .with_title("NLP Guide")
+                .with_content(TestDataGenerator.generate_long_text(30))
+                .build()
             )
 
             chunks = TestDataGenerator.generate_chunk_list(5, "NLP Guide")
 
-            return {"document": document, "chunks": chunks, "expected_chunk_count": 5, "file_type": "text"}
+            return {
+                "document": document,
+                "chunks": chunks,
+                "expected_chunk_count": 5,
+                "file_type": "text",
+            }

@@ -40,7 +40,7 @@ describe('useChat Hook', () => {
     const { result } = renderHook(() => useChat());
 
     // Mock successful streaming - call sync to test
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+    mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete) => {
       // Call immediately without delay
       onChunk('Hello');
       onChunk(' there!');
@@ -75,7 +75,7 @@ describe('useChat Hook', () => {
   it('handles streaming response correctly', async () => {
     const { result } = renderHook(() => useChat());
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+    mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete) => {
       // Wait for state to settle, then call callbacks
       await new Promise((resolve) => setTimeout(resolve, 100));
       onChunk('Hello');
@@ -107,7 +107,7 @@ describe('useChat Hook', () => {
   it('handles errors correctly', async () => {
     const { result } = renderHook(() => useChat());
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete, onError) => {
+    mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete, onError) => {
       // Wait for state to settle, then call error callback
       await new Promise((resolve) => setTimeout(resolve, 100));
       onError('Network error');
@@ -195,9 +195,11 @@ describe('useChat Hook', () => {
 
     // Simulate error
     let onError: (error: string) => void;
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete, errorCallback) => {
-      onError = errorCallback;
-    });
+    mockSendMessage.mockImplementation(
+      async (message, history, onChunk, onComplete, errorCallback) => {
+        onError = errorCallback;
+      }
+    );
 
     act(() => {
       result.current.sendMessage('Test message');
@@ -219,7 +221,7 @@ describe('useChat Hook', () => {
   it('trims message content before sending', async () => {
     const { result } = renderHook(() => useChat());
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
+    mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete) => {
       onComplete();
     });
 
@@ -229,11 +231,203 @@ describe('useChat Hook', () => {
 
     expect(mockSendMessage).toHaveBeenCalledWith(
       'Test message',
+      expect.any(Array),
+      expect.any(Function),
+      expect.any(Function),
       expect.any(Function),
       expect.any(Function),
       expect.any(Function)
     );
 
     expect(result.current.messages[0].content).toBe('Test message');
+  });
+
+  describe('exportToMarkdown', () => {
+    let mockCreateObjectURL: jest.Mock;
+    let mockRevokeObjectURL: jest.Mock;
+    let mockClick: jest.Mock;
+    let mockAppendChild: jest.Mock;
+    let mockRemoveChild: jest.Mock;
+    let createdLink: HTMLAnchorElement;
+
+    beforeEach(() => {
+      mockCreateObjectURL = jest.fn(() => 'blob:mock-url');
+      mockRevokeObjectURL = jest.fn();
+      mockClick = jest.fn();
+      mockAppendChild = jest.fn();
+      mockRemoveChild = jest.fn();
+
+      global.URL.createObjectURL = mockCreateObjectURL;
+      global.URL.revokeObjectURL = mockRevokeObjectURL;
+
+      // Mock document.createElement to capture the created link
+      const originalCreateElement = document.createElement.bind(document);
+      jest.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+        const element = originalCreateElement(tagName);
+        if (tagName === 'a') {
+          createdLink = element as HTMLAnchorElement;
+          element.click = mockClick;
+        }
+        return element;
+      });
+
+      jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+      jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+    });
+
+    afterEach(() => {
+      // Only restore mocks we created
+      (document.createElement as jest.Mock).mockRestore();
+      (document.body.appendChild as jest.Mock).mockRestore();
+      (document.body.removeChild as jest.Mock).mockRestore();
+    });
+
+    it('does not export when there are no messages', () => {
+      // Temporarily restore appendChild/removeChild for test setup
+      (document.body.appendChild as jest.Mock).mockRestore();
+      (document.body.removeChild as jest.Mock).mockRestore();
+
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      // Re-mock after setup
+      jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+      jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+
+      const { result } = renderHook(() => useChat(), { container });
+
+      act(() => {
+        result.current.exportToMarkdown();
+      });
+
+      expect(mockCreateObjectURL).not.toHaveBeenCalled();
+      expect(mockClick).not.toHaveBeenCalled();
+    });
+
+    it('exports messages with mode and sources to markdown', async () => {
+      // Temporarily restore appendChild/removeChild for test setup
+      (document.body.appendChild as jest.Mock).mockRestore();
+      (document.body.removeChild as jest.Mock).mockRestore();
+
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      // Re-mock after setup
+      jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+      jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+
+      const { result } = renderHook(() => useChat(), { container });
+
+      // Add messages with sources
+      mockSendMessage.mockImplementation(
+        async (message, history, onChunk, onComplete, onError, onMode, onSources) => {
+          onMode('simple');
+          onChunk('This is a response');
+          onSources([
+            {
+              metadata: {
+                document_title: 'Test Document',
+                file_name: 'test.md',
+                chunk_index: 0,
+              },
+              score: 0.95,
+            },
+          ]);
+          onComplete();
+        }
+      );
+
+      await act(async () => {
+        await result.current.sendMessage('Test question');
+      });
+
+      await waitFor(() => {
+        expect(result.current.messages).toHaveLength(2);
+      });
+
+      // Export
+      act(() => {
+        result.current.exportToMarkdown();
+      });
+
+      // Verify blob was created
+      expect(mockCreateObjectURL).toHaveBeenCalledWith(expect.any(Blob));
+
+      // Verify link was created and clicked
+      expect(mockClick).toHaveBeenCalled();
+      expect(createdLink.href).toBe('blob:mock-url');
+      expect(createdLink.download).toMatch(/chat-export-\d{4}-\d{2}-\d{2}\.md/);
+
+      // Verify cleanup
+      expect(mockAppendChild).toHaveBeenCalled();
+      expect(mockRemoveChild).toHaveBeenCalled();
+      expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
+
+      // Verify markdown content
+      const blobCall = mockCreateObjectURL.mock.calls[0][0];
+      const reader = new FileReader();
+      const readPromise = new Promise((resolve) => {
+        reader.onload = () => resolve(reader.result);
+      });
+      reader.readAsText(blobCall);
+      const markdown = await readPromise;
+
+      expect(markdown).toContain('# Chat Export');
+      expect(markdown).toContain('## User');
+      expect(markdown).toContain('Test question');
+      expect(markdown).toContain('## Assistant');
+      expect(markdown).toContain('[SIMPLE]');
+      expect(markdown).toContain('This is a response');
+      expect(markdown).toContain('### Sources');
+      expect(markdown).toContain('**Test Document**');
+      expect(markdown).toContain('File: test.md');
+      expect(markdown).toContain('Chunk: 0');
+      expect(markdown).toContain('Relevance: 95.0%');
+    });
+
+    it('exports messages without mode or sources', async () => {
+      // Temporarily restore appendChild/removeChild for test setup
+      (document.body.appendChild as jest.Mock).mockRestore();
+      (document.body.removeChild as jest.Mock).mockRestore();
+
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      // Re-mock after setup
+      jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+      jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+
+      const { result } = renderHook(() => useChat(), { container });
+
+      mockSendMessage.mockImplementation(async (message, history, onChunk, onComplete) => {
+        onChunk('Simple response');
+        onComplete();
+      });
+
+      await act(async () => {
+        await result.current.sendMessage('Test question');
+      });
+
+      await waitFor(() => {
+        expect(result.current.messages).toHaveLength(2);
+      });
+
+      act(() => {
+        result.current.exportToMarkdown();
+      });
+
+      const blobCall = mockCreateObjectURL.mock.calls[0][0];
+      const reader = new FileReader();
+      const readPromise = new Promise((resolve) => {
+        reader.onload = () => resolve(reader.result);
+      });
+      reader.readAsText(blobCall);
+      const markdown = await readPromise;
+
+      expect(markdown).toContain('## User');
+      expect(markdown).toContain('## Assistant');
+      expect(markdown).not.toContain('[SIMPLE]');
+      expect(markdown).not.toContain('### Sources');
+    });
   });
 });

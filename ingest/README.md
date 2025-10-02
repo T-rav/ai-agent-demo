@@ -181,7 +181,7 @@ The system uses `pyproject.toml` for configuration with environment variable ove
 ### Environment Variables (Required)
 
 - `OPENAI_API_KEY`: Your OpenAI API key
-- `PINECONE_API_KEY`: Your Pinecone API key  
+- `PINECONE_API_KEY`: Your Pinecone API key
 - `PINECONE_ENVIRONMENT`: Your Pinecone environment
 
 ### Configuration Sections in pyproject.toml

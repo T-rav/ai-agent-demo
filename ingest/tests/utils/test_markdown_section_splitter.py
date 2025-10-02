@@ -33,7 +33,10 @@ Final thoughts."""
         # The actual implementation returns dictionaries with header, content, and level
         assert len(result) == 4
         assert all(isinstance(section, dict) for section in result)
-        assert all("header" in section and "content" in section and "level" in section for section in result)
+        assert all(
+            "header" in section and "content" in section and "level" in section
+            for section in result
+        )
 
         # Check the first section
         assert result[0]["header"] == "Introduction"

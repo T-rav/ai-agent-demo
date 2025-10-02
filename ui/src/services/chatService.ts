@@ -17,9 +17,12 @@ export class ChatService {
    */
   public async sendMessage(
     message: string,
+    conversationHistory: Array<{ role: string; content: string }>,
     onChunk: (chunk: string) => void,
     onComplete: () => void,
-    onError: (error: string) => void
+    onError: (error: string) => void,
+    onMode?: (mode: string) => void,
+    onSources?: (sources: any[]) => void
   ): Promise<void> {
     // Guard against duplicate onComplete calls
     let completed = false;
@@ -35,7 +38,10 @@ export class ChatService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({
+          message,
+          conversation_history: conversationHistory,
+        }),
       });
 
       if (!response.ok) {
@@ -75,18 +81,31 @@ export class ChatService {
               }
 
               const parsed = JSON.parse(data);
-              if (parsed.content) {
+
+              // Handle different chunk types
+              if (parsed.type === 'token' && parsed.content) {
                 onChunk(parsed.content);
+              } else if (parsed.type === 'step' && parsed.content) {
+                // Emit mode/step information (like "simple" or "research")
+                if (onMode) {
+                  onMode(parsed.content);
+                }
+              } else if (parsed.type === 'sources' && parsed.sources) {
+                // Emit sources
+                if (onSources) {
+                  onSources(parsed.sources);
+                }
+              } else if (parsed.type === 'done') {
+                safeOnComplete();
+                return;
+              } else if (parsed.type === 'error') {
+                onError(parsed.error || 'Unknown error');
+                return;
               }
-            } else {
-              // Not SSE format, treat as plain text
-              onChunk(line);
             }
           } catch (parseError) {
             // eslint-disable-next-line no-console
             console.warn('Failed to parse streaming chunk:', parseError);
-            // Treat as plain text if JSON parsing fails
-            onChunk(line);
           }
         }
       }

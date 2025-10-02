@@ -544,4 +544,3 @@ The human story of wartime computing—from the brilliant mathematicians at Blet
 World War II also revealed computing's dual nature as both a powerful tool for human advancement and a potential weapon. The same computational capabilities that enabled scientific breakthroughs and industrial efficiency also supported weapons development and military applications. This duality would shape computing development throughout the Cold War and beyond.
 
 As the war ended, electronic computers had proven their transformative potential across military, scientific, and increasingly commercial applications. The stage was set for the rapid expansion of computing into every aspect of modern life, driven by the foundations laid during humanity's greatest conflict. The Age of Computing had begun, emerging from the crucible of war to reshape the world in ways its creators could barely imagine.
-

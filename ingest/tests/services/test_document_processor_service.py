@@ -29,10 +29,11 @@ class TestDocumentProcessorService:
         mock_content = "# Test Document\n\nThis is test content."
 
         with patch.object(service._content_extractor, "extract_content", return_value=mock_content):
-            with patch.object(service._title_extractor, "extract_title", return_value="Test Document"):
+            with patch.object(
+                service._title_extractor, "extract_title", return_value="Test Document"
+            ):
                 with patch.object(service._text_cleaner, "clean_text", return_value=mock_content):
                     with patch.object(service._token_encoder, "count_tokens", return_value=10):
-
                         result = service.process_file(mock_file_path)
 
                         assert isinstance(result, ProcessedDocument)
@@ -52,7 +53,6 @@ class TestDocumentProcessorService:
             with patch.object(service._title_extractor, "extract_title", return_value="PDF Title"):
                 with patch.object(service._text_cleaner, "clean_text", return_value=mock_content):
                     with patch.object(service._token_encoder, "count_tokens", return_value=5):
-
                         result = service.process_file(pdf_path)
 
                         assert result.file_type == FileType.PDF
@@ -67,7 +67,6 @@ class TestDocumentProcessorService:
             with patch.object(service._title_extractor, "extract_title", return_value="Text Title"):
                 with patch.object(service._text_cleaner, "clean_text", return_value=mock_content):
                     with patch.object(service._token_encoder, "count_tokens", return_value=3):
-
                         result = service.process_file(txt_path)
 
                         assert result.file_type == FileType.TEXT
@@ -84,9 +83,10 @@ class TestDocumentProcessorService:
     def test_process_file_content_extraction_error(self, service, mock_file_path):
         """Test handling content extraction errors."""
         with patch.object(
-            service._content_extractor, "extract_content", side_effect=ProcessingError("Extraction failed")
+            service._content_extractor,
+            "extract_content",
+            side_effect=ProcessingError("Extraction failed"),
         ):
-
             result = service.process_file(mock_file_path)
 
             assert result is None
@@ -94,7 +94,6 @@ class TestDocumentProcessorService:
     def test_process_file_empty_content(self, service, mock_file_path):
         """Test processing file with empty content."""
         with patch.object(service._content_extractor, "extract_content", return_value=""):
-
             result = service.process_file(mock_file_path)
 
             assert result is None
@@ -103,7 +102,6 @@ class TestDocumentProcessorService:
         """Test processing file with whitespace - only content."""
         with patch.object(service._content_extractor, "extract_content", return_value="   \n\t  "):
             with patch.object(service._text_cleaner, "clean_text", return_value=""):
-
                 result = service.process_file(mock_file_path)
 
                 assert result is None

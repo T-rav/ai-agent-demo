@@ -29,7 +29,7 @@ describe('ChatContainer Component', () => {
   it('renders with default title', () => {
     render(<ChatContainer />);
 
-    expect(screen.getByText('Nexus AI')).toBeInTheDocument();
+    expect(screen.getByText('AI Assistant')).toBeInTheDocument();
   });
 
   it('renders with custom title', () => {
@@ -47,22 +47,25 @@ describe('ChatContainer Component', () => {
     ).toBeInTheDocument();
   });
 
-  it('does not show clear button when no messages', () => {
+  it('does not show clear or export buttons when no messages', () => {
     render(<ChatContainer />);
 
     expect(screen.queryByText('Clear')).not.toBeInTheDocument();
+    expect(screen.queryByText('Export')).not.toBeInTheDocument();
   });
 
   it('handles successful message sending', async () => {
     const user = userEvent.setup();
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
-      // Wait for initial messages to be added to state
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      onChunk('Hello');
-      onChunk(' there!');
-      onComplete();
-    });
+    mockSendMessage.mockImplementation(
+      async (message, conversationHistory, onChunk, onComplete) => {
+        // Wait for initial messages to be added to state
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        onChunk('Hello');
+        onChunk(' there!');
+        onComplete();
+      }
+    );
 
     render(<ChatContainer />);
 
@@ -85,22 +88,25 @@ describe('ChatContainer Component', () => {
       { timeout: 1000 }
     );
 
-    // Clear button should now be visible
+    // Clear and Export buttons should now be visible
     expect(screen.getByText('Clear')).toBeInTheDocument();
+    expect(screen.getByText('Export')).toBeInTheDocument();
   });
 
   it('shows loading state during message sending', async () => {
     const user = userEvent.setup();
 
     let resolveMessage: () => void;
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
-      return new Promise<void>((resolve) => {
-        resolveMessage = () => {
-          onComplete();
-          resolve();
-        };
-      });
-    });
+    mockSendMessage.mockImplementation(
+      async (message, conversationHistory, onChunk, onComplete) => {
+        return new Promise<void>((resolve) => {
+          resolveMessage = () => {
+            onComplete();
+            resolve();
+          };
+        });
+      }
+    );
 
     render(<ChatContainer />);
 
@@ -129,9 +135,11 @@ describe('ChatContainer Component', () => {
   it('handles errors correctly', async () => {
     const user = userEvent.setup();
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete, onError) => {
-      onError('Network connection failed');
-    });
+    mockSendMessage.mockImplementation(
+      async (message, conversationHistory, onChunk, onComplete, onError) => {
+        onError('Network connection failed');
+      }
+    );
 
     render(<ChatContainer />);
 
@@ -152,9 +160,11 @@ describe('ChatContainer Component', () => {
   it('allows dismissing errors', async () => {
     const user = userEvent.setup();
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete, onError) => {
-      onError('Test error');
-    });
+    mockSendMessage.mockImplementation(
+      async (message, conversationHistory, onChunk, onComplete, onError) => {
+        onError('Test error');
+      }
+    );
 
     render(<ChatContainer />);
 
@@ -181,12 +191,14 @@ describe('ChatContainer Component', () => {
   it('clears messages when clear button is clicked', async () => {
     const user = userEvent.setup();
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
-      // Wait for initial messages to be added to state
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      onChunk('Response');
-      onComplete();
-    });
+    mockSendMessage.mockImplementation(
+      async (message, conversationHistory, onChunk, onComplete) => {
+        // Wait for initial messages to be added to state
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        onChunk('Response');
+        onComplete();
+      }
+    );
 
     render(<ChatContainer />);
 
@@ -220,20 +232,23 @@ describe('ChatContainer Component', () => {
     expect(screen.queryByText('Hello, AI!')).not.toBeInTheDocument();
     expect(screen.queryByText('Response')).not.toBeInTheDocument();
 
-    // Clear button should be hidden
+    // Clear and Export buttons should be hidden
     expect(screen.queryByText('Clear')).not.toBeInTheDocument();
+    expect(screen.queryByText('Export')).not.toBeInTheDocument();
   });
 
   it('handles streaming responses correctly', async () => {
     const user = userEvent.setup();
 
-    mockSendMessage.mockImplementation(async (message, onChunk, onComplete) => {
-      // Wait for initial messages to be added to state
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      onChunk('Once upon a time');
-      onChunk(', there was a brave knight');
-      onComplete();
-    });
+    mockSendMessage.mockImplementation(
+      async (message, conversationHistory, onChunk, onComplete) => {
+        // Wait for initial messages to be added to state
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        onChunk('Once upon a time');
+        onChunk(', there was a brave knight');
+        onComplete();
+      }
+    );
 
     render(<ChatContainer />);
 
@@ -287,5 +302,65 @@ describe('ChatContainer Component', () => {
 
     // Should only have been called once
     expect(mockSendMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls exportToMarkdown when export button is clicked', async () => {
+    const user = userEvent.setup();
+
+    mockSendMessage.mockImplementation(
+      async (message, conversationHistory, onChunk, onComplete) => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        onChunk('Response');
+        onComplete();
+      }
+    );
+
+    render(<ChatContainer />);
+
+    // Mock DOM APIs for export - do this AFTER render to avoid breaking React's DOM setup
+    const mockCreateObjectURL = jest.fn(() => 'blob:mock-url');
+    const mockRevokeObjectURL = jest.fn();
+    const mockClick = jest.fn();
+    global.URL.createObjectURL = mockCreateObjectURL;
+    global.URL.revokeObjectURL = mockRevokeObjectURL;
+
+    const originalCreateElement = document.createElement.bind(document);
+    jest.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+      const element = originalCreateElement(tagName);
+      if (tagName === 'a') {
+        element.click = mockClick;
+      }
+      return element;
+    });
+
+    jest.spyOn(document.body, 'appendChild').mockImplementation(jest.fn());
+    jest.spyOn(document.body, 'removeChild').mockImplementation(jest.fn());
+
+    const input = screen.getByPlaceholderText('Type your message...');
+
+    // Send a message first
+    await user.type(input, 'Hello, AI!');
+    await user.keyboard('{Enter}');
+
+    // Wait for messages to appear
+    await waitFor(() => {
+      expect(screen.getByText('Hello, AI!')).toBeInTheDocument();
+    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Response')).toBeInTheDocument();
+      },
+      { timeout: 1000 }
+    );
+
+    // Click export button
+    const exportButton = screen.getByText('Export');
+    await user.click(exportButton);
+
+    // Should have triggered download
+    expect(mockCreateObjectURL).toHaveBeenCalled();
+    expect(mockClick).toHaveBeenCalled();
+
+    jest.restoreAllMocks();
   });
 });

@@ -8,7 +8,11 @@ import pytest
 
 from ...models import FileType, ProcessedDocument
 from ...services import DocumentChunkingService
-from ...services.chunking_service import MarkdownChunkingStrategy, PDFChunkingStrategy, TextChunkingStrategy
+from ...services.chunking_service import (
+    MarkdownChunkingStrategy,
+    PDFChunkingStrategy,
+    TextChunkingStrategy,
+)
 
 
 class TestDocumentChunkingService:
@@ -18,7 +22,11 @@ class TestDocumentChunkingService:
     def chunking_service(self, mock_token_encoder):
         """Create a DocumentChunkingService instance."""
         return DocumentChunkingService(
-            chunk_size=100, chunk_overlap=20, min_chunk_size=10, max_chunk_size=200, token_encoder=mock_token_encoder
+            chunk_size=100,
+            chunk_overlap=20,
+            min_chunk_size=10,
+            max_chunk_size=200,
+            token_encoder=mock_token_encoder,
         )
 
     def test_chunk_markdown_document(self, chunking_service, sample_markdown_content):
@@ -98,7 +106,11 @@ class TestDocumentChunkingService:
     def test_create_chunk_metadata(self, chunking_service, sample_document):
         """Test chunk metadata creation."""
         chunk = chunking_service._create_chunk(
-            sample_document, "Test content", 0, section_header="Test Section", page_num=1
+            sample_document,
+            "Test content",
+            0,
+            section_header="Test Section",
+            page_num=1,
         )
 
         assert chunk.id == "sample.md_Test_Section_0"

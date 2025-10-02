@@ -16,10 +16,18 @@ class IngestionConfig(BaseModel):
     pinecone_environment: str = Field(..., min_length=1, description="Pinecone environment")
 
     # Database Configuration
-    index_name: str = Field(default="ai - agent - demo - index", min_length=1, description="Pinecone index name")
+    index_name: str = Field(
+        default="ai - agent - demo - index",
+        min_length=1,
+        description="Pinecone index name",
+    )
 
     # Embedding Configuration
-    model: str = Field(default="text - embedding - 3-small", min_length=1, description="OpenAI embedding model")
+    model: str = Field(
+        default="text - embedding - 3-small",
+        min_length=1,
+        description="OpenAI embedding model",
+    )
     dimensions: int = Field(default=1536, gt=0, description="Embedding dimensions")
 
     # Processing Configuration
@@ -27,11 +35,17 @@ class IngestionConfig(BaseModel):
     chunk_overlap: int = Field(default=200, ge=0, description="Overlapping tokens between chunks")
     min_chunk_size: int = Field(default=100, gt=0, description="Minimum chunk size in tokens")
     max_chunk_size: int = Field(default=2000, gt=0, description="Maximum chunk size in tokens")
-    embedding_batch_size: int = Field(default=100, gt=0, le=1000, description="Batch size for embeddings")
-    upsert_batch_size: int = Field(default=100, gt=0, le=1000, description="Batch size for vector upserts")
+    embedding_batch_size: int = Field(
+        default=100, gt=0, le=1000, description="Batch size for embeddings"
+    )
+    upsert_batch_size: int = Field(
+        default=100, gt=0, le=1000, description="Batch size for vector upserts"
+    )
 
     # Path Configuration
-    corpus_path: str = Field(default="data / corpus", min_length=1, description="Path to corpus directory")
+    corpus_path: str = Field(
+        default="data/corpus", min_length=1, description="Path to corpus directory"
+    )
 
     # Logging Configuration
     level: str = Field(default="INFO", description="Logging level")

@@ -32,11 +32,11 @@ describe('ChatService', () => {
           .fn()
           .mockResolvedValueOnce({
             done: false,
-            value: new TextEncoder().encode('data: {"content":"Hello"}\n'),
+            value: new TextEncoder().encode('data: {"type":"token","content":"Hello"}\n'),
           })
           .mockResolvedValueOnce({
             done: false,
-            value: new TextEncoder().encode('data: {"content":" world!"}\n'),
+            value: new TextEncoder().encode('data: {"type":"token","content":" world!"}\n'),
           })
           .mockResolvedValueOnce({
             done: true,
@@ -57,14 +57,14 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/chat/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: 'Test message' }),
+        body: JSON.stringify({ message: 'Test message', conversation_history: [] }),
       });
 
       expect(onChunk).toHaveBeenCalledWith('Hello');
@@ -79,7 +79,7 @@ describe('ChatService', () => {
           .fn()
           .mockResolvedValueOnce({
             done: false,
-            value: new TextEncoder().encode('data: {"content":"Hello"}\n'),
+            value: new TextEncoder().encode('data: {"type":"token","content":"Hello"}\n'),
           })
           .mockResolvedValueOnce({
             done: false,
@@ -100,20 +100,24 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(onChunk).toHaveBeenCalledWith('Hello');
       expect(onComplete).toHaveBeenCalled();
       expect(onError).not.toHaveBeenCalled();
     });
 
-    it('handles non-JSON streaming data as plain text', async () => {
+    it('handles malformed JSON gracefully', async () => {
       const mockReader = {
         read: jest
           .fn()
           .mockResolvedValueOnce({
             done: false,
-            value: new TextEncoder().encode('Plain text response\n'),
+            value: new TextEncoder().encode('data: {invalid json\n'),
+          })
+          .mockResolvedValueOnce({
+            done: false,
+            value: new TextEncoder().encode('data: {"type":"token","content":"Valid"}\n'),
           })
           .mockResolvedValueOnce({
             done: true,
@@ -134,9 +138,10 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
-      expect(onChunk).toHaveBeenCalledWith('Plain text response');
+      // Should skip the malformed JSON and process the valid one
+      expect(onChunk).toHaveBeenCalledWith('Valid');
       expect(onComplete).toHaveBeenCalled();
       expect(onError).not.toHaveBeenCalled();
     });
@@ -153,7 +158,7 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(onError).toHaveBeenCalledWith('HTTP error! status: 500');
       expect(onChunk).not.toHaveBeenCalled();
@@ -172,7 +177,7 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(onError).toHaveBeenCalledWith('No response body reader available');
       expect(onChunk).not.toHaveBeenCalled();
@@ -186,7 +191,7 @@ describe('ChatService', () => {
       const onComplete = jest.fn();
       const onError = jest.fn();
 
-      await chatService.sendMessage('Test message', onChunk, onComplete, onError);
+      await chatService.sendMessage('Test message', [], onChunk, onComplete, onError);
 
       expect(onError).toHaveBeenCalledWith('Network error');
       expect(onChunk).not.toHaveBeenCalled();

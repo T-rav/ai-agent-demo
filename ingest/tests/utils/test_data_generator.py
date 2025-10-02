@@ -33,7 +33,9 @@ class TestDataGenerator:
     @staticmethod
     def generate_long_text(num_sentences: int = 50) -> str:
         """Generate long text content."""
-        sentences = ["This is sentence number {i + 1} in a long document." for i in range(num_sentences)]
+        sentences = [
+            "This is sentence number {i + 1} in a long document." for i in range(num_sentences)
+        ]
         return " ".join(sentences)
 
     @staticmethod
@@ -53,7 +55,9 @@ class TestDataGenerator:
         return chunks
 
     @staticmethod
-    def generate_config_dict(override_values: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def generate_config_dict(
+        override_values: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """Generate a configuration dictionary."""
         base_config = {
             "openai_api_key": "test - key",

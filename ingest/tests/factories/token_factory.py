@@ -27,8 +27,10 @@ class TokenFactory:
         """Create a properly configured mock token encoder."""
         encoder = Mock()
         encoder.count_tokens.side_effect = lambda text: len(text.split()) if text else 0
-        encoder.encode.side_effect = lambda text: list(range(len(text.split()))) if text else []
-        encoder.decode.side_effect = lambda tokens: " ".join([f"token{i}" for i in tokens]) if tokens else ""
+        encoder.encode.side_effect = lambda text: (list(range(len(text.split()))) if text else [])
+        encoder.decode.side_effect = lambda tokens: (
+            " ".join([f"token{i}" for i in tokens]) if tokens else ""
+        )
         return encoder
 
     @staticmethod

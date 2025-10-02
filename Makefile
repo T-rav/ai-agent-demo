@@ -8,23 +8,27 @@ help:
 	@echo "AI Agent Demo - Available Commands:"
 	@echo ""
 	@echo "Development:"
-	@echo "  make start        - Start all services (UI + API when available)"
+	@echo "  make start        - Start all services (UI + API)"
 	@echo "  make stop         - Stop all running services"
 	@echo "  make ui           - Start only the UI development server"
-	@echo "  make api          - Start only the API server (when implemented)"
+	@echo "  make api          - Start only the API server"
+	@echo "  make dev          - Alias for 'make start'"
 	@echo ""
 	@echo "Ingest System:"
-	@echo "  cd ingest && make help   - Show ingest commands (run from ingest/ folder)"
+	@echo "  make ingest       - Run document ingestion"
+	@echo "  cd ingest && make help   - Show all ingest commands"
 	@echo ""
 	@echo "Building:"
 	@echo "  make build        - Build all services for production"
 	@echo "  make install      - Install dependencies for all services"
 	@echo ""
 	@echo "Testing:"
-	@echo "  make test         - Run all tests"
+	@echo "  make test         - Run all tests (UI + API in Docker)"
 	@echo "  make test-ui      - Run UI tests only"
-	@echo "  make test-api     - Run API tests only (when implemented)"
+	@echo "  make test-api     - Run API tests only"
+	@echo "  make test-ingest  - Info on running ingest tests (requires local Python)"
 	@echo "  make check        - Check TypeScript compilation"
+	@echo "  make ci           - Run full CI pipeline (format-check + lint + test)"
 	@echo ""
 	@echo "Code Quality:"
 	@echo "  make lint         - Run linters on all code"
@@ -36,6 +40,7 @@ help:
 	@echo "  make logs         - Show logs from running services"
 	@echo "  make clean        - Clean build artifacts and dependencies"
 	@echo "  make status       - Show status of running services"
+	@echo "  make restart      - Restart all services"
 
 # Start all services
 start:
@@ -62,96 +67,161 @@ stop:
 
 # Start UI only
 ui:
-	@echo "🎨 Starting UI development server..."
-	@if lsof -ti:3000 >/dev/null 2>&1; then \
-		echo "⚠️  Port 3000 is already in use. Stopping existing process..."; \
-		kill -9 $$(lsof -ti:3000) 2>/dev/null || true; \
-		sleep 2; \
-	fi
-	@echo "Starting React development server..."
-	@cd ui && npm start
+	@echo "🎨 Starting UI development server with Docker..."
+	@docker-compose -f docker-compose.dev.yml up frontend-dev
 
-# Start API only (placeholder for future implementation)
+# Start API only
 api:
-	@echo "🔧 API server not yet implemented"
-	@echo "This will start the Python FastAPI server when available"
-	# @cd backend && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+	@echo "🔧 Starting API server with Docker..."
+	@docker-compose -f docker-compose.dev.yml up api-dev
 
 # Build for production
 build:
-	@echo "🏗️  Building for production..."
-	@echo "Building UI..."
-	@cd ui && npm run build
+	@echo "🏗️  Building for production with Docker..."
+	@docker-compose -f docker-compose.yml build
 	@echo "✅ Build complete"
 
-# Install dependencies
+# Install dependencies (inside containers)
 install:
-	@echo "📦 Installing dependencies..."
-	@echo "Installing UI dependencies..."
-	@cd ui && npm install
+	@echo "📦 Installing dependencies via Docker..."
+	@echo "Building development containers will install dependencies..."
+	@docker-compose -f docker-compose.dev.yml build
 	@echo "✅ Dependencies installed"
 
-# Run all tests
+# Run all tests (UI + API only, ingest requires local Python)
 test:
-	@echo "🧪 Running all tests..."
+	@echo "🧪 Running all tests (UI + API)..."
 	@make test-ui
-	# @make test-api  # Uncomment when API is implemented
+	@make test-api
+	@echo "✅ All Docker-based tests passed"
+	@echo "Note: Run 'cd ingest && make test' separately if you have Python 3.11+ installed"
 
 # Run UI tests
 test-ui:
-	@echo "🧪 Running UI tests..."
-	@cd ui && npm test -- --coverage --watchAll=false
+	@if [ "$$CI" = "true" ]; then \
+		echo "🧪 Running UI tests (CI mode)..."; \
+		cd ui && npm test -- --coverage --watchAll=false; \
+	else \
+		echo "🧪 Running UI tests in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm test -- --coverage --watchAll=false; \
+	fi
 
 # Run ingest tests
+# Note: Ingest tests require Python to be installed locally
+# Run 'cd ingest && make test' if you have Python 3.11+ installed
 test-ingest:
-	@echo "🧪 Running ingest tests..."
-	@cd ingest && make test
+	@echo "⚠️  Ingest tests require Python 3.11+ installed locally"
+	@echo "To run: cd ingest && make test"
+	@echo "Skipping ingest tests in Docker workflow..."
 
-# UI-specific linting and formatting
+# UI-specific linting and formatting (Docker version for local dev)
 lint-ui:
-	@echo "🔍 Running UI linting..."
-	@cd ui && npm run lint
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Running UI linting (CI mode)..."; \
+		cd ui && npm run lint; \
+	else \
+		echo "🔍 Running UI linting in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint; \
+	fi
 
 format-check-ui:
-	@echo "🔍 Checking UI formatting..."
-	@cd ui && npm run format:check
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Checking UI formatting (CI mode)..."; \
+		cd ui && npm run format:check; \
+	else \
+		echo "🔍 Checking UI formatting in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format:check; \
+	fi
 
 # Check TypeScript compilation
 check:
-	@echo "🔍 Checking TypeScript compilation..."
-	@cd ui && npx tsc --noEmit
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Checking TypeScript compilation (CI mode)..."; \
+		cd ui && npx tsc --noEmit; \
+	else \
+		echo "🔍 Checking TypeScript compilation in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npx tsc --noEmit; \
+	fi
 
-# Run API tests (placeholder)
+# Run API tests
 test-api:
-	@echo "🔧 API tests not yet implemented"
-	# @cd backend && python -m pytest
+	@echo "🧪 Running API tests..."
+	@if [ "$$CI" = "true" ]; then \
+		echo "🧪 Running API tests (CI mode)..."; \
+		cd api && python -m pytest tests/ -v --cov=. --cov-report=term-missing --cov-fail-under=70 --cache-clear; \
+	else \
+		echo "🧪 Running API tests in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm api-dev pytest tests/ -v --cov=. --cov-report=term-missing --cov-fail-under=70 --cache-clear; \
+	fi
 
 # Lint all code
 lint:
-	@echo "🔍 Running linters..."
-	@echo "Linting UI..."
-	@cd ui && npm run lint
+	@echo "🔍 Running linters on all services..."
+	@make lint-ui
+	@make lint-api
 	@echo "✅ Linting complete"
+
+# Lint API code
+lint-api:
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Running API linting (CI mode)..."; \
+		cd api && python -m flake8 . --exclude=tests,htmlcov,venv,.venv; \
+	else \
+		echo "🔍 Running API linting in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm api-dev python -m flake8 . --exclude=tests,htmlcov,venv,.venv; \
+	fi
 
 # Lint and fix issues
 lint-fix:
-	@echo "🔧 Running linters with auto-fix..."
-	@echo "Linting UI..."
-	@cd ui && npm run lint:fix
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔧 Running linters with auto-fix (CI mode)..."; \
+		echo "Linting UI..."; \
+		cd ui && npm run lint:fix; \
+	else \
+		echo "🔧 Running linters with auto-fix in Docker..."; \
+		echo "Linting UI..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run lint:fix; \
+	fi
 	@echo "✅ Linting and fixes complete"
 
 # Format code
 format:
-	@echo "✨ Formatting code..."
-	@echo "Formatting UI..."
-	@cd ui && npm run format
+	@echo "✨ Formatting all services..."
+	@make format-ui
+	@make format-api
 	@echo "✅ Formatting complete"
+
+# Format UI code
+format-ui:
+	@if [ "$$CI" = "true" ]; then \
+		echo "✨ Formatting UI (CI mode)..."; \
+		cd ui && npm run format; \
+	else \
+		echo "✨ Formatting UI in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format; \
+	fi
+
+# Format API code
+format-api:
+	@if [ "$$CI" = "true" ]; then \
+		echo "✨ Formatting API (CI mode)..."; \
+		cd api && python -m black . && python -m isort .; \
+	else \
+		echo "✨ Formatting API in Docker..."; \
+		docker-compose -f docker-compose.dev.yml run --rm api-dev bash -c "black . && isort ."; \
+	fi
 
 # Check code formatting
 format-check:
-	@echo "🔍 Checking code formatting..."
-	@echo "Checking UI formatting..."
-	@cd ui && npm run format:check
+	@if [ "$$CI" = "true" ]; then \
+		echo "🔍 Checking code formatting (CI mode)..."; \
+		echo "Checking UI formatting..."; \
+		cd ui && npm run format:check; \
+	else \
+		echo "🔍 Checking code formatting in Docker..."; \
+		echo "Checking UI formatting..."; \
+		docker-compose -f docker-compose.dev.yml run --rm frontend-dev npm run format:check; \
+	fi
 	@echo "✅ Format check complete"
 
 # Show logs
@@ -192,7 +262,18 @@ status:
 		echo "  ❌ Not running"; \
 	fi
 
-# For ingest commands, use: cd ingest && make <command>
+# Ingest commands
+ingest:
+	@echo "🚀 Running document ingestion..."
+	@cd ingest && make run
+
+ingest-clean:
+	@echo "🧹 Cleaning vector index..."
+	@cd ingest && make run-clean
+
+ingest-fresh:
+	@echo "🚀 Running fresh ingestion (clean + ingest)..."
+	@cd ingest && make run-fresh
 
 
 # Clean all build artifacts
@@ -203,18 +284,26 @@ clean-all:
 	@rm -rf ui/.npm
 	@echo "Cleaning Docker resources..."
 	@docker-compose -f docker-compose.dev.yml down --volumes --remove-orphans 2>/dev/null || true
+	@docker-compose -f docker-compose.yml down --volumes --remove-orphans 2>/dev/null || true
 	@docker system prune -f 2>/dev/null || true
 	@echo "✅ Cleanup complete"
 
 # Install all dependencies
 install-all:
-	@echo "📦 Installing dependencies..."
-	@echo "Installing UI dependencies..."
-	@cd ui && npm install
+	@echo "📦 Installing dependencies via Docker..."
+	@echo "Building development containers will install dependencies..."
+	@docker-compose -f docker-compose.dev.yml build
 	@echo "✅ Dependencies installed"
 
 # Development shortcuts
 dev: start
 prod: build
 restart: stop start
-ci: lint test
+ci:
+	@echo "🔍 Running CI checks for all services..."
+	@make format-check-ui
+	@make lint-ui
+	@make test-ui
+	@make lint-api
+	@make test-api
+	@echo "✅ CI checks passed"
