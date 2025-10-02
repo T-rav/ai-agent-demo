@@ -13,7 +13,9 @@ class LLMFactory:
     @staticmethod
     def create_mock_llm():
         """Create a mock LLM."""
-        mock = AsyncMock()
+        from unittest.mock import MagicMock
+
+        mock = MagicMock()
 
         # Mock ainvoke
         mock.ainvoke = AsyncMock(
@@ -28,8 +30,8 @@ class LLMFactory:
 
         mock.astream = mock_astream
 
-        # Mock bind_tools for tool-enabled LLM
-        mock.bind_tools = AsyncMock(return_value=mock)
+        # Mock bind_tools for tool-enabled LLM (returns self, not async)
+        mock.bind_tools = MagicMock(return_value=mock)
 
         return mock
 

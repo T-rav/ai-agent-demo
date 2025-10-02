@@ -294,3 +294,167 @@ class TestSimpleRAG:
                     result = await agent._simple_rag(state)
 
                     assert result["sources"] == []
+
+
+class TestResearchPlanner:
+    """Tests for research planner functionality."""
+
+    @pytest.mark.asyncio
+    async def test_research_planner_adds_system_message(self):
+        """Test research planner adds planning system message."""
+        from agent import RAGAgent
+        from tests.factories import LLMFactory
+
+        with patch("agent.ChatOpenAI") as mock_chat:
+            with patch("agent.get_available_tools", return_value=[]):
+                with patch("tools.research_topic_breakdown"):
+                    mock_llm = LLMFactory.create_mock_llm()
+                    mock_chat.return_value = mock_llm
+
+                    agent = RAGAgent()
+
+                    state = {
+                        "messages": [HumanMessage(content="Write a comprehensive report on AI")],
+                        "sources": [],
+                        "routing_decision": "research",
+                    }
+
+                    result = await agent._research_planner(state)
+
+                    assert len(result["messages"]) > 0
+                    assert isinstance(result["messages"][0], AIMessage)
+
+
+class TestResearchGatherer:
+    """Tests for research gatherer functionality."""
+
+    @pytest.mark.asyncio
+    async def test_research_gatherer_adds_system_message(self):
+        """Test research gatherer adds system message if not present."""
+        from agent import RAGAgent
+        from tests.factories import LLMFactory
+
+        with patch("agent.ChatOpenAI") as mock_chat:
+            with patch("agent.get_available_tools", return_value=[]):
+                with patch("tools.search_knowledge_base"):
+                    with patch("tools.create_web_search_tool", return_value=None):
+                        mock_llm = LLMFactory.create_mock_llm()
+                        mock_chat.return_value = mock_llm
+
+                        agent = RAGAgent()
+
+                        state = {
+                            "messages": [HumanMessage(content="Research AI")],
+                            "sources": [],
+                            "routing_decision": "research",
+                        }
+
+                        result = await agent._research_gatherer(state)
+
+                        assert len(result["messages"]) > 0
+                        assert isinstance(result["messages"][0], AIMessage)
+
+    @pytest.mark.asyncio
+    async def test_research_gatherer_with_existing_system_message(self):
+        """Test research gatherer doesn't duplicate system message."""
+        from langchain_core.messages import SystemMessage
+
+        from agent import RAGAgent
+        from tests.factories import LLMFactory
+
+        with patch("agent.ChatOpenAI") as mock_chat:
+            with patch("agent.get_available_tools", return_value=[]):
+                with patch("tools.search_knowledge_base"):
+                    with patch("tools.create_web_search_tool", return_value=None):
+                        mock_llm = LLMFactory.create_mock_llm()
+                        mock_chat.return_value = mock_llm
+
+                        agent = RAGAgent()
+
+                        state = {
+                            "messages": [
+                                SystemMessage(content="You are a research agent"),
+                                HumanMessage(content="Research AI"),
+                            ],
+                            "sources": [],
+                            "routing_decision": "research",
+                        }
+
+                        result = await agent._research_gatherer(state)
+
+                        assert len(result["messages"]) > 0
+
+
+class TestMainInvocation:
+    """Tests for main agent invocation methods."""
+
+    @pytest.mark.asyncio
+    async def test_ainvoke_converts_messages(self):
+        """Test ainvoke converts dict messages to LangChain messages."""
+        from unittest.mock import AsyncMock
+
+        from agent import RAGAgent
+        from tests.factories import LLMFactory
+
+        with patch("agent.ChatOpenAI") as mock_chat:
+            with patch("agent.get_available_tools", return_value=[]):
+                mock_llm = LLMFactory.create_mock_llm()
+                mock_chat.return_value = mock_llm
+
+                agent = RAGAgent()
+
+                # Mock graph.ainvoke to return simple response
+                agent.graph.ainvoke = AsyncMock(
+                    return_value={
+                        "messages": [AIMessage(content="Test response")],
+                        "sources": [],
+                    }
+                )
+
+                messages = [
+                    {"role": "user", "content": "What is Python?"},
+                    {"role": "assistant", "content": "Python is a language."},
+                    {"role": "user", "content": "Tell me more."},
+                ]
+
+                result = await agent.ainvoke(messages)
+
+                assert "message" in result
+                assert "sources" in result
+
+    @pytest.mark.asyncio
+    async def test_ainvoke_returns_message_and_sources(self):
+        """Test ainvoke returns properly formatted response."""
+        from unittest.mock import AsyncMock
+
+        from agent import RAGAgent
+        from tests.factories import LLMFactory
+
+        with patch("agent.ChatOpenAI") as mock_chat:
+            with patch("agent.get_available_tools", return_value=[]):
+                mock_llm = LLMFactory.create_mock_llm()
+                mock_chat.return_value = mock_llm
+
+                agent = RAGAgent()
+
+                test_sources = [
+                    {
+                        "content": "Test content",
+                        "metadata": {"file_name": "test.md"},
+                        "score": 0.9,
+                    }
+                ]
+
+                agent.graph.ainvoke = AsyncMock(
+                    return_value={
+                        "messages": [AIMessage(content="Response with sources")],
+                        "sources": test_sources,
+                    }
+                )
+
+                messages = [{"role": "user", "content": "What is Python?"}]
+
+                result = await agent.ainvoke(messages)
+
+                assert result["message"] == "Response with sources"
+                assert result["sources"] == test_sources
