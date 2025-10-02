@@ -458,3 +458,113 @@ class TestMainInvocation:
 
                 assert result["message"] == "Response with sources"
                 assert result["sources"] == test_sources
+
+
+class TestReportBuilder:
+    """Tests for report building functionality."""
+
+    @pytest.mark.asyncio
+    async def test_report_builder_adds_system_message(self):
+        """Test report builder adds report building system message."""
+        from agent import RAGAgent
+        from tests.factories import LLMFactory
+
+        with patch("agent.ChatOpenAI") as mock_chat:
+            with patch("agent.get_available_tools", return_value=[]):
+                mock_llm = LLMFactory.create_mock_llm()
+                mock_chat.return_value = mock_llm
+
+                agent = RAGAgent()
+
+                state = {
+                    "messages": [
+                        HumanMessage(content="Write a report on AI"),
+                        AIMessage(content="Research gathered from multiple sources"),
+                    ],
+                    "sources": [],
+                    "routing_decision": "research",
+                }
+
+                result = await agent._report_builder(state)
+
+                assert len(result["messages"]) > 0
+                assert isinstance(result["messages"][0], AIMessage)
+
+    @pytest.mark.asyncio
+    async def test_check_research_ready_with_completion_signal(self):
+        """Test check research ready identifies completion signal."""
+        from agent import RAGAgent
+        from tests.factories import LLMFactory
+
+        with patch("agent.ChatOpenAI") as mock_chat:
+            with patch("agent.get_available_tools", return_value=[]):
+                mock_llm = LLMFactory.create_mock_llm()
+                mock_chat.return_value = mock_llm
+
+                agent = RAGAgent()
+
+                state = {
+                    "messages": [
+                        HumanMessage(content="Research AI"),
+                        AIMessage(content="RESEARCH COMPLETE - Ready to build report"),
+                    ],
+                    "sources": [],
+                    "routing_decision": "research",
+                }
+
+                decision = agent._check_research_ready(state)
+
+                assert decision == "build_report"
+
+    @pytest.mark.asyncio
+    async def test_check_research_ready_with_tool_calls(self):
+        """Test check research ready identifies need for more gathering."""
+        from agent import RAGAgent
+        from tests.factories import LLMFactory
+
+        with patch("agent.ChatOpenAI") as mock_chat:
+            with patch("agent.get_available_tools", return_value=[]):
+                mock_llm = LLMFactory.create_mock_llm()
+                mock_chat.return_value = mock_llm
+
+                agent = RAGAgent()
+
+                # Create message with tool_calls attribute
+                last_message = AIMessage(content="Gathering more info")
+                last_message.tool_calls = [{"name": "search_web", "args": {}}]
+
+                state = {
+                    "messages": [HumanMessage(content="Research AI"), last_message],
+                    "sources": [],
+                    "routing_decision": "research",
+                }
+
+                decision = agent._check_research_ready(state)
+
+                assert decision == "gather_more"
+
+    @pytest.mark.asyncio
+    async def test_check_research_ready_defaults_to_build_report(self):
+        """Test check research ready defaults to build_report."""
+        from agent import RAGAgent
+        from tests.factories import LLMFactory
+
+        with patch("agent.ChatOpenAI") as mock_chat:
+            with patch("agent.get_available_tools", return_value=[]):
+                mock_llm = LLMFactory.create_mock_llm()
+                mock_chat.return_value = mock_llm
+
+                agent = RAGAgent()
+
+                state = {
+                    "messages": [
+                        HumanMessage(content="Research AI"),
+                        AIMessage(content="Some research findings"),
+                    ],
+                    "sources": [],
+                    "routing_decision": "research",
+                }
+
+                decision = agent._check_research_ready(state)
+
+                assert decision == "build_report"
