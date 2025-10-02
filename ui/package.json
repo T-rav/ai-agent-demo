@@ -36,6 +36,23 @@
       "react-app/jest"
     ]
   },
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test-utils/",
+      "index.ts$",
+      "reportWebVitals.ts",
+      "/types/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 60,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
+  },
   "browserslist": {
     "production": [
       ">0.2%",
