@@ -48,6 +48,92 @@ class RAGAgent:
         # Build the graph
         self.graph = self._build_graph()
 
+    @staticmethod
+    def _convert_messages_to_langchain(messages: List[dict]) -> List[BaseMessage]:
+        """Convert message dicts to LangChain message objects.
+
+        Args:
+            messages: List of message dictionaries with 'role' and 'content'
+
+        Returns:
+            List of LangChain BaseMessage objects
+        """
+        lc_messages = []
+        for msg in messages:
+            if msg["role"] == "user":
+                lc_messages.append(HumanMessage(content=msg["content"]))
+            elif msg["role"] == "assistant":
+                lc_messages.append(AIMessage(content=msg["content"]))
+            elif msg["role"] == "system":
+                lc_messages.append(SystemMessage(content=msg["content"]))
+        return lc_messages
+
+    @staticmethod
+    def _find_latest_user_message(messages: Sequence[BaseMessage]) -> str:
+        """Extract the most recent user message from messages.
+
+        Args:
+            messages: Sequence of LangChain messages
+
+        Returns:
+            User message content, or empty string if not found
+        """
+        for msg in reversed(messages):
+            if isinstance(msg, HumanMessage):
+                return msg.content
+        return ""
+
+    @staticmethod
+    def _build_rag_sources(docs_with_scores, score_threshold: float):
+        """Build context and sources list from retrieved documents.
+
+        Args:
+            docs_with_scores: List of (document, score) tuples from vector search
+            score_threshold: Minimum score to include a document
+
+        Returns:
+            Tuple of (context_string, sources_list)
+        """
+        context_parts = []
+        sources_list = []
+        seen_sources = set()
+        source_number = 1
+
+        for doc, score in docs_with_scores:
+            if score < score_threshold:
+                continue
+
+            source_file = doc.metadata.get("file_name", "Unknown")
+            title = doc.metadata.get("document_title", "Untitled")
+            source_key = (source_file, title)
+
+            if source_key not in seen_sources:
+                seen_sources.add(source_key)
+
+                context_parts.append(
+                    f"[Source {source_number}]\n"
+                    f"Title: {title}\n"
+                    f"From: {source_file}\n\n"
+                    f"{doc.page_content}"
+                )
+
+                sources_list.append(
+                    {
+                        "content": doc.page_content[:500],
+                        "metadata": {
+                            "file_name": source_file,
+                            "document_title": title,
+                            "chunk_index": doc.metadata.get("chunk_index", 0),
+                        },
+                        "score": float(score),
+                    }
+                )
+
+                source_number += 1
+
+        context = "\n\n---\n\n".join(context_parts) if context_parts else ""
+        return context, sources_list
+
     def _build_graph(self):
         """Build the LangGraph workflow with intelligent routing."""
         workflow = StateGraph(AgentState)
@@ -119,13 +205,7 @@ class RAGAgent:
             Updated state with routing decision
         """
         messages = state["messages"]
-
-        # Get the user's latest message
-        user_message = None
-        for msg in reversed(messages):
-            if isinstance(msg, HumanMessage):
-                user_message = msg.content
-                break
+        user_message = self._find_latest_user_message(messages)
 
         if not user_message:
             return state
@@ -187,76 +267,22 @@ Respond with ONLY ONE WORD:
             Updated state with RAG context injected
         """
         messages = state["messages"]
-
-        # Get the user's query
-        user_query = None
-        for msg in reversed(messages):
-            if isinstance(msg, HumanMessage):
-                user_query = msg.content
-                break
+        user_query = self._find_latest_user_message(messages)
 
         if user_query:
-            # Automatic RAG retrieval
             from vector_store import vector_store_service
 
             docs_with_scores = await vector_store_service.similarity_search_with_score(
                 user_query, k=3
             )
 
-            # Build context from retrieved documents and track sources
             if docs_with_scores:
-                context_parts = []
-                sources_list = []
-                seen_sources = set()  # Track unique (file_name, title) pairs
+                context, sources_list = self._build_rag_sources(
+                    docs_with_scores, settings.score_threshold
+                )
 
-                source_number = 1
-                for doc, score in docs_with_scores:
-                    # Skip documents below score threshold
-                    if score < settings.score_threshold:
-                        continue
-
-                    # Extract metadata (use correct field names from ingestion)
-                    source_file = doc.metadata.get("file_name", "Unknown")
-                    title = doc.metadata.get("document_title", "Untitled")
-
-                    # Create unique key for deduplication
-                    source_key = (source_file, title)
-
-                    # Only add if we haven't seen this source before
-                    if source_key not in seen_sources:
-                        seen_sources.add(source_key)
-
-                        # Build context with title and source
-                        context_parts.append(
-                            f"[Source {source_number}]\n"
-                            f"Title: {title}\n"
-                            f"From: {source_file}\n\n"
-                            f"{doc.page_content}"
-                        )
-
-                        # Track source for response metadata
-                        sources_list.append(
-                            {
-                                "content": doc.page_content[:500],
-                                "metadata": {
-                                    "file_name": source_file,
-                                    "document_title": title,
-                                    "chunk_index": doc.metadata.get("chunk_index", 0),
-                                },
-                                "score": float(score),
-                            }
-                        )
-
-                        source_number += 1
-
-                # Check if any sources passed the threshold
-                if context_parts:
-                    context = "\n\n---\n\n".join(context_parts)
-
-                    # Store sources in state
+                if context:
                     state["sources"] = sources_list
-
-                    # Add context as a system message
                     context_message = SystemMessage(
                         content=(
                             f"RETRIEVED CONTEXT FROM KNOWLEDGE BASE:\n\n{context}\n\n"
@@ -267,7 +293,6 @@ Respond with ONLY ONE WORD:
                         )
                     )
                 else:
-                    # No sources passed the threshold
                     context_message = SystemMessage(
                         content=(
                             "No relevant information found in the knowledge base above the similarity threshold.\n"
@@ -595,17 +620,7 @@ Respond with ONLY ONE WORD:
         Yields:
             Chunks of the response as tokens are generated
         """
-        # Convert message dicts to LangChain message objects
-        lc_messages = []
-        for msg in messages:
-            if msg["role"] == "user":
-                lc_messages.append(HumanMessage(content=msg["content"]))
-            elif msg["role"] == "assistant":
-                lc_messages.append(AIMessage(content=msg["content"]))
-            elif msg["role"] == "system":
-                lc_messages.append(SystemMessage(content=msg["content"]))
-
-        # Initialize state
+        lc_messages = self._convert_messages_to_langchain(messages)
         initial_state = {"messages": lc_messages, "sources": []}
 
         # Use astream_events for token-level streaming (v2 API)
@@ -666,21 +681,8 @@ Respond with ONLY ONE WORD:
         Returns:
             Dictionary with response and sources
         """
-        # Convert messages
-        lc_messages = []
-        for msg in messages:
-            if msg["role"] == "user":
-                lc_messages.append(HumanMessage(content=msg["content"]))
-            elif msg["role"] == "assistant":
-                lc_messages.append(AIMessage(content=msg["content"]))
-            elif msg["role"] == "system":
-                lc_messages.append(SystemMessage(content=msg["content"]))
-
-        # Initialize state
-        initial_state = {
-            "messages": lc_messages,
-            "sources": [],
-        }
+        lc_messages = self._convert_messages_to_langchain(messages)
+        initial_state = {"messages": lc_messages, "sources": []}
 
         # Run the graph
         result = await self.graph.ainvoke(initial_state)
