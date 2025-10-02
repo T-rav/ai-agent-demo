@@ -134,6 +134,7 @@ show_progress = false
                             "chunk_overlap": 150,
                             "min_chunk_size": 50,
                             "max_chunk_size": 1200,
+                            "corpus_path": "test / corpus",
                             "level": "DEBUG",
                             "show_progress": False,
                         }
