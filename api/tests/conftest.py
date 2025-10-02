@@ -3,7 +3,15 @@ Pytest configuration and fixtures for the API tests.
 Following ingest pattern: builders/factories are used directly in tests, not as fixtures.
 """
 
+import sys
+from pathlib import Path
+
 import pytest
+
+# Add the api directory to sys.path so 'tests' module can be imported
+api_dir = Path(__file__).parent.parent
+if str(api_dir) not in sys.path:
+    sys.path.insert(0, str(api_dir))
 
 
 @pytest.fixture

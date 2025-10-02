@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from ..factories import VectorStoreFactory
+from tests.factories import VectorStoreFactory
 
 
 class TestKnowledgeBaseSearchTool:

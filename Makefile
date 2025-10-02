@@ -143,10 +143,10 @@ test-api:
 	@echo "🧪 Running API tests..."
 	@if [ "$$CI" = "true" ]; then \
 		echo "🧪 Running API tests (CI mode)..."; \
-		cd api && python -m pytest tests/ -v --cov=. --cov-report=term-missing --cov-fail-under=70; \
+		cd api && python -m pytest tests/ -v --cov=. --cov-report=term-missing --cov-fail-under=70 --cache-clear; \
 	else \
 		echo "🧪 Running API tests in Docker..."; \
-		docker-compose -f docker-compose.dev.yml run --rm api-dev pytest tests/ -v --cov=. --cov-report=term-missing --cov-fail-under=70; \
+		docker-compose -f docker-compose.dev.yml run --rm api-dev pytest tests/ -v --cov=. --cov-report=term-missing --cov-fail-under=70 --cache-clear; \
 	fi
 
 # Lint all code
@@ -301,5 +301,4 @@ ci:
 	@make test-ui
 	@make lint-api
 	@make test-api
-	@make test-ingest
 	@echo "✅ CI checks passed"

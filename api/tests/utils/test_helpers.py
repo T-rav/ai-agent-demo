@@ -6,6 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
+from ..factories import VectorStoreFactory
+
 
 class TestKnowledgeBaseSearchTool:
     """Tests for knowledge base search tool functionality."""
@@ -13,39 +15,28 @@ class TestKnowledgeBaseSearchTool:
     @pytest.mark.asyncio
     async def test_search_knowledge_base_returns_formatted_results(self):
         """Test that search_knowledge_base returns formatted results."""
-        from tests.builders import a_document
-        from tests.factories.vector_store_search_factory import VectorStoreSearchFactory
         from tools import search_knowledge_base
 
-        # Use builder with fluent syntax
-        doc_with_score = (
-            a_document()
-            .with_content("RAG systems combine retrieval with generation.")
-            .with_source("rag-intro.md")
-            .with_title("RAG Introduction")
-            .build_with_score()
-        )
+        # Use factory directly - no fixture needed
+        mock_vector_store = VectorStoreFactory.create_mock_vector_store()
 
-        # Use factory to create mock
-        mock_vs = VectorStoreSearchFactory.create_mock_with_results([doc_with_score])
-
-        with patch("tools.vector_store_service", mock_vs):
+        with patch("tools.vector_store_service", mock_vector_store):
             result = await search_knowledge_base.ainvoke({"query": "What is RAG?"})
 
+            assert "RAG systems combine retrieval" in result
             assert "[KB-1]" in result
-            assert "RAG Introduction" in result
-            assert "rag-intro.md" in result
+            assert "KNOWLEDGE BASE SOURCES" in result
+            mock_vector_store.similarity_search_with_score.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_search_knowledge_base_empty_results(self):
         """Test search_knowledge_base with no results."""
-        from tests.factories.vector_store_search_factory import VectorStoreSearchFactory
         from tools import search_knowledge_base
 
-        # Use factory to create empty results mock
-        mock_vs = VectorStoreSearchFactory.create_mock_with_empty_results()
+        # Use factory directly - no fixture needed
+        empty_vector_store = VectorStoreFactory.create_empty_vector_store()
 
-        with patch("tools.vector_store_service", mock_vs):
+        with patch("tools.vector_store_service", empty_vector_store):
             result = await search_knowledge_base.ainvoke({"query": "Unknown topic"})
 
             assert "No relevant information found" in result
@@ -75,3 +66,11 @@ class TestConfigurationHelpers:
         _ = settings.embedding_model
         _ = settings.embedding_dimensions
         _ = settings.retrieval_k
+
+    def test_settings_score_threshold(self):
+        """Test that settings has score threshold."""
+        from config import settings
+
+        assert hasattr(settings, "score_threshold")
+        assert settings.score_threshold >= 0
+        assert settings.score_threshold <= 1
