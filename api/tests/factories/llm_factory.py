@@ -11,16 +11,22 @@ class LLMFactory:
     """Factory methods for creating LLM test doubles."""
 
     @staticmethod
-    def create_mock_llm():
-        """Create a mock LLM."""
+    def create_mock_llm(response_content="This is a test response from the LLM."):
+        """
+        Create a mock LLM with configurable response.
+
+        Args:
+            response_content: The content the LLM should return
+
+        Returns:
+            Mock LLM configured with the specified response
+        """
         from unittest.mock import MagicMock
 
         mock = MagicMock()
 
-        # Mock ainvoke
-        mock.ainvoke = AsyncMock(
-            return_value=AIMessage(content="This is a test response from the LLM.")
-        )
+        # Mock ainvoke with configurable response
+        mock.ainvoke = AsyncMock(return_value=AIMessage(content=response_content))
 
         # Mock astream
         async def mock_astream(*args, **kwargs):
@@ -36,10 +42,18 @@ class LLMFactory:
         return mock
 
     @staticmethod
-    def create_mock_router_llm():
-        """Create a mock router LLM for classification."""
+    def create_mock_router_llm(decision="SIMPLE"):
+        """
+        Create a mock router LLM for classification.
+
+        Args:
+            decision: The routing decision to return (SIMPLE or RESEARCH)
+
+        Returns:
+            Mock router LLM configured with the specified decision
+        """
         mock = AsyncMock()
 
-        mock.ainvoke = AsyncMock(return_value=AIMessage(content="SIMPLE"))
+        mock.ainvoke = AsyncMock(return_value=AIMessage(content=decision))
 
         return mock

@@ -3,7 +3,7 @@ Tests for agent service functionality.
 Unit tests for agent components.
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from langchain_core.messages import AIMessage, HumanMessage
@@ -68,15 +68,12 @@ class TestAgentRouting:
     async def test_route_request_simple(self):
         """Test routing to simple path."""
         from agent import RAGAgent
+        from tests.factories import LLMFactory
 
         with patch("agent.ChatOpenAI") as mock_chat:
             with patch("agent.get_available_tools", return_value=[]):
-                mock_llm = MagicMock()
-                mock_llm.bind_tools.return_value = mock_llm
-                mock_router = MagicMock()
-
-                # Mock router response for simple
-                mock_router.ainvoke = AsyncMock(return_value=AIMessage(content="SIMPLE"))
+                mock_llm = LLMFactory.create_mock_llm()
+                mock_router = LLMFactory.create_mock_router_llm(decision="SIMPLE")
 
                 mock_chat.side_effect = [mock_llm, mock_router]
 
@@ -96,15 +93,12 @@ class TestAgentRouting:
     async def test_route_request_research(self):
         """Test routing to research path."""
         from agent import RAGAgent
+        from tests.factories import LLMFactory
 
         with patch("agent.ChatOpenAI") as mock_chat:
             with patch("agent.get_available_tools", return_value=[]):
-                mock_llm = MagicMock()
-                mock_llm.bind_tools.return_value = mock_llm
-                mock_router = MagicMock()
-
-                # Mock router response for research
-                mock_router.ainvoke = AsyncMock(return_value=AIMessage(content="RESEARCH"))
+                mock_llm = LLMFactory.create_mock_llm()
+                mock_router = LLMFactory.create_mock_router_llm(decision="RESEARCH")
 
                 mock_chat.side_effect = [mock_llm, mock_router]
 
@@ -124,11 +118,11 @@ class TestAgentRouting:
     async def test_route_request_no_user_message(self):
         """Test routing with no user message."""
         from agent import RAGAgent
+        from tests.factories import LLMFactory
 
         with patch("agent.ChatOpenAI") as mock_chat:
             with patch("agent.get_available_tools", return_value=[]):
-                mock_llm = MagicMock()
-                mock_llm.bind_tools.return_value = mock_llm
+                mock_llm = LLMFactory.create_mock_llm()
                 mock_chat.return_value = mock_llm
 
                 agent = RAGAgent()
