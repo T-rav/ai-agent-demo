@@ -248,6 +248,160 @@ cp ingest/env.example ingest/.env
 - **Docker Development**: All services run in Docker by default for consistency
 - **Coverage Threshold**: 70% minimum enforced in CI (UI branches at 60% due to React edge cases)
 
+## Engineering Principles
+
+### Testing Philosophy
+
+**Organize by Concept, Not Structure**
+
+Tests should mirror what you're verifying, not the file system. Group related behaviors together:
+- Group tests by feature area or user journey, not by implementation file
+- Use class-based test organization to cluster related scenarios
+- Name tests to describe behavior: `test_rejects_invalid_email` not `test_validation_method_1`
+
+**The Builder-Factory Pattern**
+
+Separate test data creation from test logic:
+- **Builders**: Create domain objects with fluent interfaces (`a_user().with_email("...").build()`)
+- **Factories**: Create test doubles (mocks, stubs) with pre-configured behavior
+- Pass configuration to factories at creation time, never mutate after construction
+- This pattern eliminates brittle test setup and makes tests self-documenting
+
+**Avoid Fixture Overuse**
+
+Fixtures create hidden dependencies and coupling:
+- Only use fixtures for truly shared, complex setup (like database connections)
+- Prefer direct builder/factory calls in tests for clarity
+- If you find yourself wrapping a factory in a fixture, remove the fixture
+
+**Coverage as a Conversation Starter**
+
+Coverage metrics tell you what code is executed, not what behaviors are verified:
+- 70% minimum is a floor, not a ceiling
+- Missing coverage often reveals untested edge cases or dead code
+- 100% coverage doesn't mean bug-free; it means your tests ran all lines at least once
+- Focus on testing critical paths thoroughly over hitting arbitrary numbers
+
+### Observability and Tracing
+
+**Visibility Before Debugging**
+
+Every system behavior should be observable without code changes:
+- Instrument decision points: what path did the system take and why?
+- Capture inputs and outputs at boundaries (API calls, tool executions, agent decisions)
+- Track latency at each stage to identify bottlenecks
+- Log errors with enough context to understand what the system was attempting
+
+**Structured Over Unstructured**
+
+Logs should be queryable, not just readable:
+- Use structured formats that machines can parse and aggregate
+- Include correlation IDs to trace requests across services
+- Tag events with dimensions (user_id, session_id, decision_type) for filtering
+- Avoid logging sensitive data; use redaction if necessary
+
+**Trace Complete User Journeys**
+
+A single user action often triggers multiple system operations:
+- Connect related events with trace IDs so you can follow the full story
+- Capture timing data to understand where time is spent
+- Show state transitions to understand how data changes through the pipeline
+- Make traces accessible to engineers without database access
+
+**Health Checks and Readiness**
+
+Systems should self-report their health:
+- Distinguish between "alive" (process is running) and "ready" (can handle traffic)
+- Check dependencies in health endpoints (can we reach the database? the API?)
+- Make health checks lightweight; they'll be called frequently
+- Use health data to automatically route traffic away from degraded instances
+
+### Security
+
+**Defense in Depth**
+
+Never rely on a single security control:
+- Validate input at every boundary (UI, API, database)
+- Assume every external input is malicious until proven otherwise
+- Use allowlists (known good) over denylists (known bad) when possible
+- Apply the principle of least privilege: grant minimum necessary permissions
+
+**Secrets Management**
+
+Credentials should never live in code:
+- Use environment variables or secret management services
+- Rotate secrets regularly; treat rotation as a normal operation
+- Never log secrets, even in debug mode
+- Use different credentials for different environments
+
+**Authentication vs Authorization**
+
+Know who they are (authentication) and what they can do (authorization):
+- Verify identity before granting access (don't trust client-supplied identity)
+- Check permissions at the resource level, not just the endpoint level
+- Default to deny; require explicit grants
+- Audit authorization failures to detect attack attempts
+
+**Network Security**
+
+Control what can communicate with what:
+- Restrict cross-origin requests to known clients
+- Use encryption in transit (TLS) for all external communication
+- Validate all external inputs before processing
+- Rate limit to prevent abuse and resource exhaustion
+
+**Update Dependencies Regularly**
+
+Today's secure library is tomorrow's vulnerability:
+- Monitor for security advisories in your dependencies
+- Update promptly when vulnerabilities are disclosed
+- Pin versions to avoid surprise breaking changes
+- Balance stability with security; sometimes you must take the update
+
+### Code Organization
+
+**Single Concept Per File**
+
+Each file should answer one question:
+- **Models**: What data structures exist? (`user.py`, `chat_message.py`)
+- **Services**: What business operations can we perform? (`vector_store.py`, `document_processor_service.py`)
+- **Configuration**: How is the system configured? (`config.py`)
+- **Tools**: What capabilities do we expose? (`tools.py`)
+
+This makes files findable: need the User model? Look in `user.py`, not `models/business/entities/user.py`.
+
+**Avoid Deep Nesting**
+
+Depth creates navigation burden:
+- Prefer flat structures: `services/email_service.py` over `services/communication/email/email_service.py`
+- If you need categories, use one level: `models/user.py`, `models/message.py`
+- Deep nesting often signals missing abstractions or overly complex organization
+- Exception: group tests by concept (`tests/services/`, `tests/models/`) to separate test code from production code
+
+**Co-locate Related Concerns**
+
+Files that change together should live together:
+- Put all chat-related models in `models/` (message, request, response)
+- Put all agent-related logic in one place (`agent.py`)
+- Don't scatter a feature across distant directories
+- If you're frequently jumping between files, consider merging them
+
+**Explicit Over Implicit**
+
+Code should reveal intent:
+- Use descriptive names: `retry_with_exponential_backoff()` not `retry()`
+- Make dependencies explicit through imports and type hints
+- Avoid magic: globals, implicit side effects, hidden state
+- Configuration should be declarative and centralized, not scattered
+
+**Small, Focused Modules**
+
+A file should fit in your head:
+- If a file is hard to navigate, split it by responsibility
+- Each module should have a clear purpose expressible in one sentence
+- Large files often mean multiple concepts bundled together
+- Size isn't the only metric; a 500-line file with one concept is fine
+
 ## Documentation
 
 - **Architecture**: `docs/ARCHITECTURE.md` - Detailed workflow diagrams and agent descriptions
